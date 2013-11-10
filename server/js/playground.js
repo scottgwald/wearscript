@@ -56,6 +56,30 @@ function enc(data) {
     return data_out;
 }
 
+function toggleStuff() {
+    $('#scriptRow').toggle();
+    $('#qr').toggle();
+    $('.alert-info').toggle();
+    $('#switches').toggle();
+    $('#nets').toggle();
+}
+
+function hideStuff() {
+    $('#scriptRow').hide();
+    $('#qr').hide();
+    $('.alert-info').hide();
+    $('#switches').hide();
+    $('#nets').hide();
+}
+
+function showStuff() {
+    $('#scriptRow').show();
+    $('#qr').show();
+    $('.alert-info').show();
+    $('#switches').show();
+    $('#nets').show()
+}
+
 function connectWebsocket(WSUrl) {
     var url = WSUrl + "/ws/web";
     console.log(url);
