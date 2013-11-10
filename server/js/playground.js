@@ -62,6 +62,7 @@ function toggleStuff() {
     $('.alert-info').toggle();
     $('#switches').toggle();
     $('#nets').toggle();
+    $('#data-container').toggle();
 }
 
 function hideStuff() {
@@ -70,6 +71,7 @@ function hideStuff() {
     $('.alert-info').hide();
     $('#switches').hide();
     $('#nets').hide();
+    $('#data-container').hide();
 }
 
 function showStuff() {
@@ -77,7 +79,12 @@ function showStuff() {
     $('#qr').show();
     $('.alert-info').show();
     $('#switches').show();
-    $('#nets').show()
+    $('#nets').show();
+    $('#data-container').show();
+}
+
+function toggleCanvas() {
+    $('#WSCanvas').toggle();
 }
 
 function connectWebsocket(WSUrl) {
@@ -126,7 +133,10 @@ function connectWebsocket(WSUrl) {
 
                 if (action == "image") {
                     $glass.find('.image').attr('src', 'data:image/jpeg;base64,' + btoa(response[3]));
+                    canvasImage.src = 'data:image/jpeg;base64,' + btoa(response[3]);
+                    context.drawImage(canvasImage, 0, 0);
                 }
+
                 if (action == "sensors") {
                     response_sensor = response;
                     _.each(response[3], function (sensorSamples, sensorName) {
@@ -332,12 +342,17 @@ function unsetFlags(flags, success) {
     $.ajax({url: 'flags', type: 'DELETE', data: JSON.stringify(flags), success: success});
 }
 
-
 function main(WSUrl) {
     glassIdToNum = {};
     graphs = {};
     seriesDatas = {};
     scriptRowDisabled = true;
+
+    // canvas image stuff
+    canvasImage = new Image();
+    canvas = document.getElementById('WSCanvas');
+    context = canvas.getContext('2d');
+
     $(".scriptel").prop('disabled', true);
     $('#qrButton').click(function () {createQR(WSUrl)});
     $('#scriptButton').click(function () {
