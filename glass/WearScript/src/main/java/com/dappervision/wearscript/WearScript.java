@@ -169,4 +169,19 @@ public class WearScript {
             return true;
         }
     }
+
+    public void wake() {
+        Log.i(TAG, "wake");
+        bs.wake();
+    }
+
+    public void blobCallback(String name, String cb) {
+        Log.i(TAG, "blobCallback");
+        bs.registerBlobCallback(name, cb);
+    }
+
+    public void blobSend(String name, String blob) {
+        Log.i(TAG, "blobSend");
+        bs.blobSend(name, blob);
+    }
 }

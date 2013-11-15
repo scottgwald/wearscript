@@ -118,6 +118,9 @@ function connectWebsocket(WSUrl) {
             } else if (action == 'signScript') {
                 var data = JSON.stringify({"public": false, "files": {"wearscript.html": {"content": response[1]}}});
                 $.post('https://api.github.com/gists', data, function (result) {console.log(result);$('#script-url').val(result.files['wearscript.html'].raw_url)});
+            } else if (action == 'blob') {
+                if (_.has(blobHandlers, response[1]))
+                    blobHandlers[response[1]](response[2]);
             } else if (action == "sensors" || action == "image" || action == "pongStatus") {
                 var glassID = response[1];
                 if (!_.has(glassIdToNum, glassID)) {
@@ -352,6 +355,7 @@ function main(WSUrl) {
     canvasImage = new Image();
     canvas = document.getElementById('WSCanvas');
     context = canvas.getContext('2d');
+    blobHandlers = {};
 
     $(".scriptel").prop('disabled', true);
     $('#qrButton').click(function () {createQR(WSUrl)});

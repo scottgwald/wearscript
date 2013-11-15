@@ -71,6 +71,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
     protected WifiManager wifiManager;
     public TreeMap<String, ArrayList<Value>> sensorBuffer;
     public TreeMap<String, Integer> sensorTypes;
+    public TreeMap<String, String> blobCallbacks;
     public String wifiScanCallback;
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -264,6 +265,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             sensorBuffer = new TreeMap<String, ArrayList<Value>>();
             sensorTypes = new TreeMap<String, Integer>();
             wifiScanCallback = null;
+            blobCallbacks = new TreeMap<String, String>();
             dataWifi = dataRemote = dataLocal = dataImage = false;
             lastSensorSaveTime = lastImageSaveTime = sensorDelay = imagePeriod = 0.;
             dataManager.unregister();
@@ -274,6 +276,13 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
 
     public void startDefaultScript() {
         runScript("<script>function s() {WS.say('Connected')};window.onload=function () {WS.serverConnect('{{WSUrl}}', 's')}</script>");
+    }
+
+    public void wake() {
+        final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        final PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "BackgroundService");
+        wakeLock.acquire();
+        wakeLock.release();
     }
 
     public void serverConnect(String url, final String callback) {
@@ -312,7 +321,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
 
     public void onSocketMessage(byte[] message) {
         try {
-            Log.i(TAG, "0: " + Base64.encodeToString(message, Base64.NO_WRAP));
             List<Value> input = msgpack.read(message, tList(TValue));
             String action = input.get(0).asRawValue().getString();
             Log.i(TAG, String.format("Got %s", action));
@@ -388,6 +396,14 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
                     String jsCallback = cameraManager.buildCallbackString(1, input.get(3).asRawValue().getByteArray());
                     if (jsCallback != null)
                         webview.loadUrl(jsCallback);
+                }
+            } else if (action.equals("blob")) {
+                String name = input.get(1).asRawValue().getString();
+                byte[] blob = input.get(2).asRawValue().getByteArray();
+                String blobCallback = blobCallbacks.get(name);
+                if (blobCallback != null && webview != null) {
+                    String data = String.format("javascript:%s(\"%s\");", blobCallback, Base64.encodeToString(blob, Base64.NO_WRAP));
+                    webview.loadUrl(data);
                 }
             } else if (action.equals("version")) {
                 int versionExpected = 0;
@@ -604,6 +620,26 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
                 }
             }
         }
+    }
+
+    public void blobSend(String type, String blob) {
+        synchronized (lock) {
+            if (client != null && client.isConnected()) {
+                List<Value> output = new ArrayList<Value>();
+                output.add(ValueFactory.createRawValue("blob"));
+                output.add(ValueFactory.createRawValue(type));
+                output.add(ValueFactory.createRawValue(blob));
+                try {
+                    client.send(msgpack.write(output));
+                } catch (IOException e) {
+                    Log.e(TAG, "blobSend: Couldn't serialize msgpack");
+                }
+            }
+        }
+    }
+
+    public void registerBlobCallback(String type, String jsFunction) {
+        blobCallbacks.put(type, jsFunction);
     }
 
     public void log(String m) {
