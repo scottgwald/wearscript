@@ -119,30 +119,38 @@ public class CameraManager implements Camera.PreviewCallback {
             }
             try {
                 Camera.Parameters params = camera.getParameters();
-                Log.d(TAG, "getSupportedPresiewSizes()");
+                Log.d(TAG + ".Size", "getSupportedPresiewSizes()");
                 List<Camera.Size> sizes = params.getSupportedPreviewSizes();
+                StringBuilder sb = new StringBuilder();
+                for (Camera.Size cs : sizes) {
+                    sb.append("Supported sizes: ");
+                    sb.append("(" + cs.width + "," + cs.height + ")");
+                }
+                Log.d(TAG + ".Size", sb.toString());
 
                 if (sizes != null) {
                     // Select the size that fits surface considering maximum size allowed
                     //Size frameSize = calculateCameraFrameSize(sizes, new JavaCameraSizeAccessor(), width, height);
-                    //Size frameSize = new Size(1920,1080);
-                    Size frameSize = new Size(640, 360);
+                    Size frameSize = new Size(1920,1080);
+                    //Size frameSize = new Size(640, 360);
                     params.setPreviewFormat(ImageFormat.NV21);
-                    Log.d(TAG, "Set preview size to " + Integer.valueOf((int) frameSize.width) + "x" + Integer.valueOf((int) frameSize.height));
+                    Log.d(TAG + ".Size", "Set prrreview size to " + Integer.valueOf((int) frameSize.width) + "x" + Integer.valueOf((int) frameSize.height));
                     params.setPreviewSize((int) frameSize.width, (int) frameSize.height);
                     List<String> FocusModes = params.getSupportedFocusModes();
                     if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
                         params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                     }
                     // NOTE(conner): Sets correct values for camera in XE10
-                    params = camera.getParameters();
+                    //params = camera.getParameters();
                     params.setPreviewFpsRange(30000, 30000);
                     camera.setParameters(params);
                     int frameWidth = params.getPreviewSize().width;
                     int frameHeight = params.getPreviewSize().height;
                     cameraFrame = new CameraFrame(frameWidth, frameHeight);
                     int size = frameWidth * frameHeight;
+                    Log.d(TAG + ".Size", "Size is " + size + ". bpp is " + ImageFormat.getBitsPerPixel(params.getPreviewFormat()));
                     size = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
+                    Log.d(TAG + ".Size", "Set buffer size to " + size);
                     buffer = new byte[size];
 
                     camera.addCallbackBuffer(buffer);
