@@ -30,6 +30,7 @@ In the JavaScript environment there is a WS object that has the following method
 * WS.serverConnect(String server, String callback): Connects to the WearScript server, if given '{{WSUrl}}' as the server it will substitute the user configured server.  Some commands require a server connection.
 * WS.serverTimeline(timelineItemJSON): If connected to a server, has that server insert the timeline item (exact mirror timeline item syntax serialized to JSON)
 * WS.dataLog(boolean local, boolean server, double sensorPeriod): Log data local and/or remote, buffering sensor packets according to sensorPeriod.
+* WS.wake(): Wake the screen if it is off, shows whatever was there before (good in combination with WS.activityCreate() to bring it forward).
 
 Sensor Types
 ------------
