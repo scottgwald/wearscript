@@ -55,6 +55,7 @@ public class WearScript {
     TreeMap<String, Integer> sensors;
     String sensorsJS;
     List<String> touchGesturesList;
+    private final String videoDir = "/sdcard/DCIM/Camera";
 
     WearScript(BackgroundService bs) {
         this.bs = bs;
@@ -389,17 +390,19 @@ public class WearScript {
     public void recordWSVideo(int duration) {
         Intent result = new Intent();
         result.setAction("com.wearscript.video.RECORD");
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "WearscriptVideo");
-        String outputPath = mediaStorageDir.getPath() + File.separator +
-                "VID_" + timeStamp + ".mp4";
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS").format(new Date());
+        String outputPath = videoDir + File.separator + timeStamp + ".mp4";
         Log.v(TAG, "Trying to record video at " + outputPath);
         result.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         result.putExtra("path", outputPath);
         result.putExtra("duration", duration);
         bs.wake();
         bs.sendBroadcast(result);
+    }
+
+    @JavascriptInterface
+    public void forceStop() {
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     private void requiresGDK() {
