@@ -1,5 +1,7 @@
 package com.dappervision.wearscript;
 
+import android.content.Intent;
+import android.os.Environment;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 
@@ -35,12 +37,17 @@ import com.dappervision.wearscript.managers.WifiManager;
 
 import org.json.simple.JSONObject;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.Buffer;
 import java.util.Arrays;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TreeMap;
+
+import android.util.Log;
 
 public class WearScript {
     BackgroundService bs;
@@ -376,6 +383,23 @@ public class WearScript {
     public void cardTree(String treeJS) {
         requiresGDK();
         Utils.eventBusPost(new CardTreeEvent(treeJS));
+    }
+
+    @JavascriptInterface
+    public void recordWSVideo(int duration) {
+        Intent result = new Intent();
+        result.setAction("com.wearscript.video.RECORD");
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "WearscriptVideo");
+        String outputPath = mediaStorageDir.getPath() + File.separator +
+                "VID_" + timeStamp + ".mp4";
+        Log.v(TAG, "Trying to record video at " + outputPath);
+        result.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        result.putExtra("path", outputPath);
+        result.putExtra("duration", duration);
+        bs.wake();
+        bs.sendBroadcast(result);
     }
 
     private void requiresGDK() {
