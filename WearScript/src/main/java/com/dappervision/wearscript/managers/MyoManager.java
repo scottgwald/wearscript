@@ -86,19 +86,11 @@ public class MyoManager extends Manager {
             @Override
             public void onOrientationData(Myo myo, long timestamp, Quaternion rotation) {
                 Utils.eventBusPost(new MyoOrientationDataEvent(timestamp, rotation));
-                /*
-                // Calculate Euler angles (roll, pitch, and yaw) from the quaternion.
-                float rotationZ = (float) Math.toDegrees(Quaternion.roll(rotation));
-                float rotationX = (float) Math.toDegrees(Quaternion.pitch(rotation));
-                float rotationY = (float) Math.toDegrees(Quaternion.yaw(rotation));
-                Log.d(TAG, String.format("Orientation: %d %f %f %f ", timestamp, rotationX, rotationY, rotationZ));
-                */
             }
 
             @Override
             public void onGyroData(Myo myo, long timestamp, Vector3 rotationRate) {
                 Utils.eventBusPost(new MyoGyroDataEvent(timestamp, rotationRate));
-                //Log.d(TAG, String.format("Gyro: %d %f %f %f", timestamp, rotationRate.x, rotationRate.y, rotationRate.z));
             }
 
             @Override
