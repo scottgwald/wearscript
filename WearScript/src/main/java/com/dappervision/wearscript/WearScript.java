@@ -411,6 +411,8 @@ public class WearScript {
         bs.sendBroadcast(result);
     }
 
+    public String getGlassID() { return bs.getGlassID(); }
+
     @JavascriptInterface
     public void forceStop() {
         android.os.Process.killProcess(android.os.Process.myPid());
