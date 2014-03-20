@@ -401,6 +401,17 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void playbackWSVideo(String path) {
+        Log.v(TAG, "Trying to playback video from " + path);
+        Intent result = new Intent();
+        result.setAction("com.wearscript.video.PLAYBACK");
+        result.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        result.putExtra("path", path);
+        bs.wake();
+        bs.sendBroadcast(result);
+    }
+
+    @JavascriptInterface
     public void forceStop() {
         android.os.Process.killProcess(android.os.Process.myPid());
     }
