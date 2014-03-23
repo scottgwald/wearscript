@@ -16,8 +16,8 @@ import com.dappervision.wearscript.events.MyoGyroDataEvent;
 import com.dappervision.wearscript.events.MyoOrientationDataEvent;
 import com.dappervision.wearscript.managers.DataManager;
 import com.kelsonprime.cardtree.Tree;
-import com.thalmic.android.myo.math.Quaternion;
-import com.thalmic.android.myo.math.Vector3;
+import com.thalmic.myo.Quaternion;
+import com.thalmic.myo.Vector3;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
@@ -43,9 +43,9 @@ public class MyoDataProvider extends DataProvider {
                 return;
             DataPoint dataPoint = new DataPoint(this, System.currentTimeMillis() / 1000., e.getTimestamp());
             Vector3 accel = e.getAccel();
-            dataPoint.addValue(Double.valueOf(accel.x));
-            dataPoint.addValue(Double.valueOf(accel.y));
-            dataPoint.addValue(Double.valueOf(accel.z));
+            dataPoint.addValue(Double.valueOf(accel.x()));
+            dataPoint.addValue(Double.valueOf(accel.y()));
+            dataPoint.addValue(Double.valueOf(accel.z()));
             parent.queue(dataPoint);
         }
     }
@@ -78,9 +78,9 @@ public class MyoDataProvider extends DataProvider {
                 return;
             DataPoint dataPoint = new DataPoint(this, System.currentTimeMillis() / 1000., e.getTimestamp());
             Vector3 rotationRate = e.getRotationRate();
-            dataPoint.addValue(Double.valueOf(rotationRate.x));
-            dataPoint.addValue(Double.valueOf(rotationRate.y));
-            dataPoint.addValue(Double.valueOf(rotationRate.z));
+            dataPoint.addValue(Double.valueOf(rotationRate.x()));
+            dataPoint.addValue(Double.valueOf(rotationRate.y()));
+            dataPoint.addValue(Double.valueOf(rotationRate.z()));
             parent.queue(dataPoint);
         }
     }

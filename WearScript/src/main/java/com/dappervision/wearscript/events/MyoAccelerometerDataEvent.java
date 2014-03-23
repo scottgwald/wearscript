@@ -1,6 +1,6 @@
 package com.dappervision.wearscript.events;
 
-import com.thalmic.android.myo.math.Vector3;
+import com.thalmic.myo.Vector3;
 
 public class MyoAccelerometerDataEvent {
     private long timestamp;

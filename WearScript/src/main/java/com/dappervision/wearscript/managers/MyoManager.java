@@ -9,14 +9,14 @@ import com.dappervision.wearscript.events.MyoAccelerometerDataEvent;
 import com.dappervision.wearscript.events.MyoGyroDataEvent;
 import com.dappervision.wearscript.events.MyoOrientationDataEvent;
 import com.dappervision.wearscript.events.MyoTrainEvent;
-import com.thalmic.android.myo.AbstractDeviceListener;
-import com.thalmic.android.myo.DeviceListener;
-import com.thalmic.android.myo.Hub;
-import com.thalmic.android.myo.Myo;
-import com.thalmic.android.myo.Pose;
-import com.thalmic.android.myo.math.Quaternion;
-import com.thalmic.android.myo.math.Vector3;
-import com.thalmic.android.myo.trainer.TrainActivity;
+import com.thalmic.myo.AbstractDeviceListener;
+import com.thalmic.myo.DeviceListener;
+import com.thalmic.myo.Hub;
+import com.thalmic.myo.Myo;
+import com.thalmic.myo.Pose;
+import com.thalmic.myo.Quaternion;
+import com.thalmic.myo.Vector3;
+import com.thalmic.myo.trainer.TrainActivity;
 
 public class MyoManager extends Manager {
 
@@ -64,7 +64,7 @@ public class MyoManager extends Manager {
         if (myo != null) {
             Intent intent = new Intent(service.getBaseContext(), TrainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra(TrainActivity.EXTRA_ADDRESS, myo.getAddress());
+            intent.putExtra(TrainActivity.EXTRA_ADDRESS, myo.getMacAddress());
             service.getApplication().startActivity(intent);
         }
     }
@@ -75,6 +75,7 @@ public class MyoManager extends Manager {
             @Override
             public void onConnect(Myo myo, long timestamp) {
                 MyoManager.this.myo = myo;
+                Log.d(TAG, "Myo connected");
             }
 
             @Override
@@ -89,7 +90,7 @@ public class MyoManager extends Manager {
             }
 
             @Override
-            public void onGyroData(Myo myo, long timestamp, Vector3 rotationRate) {
+            public void onGyroscopeData(Myo myo, long timestamp, Vector3 rotationRate) {
                 Utils.eventBusPost(new MyoGyroDataEvent(timestamp, rotationRate));
             }
 

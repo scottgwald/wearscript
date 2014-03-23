@@ -1,7 +1,7 @@
 package com.dappervision.wearscript.events;
 
-import com.thalmic.android.myo.math.Quaternion;
-import com.thalmic.android.myo.math.Vector3;
+import com.thalmic.myo.Quaternion;
+import com.thalmic.myo.Vector3;
 
 public class MyoGyroDataEvent {
 
