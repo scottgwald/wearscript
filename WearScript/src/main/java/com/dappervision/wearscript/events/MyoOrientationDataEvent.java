@@ -1,6 +1,6 @@
 package com.dappervision.wearscript.events;
 
-import com.thalmic.android.myo.math.Quaternion;
+import com.thalmic.myo.Quaternion;
 
 public class MyoOrientationDataEvent {
     private final long timestamp;

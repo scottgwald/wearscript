@@ -496,16 +496,6 @@ public class WearScript {
         Utils.eventBusPost(new CardTreeEvent(treeJS));
     }
 
-    @JavascriptInterface
-    public void myoTrain() {
-        Utils.eventBusPost(new MyoTrainEvent());
-    }
-
-    @JavascriptInterface
-    public void myoStart() {
-        Utils.eventBusPost(new MyoStartEvent());
-    }
-
     public void bluetoothList(String callback) {
         Utils.eventBusPost(new CallbackRegistration(BluetoothManager.class, callback).setEvent(BluetoothManager.LIST));
     }
