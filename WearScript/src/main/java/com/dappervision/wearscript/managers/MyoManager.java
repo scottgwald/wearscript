@@ -46,7 +46,7 @@ public class MyoManager extends Manager {
         // Next, register for DeviceListener callbacks.
         hub.addListener(mListener);
         // Finally, scan for Myo devices and connect to the first one found.
-        hub.pairWithAdjacent();
+        hub.pairWithAdjacentMyo();
     }
 
     public void onEvent(MyoTrainEvent e) {
