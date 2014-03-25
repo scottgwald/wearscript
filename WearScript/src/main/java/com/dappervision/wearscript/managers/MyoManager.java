@@ -82,6 +82,7 @@ public class MyoManager extends Manager {
         if (myo != null) {
             Intent intent = new Intent(service.getBaseContext(), TrainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Log.d(TAG, "Address:" + myo.getMacAddress());
             intent.putExtra(TrainActivity.EXTRA_ADDRESS, myo.getMacAddress());
             service.getApplication().startActivity(intent);
         }
