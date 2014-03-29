@@ -17,7 +17,6 @@ import com.dappervision.wearscript.events.JsCall;
 import com.dappervision.wearscript.events.LiveCardEvent;
 import com.dappervision.wearscript.events.MediaEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
-import com.dappervision.wearscript.events.MyoStartEvent;
 import com.dappervision.wearscript.events.MyoTrainEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
@@ -513,8 +512,8 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void myoStart() {
-        Utils.eventBusPost(new MyoStartEvent());
+    public void myoPair(String callback) {
+        Utils.eventBusPost(new CallbackRegistration(MyoManager.class, callback).setEvent(MyoManager.PAIR));
     }
 
     private void requiresGDK() {
