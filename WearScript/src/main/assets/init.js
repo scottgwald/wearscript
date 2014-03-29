@@ -1067,8 +1067,9 @@ function WearScript() {
         callback = this._funcfix(callback);
         WSRAW.picarusStream(model, this._funcwrap(function (x) {callback(atob(x))}));
     }
-    this.myoStart = function () {
-        WSRAW.myoStart();
+    this.myoPair = function (callback) {
+        callback = this._funcfix(callback);
+        WSRAW.myoPair(this._funcwrap(callback));
     }
     this.myoTrain = function () {
         WSRAW.myoTrain();

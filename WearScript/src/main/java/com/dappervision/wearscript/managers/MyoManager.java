@@ -5,10 +5,13 @@ import android.util.Log;
 
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Utils;
+import com.dappervision.wearscript.events.CallbackRegistration;
 import com.dappervision.wearscript.events.MyoAccelerometerDataEvent;
 import com.dappervision.wearscript.events.MyoGyroDataEvent;
 import com.dappervision.wearscript.events.MyoOrientationDataEvent;
+import com.dappervision.wearscript.events.MyoPairEvent;
 import com.dappervision.wearscript.events.MyoTrainEvent;
+import com.dappervision.wearscript.events.SendEvent;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.DeviceListener;
 import com.thalmic.myo.Hub;
@@ -19,14 +22,15 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.trainer.TrainActivity;
 
 public class MyoManager extends Manager {
-
+    private static final String TAG = "MyoManager";
     public static final String ONMYO = "onMyo";
+    public static final String PAIR = "PAIR";
     private DeviceListener mListener;
     private Myo myo;
 
     public MyoManager(BackgroundService bs) {
         super(bs);
-        pair();
+        // TODO(brandyn): Make myo pair happen somewhere more sensible
         reset();
     }
 
@@ -36,21 +40,34 @@ public class MyoManager extends Manager {
     }
 
     public void pair() {
-        if (mListener == null)
-            setup();
+        Log.d(TAG, "Called pair");
         // First, we initialize the Hub singleton.
         Hub hub = Hub.getInstance();
         if (!hub.init(this.service)) {
             return;
         }
+        if (mListener == null) {
+            setup();
+            hub.addListener(mListener);
+        }
         // Next, register for DeviceListener callbacks.
-        hub.addListener(mListener);
         // Finally, scan for Myo devices and connect to the first one found.
         hub.pairWithAdjacentMyo();
     }
 
-    public void onEvent(MyoTrainEvent e) {
+    public void onEventMainThread(MyoTrainEvent e) {
         train();
+    }
+
+    public void onEventMainThread(MyoPairEvent e) {
+        pair();
+    }
+
+    public void setupCallback(CallbackRegistration r) {
+        super.setupCallback(r);
+        if (r.getEvent().equals(PAIR)) {
+            Utils.eventBusPost(new MyoPairEvent());
+        }
     }
 
     public void unpair() {
@@ -61,6 +78,7 @@ public class MyoManager extends Manager {
     }
 
     public void train() {
+        Log.d(TAG, "Called train");
         if (myo != null) {
             Intent intent = new Intent(service.getBaseContext(), TrainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -76,6 +94,13 @@ public class MyoManager extends Manager {
             public void onConnect(Myo myo, long timestamp) {
                 MyoManager.this.myo = myo;
                 Log.d(TAG, "Myo connected");
+            }
+
+            @Override
+            public void onPair(Myo myo, long timestamp) {
+                super.onPair(myo, timestamp);
+                Log.d(TAG, "Myo paired");
+                makeCall(PAIR, "");
             }
 
             @Override
@@ -101,9 +126,11 @@ public class MyoManager extends Manager {
 
             @Override
             public void onPose(Myo myo, long timestamp, Pose pose) {
+                Log.d(TAG, String.format("Pose: %d %s", timestamp, pose.toString()));
                 makeCall(ONMYO + pose.toString(), "");
                 makeCall(ONMYO, "'" + pose.toString() + "'");
-                Log.d(TAG, String.format("Pose: %d %s", timestamp, pose.toString()));
+                // TODO(brandyn): Send timestamp
+                Utils.eventBusPost(new SendEvent(String.format("gesture:myo:%s:%s", pose.toString(), myo.getMacAddress().replaceAll(":", ""))));
             }
         };
     }

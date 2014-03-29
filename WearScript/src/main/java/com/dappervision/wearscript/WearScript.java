@@ -27,7 +27,6 @@ import com.dappervision.wearscript.events.PicarusModelCreateEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessStreamEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessWarpEvent;
-import com.dappervision.wearscript.events.MyoStartEvent;
 import com.dappervision.wearscript.events.MyoTrainEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
@@ -600,8 +599,8 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void myoStart() {
-        Utils.eventBusPost(new MyoStartEvent());
+    public void myoPair(String callback) {
+        Utils.eventBusPost(new CallbackRegistration(MyoManager.class, callback).setEvent(MyoManager.PAIR));
     }
 
     private void requiresGDK() {
