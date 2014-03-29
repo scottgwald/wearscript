@@ -35,6 +35,7 @@ public class ManagerManager {
         add(new AudioManager(bs));
         add(new BluetoothManager(bs));
         add(new SpeechManager(bs));
+        add(new MyoManager(bs));
         add(new ConnectionManager(bs));
         add(new WarpManager(bs));
         add(new LiveCardManager(bs));
