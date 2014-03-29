@@ -35,7 +35,7 @@
         android:required="true" />
 
     <uses-sdk
-        android:minSdkVersion="15"
+        android:minSdkVersion="18"
         android:targetSdkVersion="19" />
 
     <supports-screens

@@ -9,10 +9,14 @@ import com.dappervision.wearscript.dataproviders.BatteryDataProvider;
 import com.dappervision.wearscript.dataproviders.DataPoint;
 import com.dappervision.wearscript.dataproviders.DataProvider;
 import com.dappervision.wearscript.dataproviders.GPSDataProvider;
+import com.dappervision.wearscript.dataproviders.MyoDataProvider;
 import com.dappervision.wearscript.dataproviders.NativeDataProvider;
 import com.dappervision.wearscript.dataproviders.PebbleDataProvider;
 import com.dappervision.wearscript.dataproviders.RemoteDataProvider;
 import com.dappervision.wearscript.events.PebbleAccelerometerDataEvent;
+import com.dappervision.wearscript.events.MyoAccelerometerDataEvent;
+import com.dappervision.wearscript.events.MyoGyroDataEvent;
+import com.dappervision.wearscript.events.MyoOrientationDataEvent;
 import com.dappervision.wearscript.events.SensorJSEvent;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,6 +56,12 @@ public class DataManager extends Manager {
             dp = new BatteryDataProvider(this, samplePeriod);
         else if (type == WearScript.SENSOR.PEBBLE_ACCELEROMETER.id())
             dp = new PebbleDataProvider(this, samplePeriod, type);
+        else if (type == WearScript.SENSOR.MYO_ORIENTATION.id())
+            dp = new MyoDataProvider(this, samplePeriod, type);
+        else if (type == WearScript.SENSOR.MYO_ACCELEROMETER.id())
+            dp = new MyoDataProvider(this, samplePeriod, type);
+        else if (type == WearScript.SENSOR.MYO_GYROSCOPE.id())
+            dp = new MyoDataProvider(this, samplePeriod, type);
         else
             throw new RuntimeException("Invalid type: " + type);
         registerProvider(type, dp);
@@ -118,7 +128,28 @@ public class DataManager extends Manager {
     }
 
     public void onEvent(PebbleAccelerometerDataEvent e) {
-        PebbleDataProvider provider = (PebbleDataProvider)providers.get(WearScript.SENSOR.PEBBLE_ACCELEROMETER.id());
+        PebbleDataProvider provider = (PebbleDataProvider) providers.get(WearScript.SENSOR.PEBBLE_ACCELEROMETER.id());
+        if (provider == null)
+            return;
+        provider.onEvent(e);
+    }
+
+    public void onEvent(MyoGyroDataEvent e) {
+        MyoDataProvider provider = (MyoDataProvider)providers.get(WearScript.SENSOR.MYO_GYROSCOPE.id());
+        if (provider == null)
+            return;
+        provider.onEvent(e);
+    }
+
+    public void onEvent(MyoOrientationDataEvent e) {
+        MyoDataProvider provider = (MyoDataProvider)providers.get(WearScript.SENSOR.MYO_ORIENTATION.id());
+        if (provider == null)
+            return;
+        provider.onEvent(e);
+    }
+
+    public void onEvent(MyoAccelerometerDataEvent e) {
+        MyoDataProvider provider = (MyoDataProvider)providers.get(WearScript.SENSOR.MYO_ACCELEROMETER.id());
         if (provider == null)
             return;
         provider.onEvent(e);

@@ -17,7 +17,7 @@ android {
     buildToolsVersion "19.0.0"
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 18
         targetSdkVersion 19
     }
 }
@@ -38,4 +38,13 @@ dependencies {
     compile project(':opencv-android')
     compile files('libs/PebbleKit.jar')
     compile files('libs/android-support-v13.jar')
+    repositories {
+        maven {
+            // this must point to the repository distributed with the sdk
+            url '../myorepository'
+        }
+    }
+    compile('com.thalmic:myosdk:0.9.+@aar')
 }
+
+

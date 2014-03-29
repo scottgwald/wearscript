@@ -937,5 +937,11 @@ function WearScript() {
             adb = false;
         WSRAW.control(cmd, adb);
     }
+    this.myoStart = function () {
+        WSRAW.myoStart();
+    }
+    this.myoTrain = function () {
+        WSRAW.myoTrain();
+    }
 }
 WS = new WearScript();

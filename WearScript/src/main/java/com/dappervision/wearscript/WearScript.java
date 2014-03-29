@@ -16,8 +16,9 @@ import com.dappervision.wearscript.events.GistSyncEvent;
 import com.dappervision.wearscript.events.JsCall;
 import com.dappervision.wearscript.events.LiveCardEvent;
 import com.dappervision.wearscript.events.MediaEvent;
-import com.dappervision.wearscript.events.MediaPlayEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
+import com.dappervision.wearscript.events.MyoStartEvent;
+import com.dappervision.wearscript.events.MyoTrainEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
 import com.dappervision.wearscript.events.SendEvent;
@@ -39,6 +40,7 @@ import com.dappervision.wearscript.managers.CameraManager;
 import com.dappervision.wearscript.managers.ConnectionManager;
 import com.dappervision.wearscript.managers.EyeManager;
 import com.dappervision.wearscript.managers.GestureManager;
+import com.dappervision.wearscript.managers.MyoManager;
 import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
@@ -59,6 +61,7 @@ public class WearScript {
     String sensorsJS;
     List<String> touchGesturesList;
     List<String> pebbleGesturesList;
+    List<String> myoGesturesList;
 
     WearScript(BackgroundService bs) {
         this.bs = bs;
@@ -70,8 +73,12 @@ public class WearScript {
         this.sensorsJS = (new JSONObject(this.sensors)).toJSONString();
         String[] touchGestures = {"onGesture", "onFingerCountChanged", "onScroll", "onTwoFingerScroll"};
         touchGesturesList = Arrays.asList(touchGestures);
+
         String[] pebbleGestures = {"onPebbleSingleClick", "onPebbleLongClick", "onPebbleAccelTap"};
         pebbleGesturesList = Arrays.asList(pebbleGestures);
+
+        String[] myoGestures = {MyoManager.ONMYO};
+        myoGesturesList = Arrays.asList(myoGestures);
     }
 
     private String classToChar(Class c) {
@@ -382,12 +389,20 @@ public class WearScript {
                 route = GestureManager.class;
                 break;
             }
+
         for (String pebbleGesture : pebbleGesturesList) {
             if (event.startsWith(pebbleGesture)) {
                 route = PebbleManager.class;
                 break;
             }
         }
+
+        for (String gesture : myoGesturesList)
+            if (event.startsWith(gesture)) {
+                route = MyoManager.class;
+                break;
+            }
+
         Utils.eventBusPost(new CallbackRegistration(route, callback).setEvent(event));
     }
 
@@ -464,6 +479,7 @@ public class WearScript {
         Utils.eventBusPost(new BluetoothWriteEvent(address, data));
     }
 
+<<<<<<< HEAD
     @JavascriptInterface
     public String groupDevice() {
         ConnectionManager cm = (ConnectionManager) bs.getManager(ConnectionManager.class);
@@ -493,6 +509,16 @@ public class WearScript {
         Utils.eventBusPost(new ControlEvent(event, adb));
     }
 
+    @JavascriptInterface
+    public void myoTrain() {
+        Utils.eventBusPost(new MyoTrainEvent());
+    }
+
+    @JavascriptInterface
+    public void myoStart() {
+        Utils.eventBusPost(new MyoStartEvent());
+    }
+
     private void requiresGDK() {
         if (HardwareDetector.hasGDK)
             return;
@@ -503,6 +529,9 @@ public class WearScript {
 
     public static enum SENSOR {
         PEBBLE_ACCELEROMETER("pebbleAccelerometer", -7),
+        MYO_GYROSCOPE("myoGyroscope", -6),
+        MYO_ACCELEROMETER("myoAccelerometer", -5),
+        MYO_ORIENTATION("myoOrientation", -4),
         BATTERY("battery", -3),
         PUPIL("pupil", -2),
         GPS("gps", -1),
