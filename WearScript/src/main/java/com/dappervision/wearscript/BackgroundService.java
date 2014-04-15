@@ -42,6 +42,7 @@ import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.Manager;
 import com.dappervision.wearscript.managers.ManagerManager;
 import com.dappervision.wearscript.managers.PebbleManager;
+import com.dappervision.wearscript.managers.PicarusManager;
 import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.WifiManager;
 import com.dappervision.wearscript.ui.MediaPlayerFragment;
@@ -65,7 +66,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
     protected TextToSpeech tts;
     protected ScreenBroadcastReceiver broadcastReceiver;
     protected String glassID;
-    protected CardScrollView cardScroller;
     private ScriptActivity activity;
     private boolean dataRemote, dataLocal, dataWifi;
     private double lastSensorSaveTime, sensorDelay;
@@ -160,10 +160,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         }
     }
 
-    public void cardPosition(int position) {
-        cardScroller.setSelection(position);
-    }
-
     public void saveSensors() {
         final TreeMap<String, ArrayList<Value>> curSensorBuffer = sensorBuffer;
         if (curSensorBuffer.isEmpty())
@@ -205,6 +201,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
     }
 
     public void onEventAsync(CameraEvents.Frame frameEvent) {
+        Log.d(TAG, "CameraFrame Got: " + System.nanoTime());
         try {
             final CameraManager.CameraFrame frame = frameEvent.getCameraFrame();
             // TODO(brandyn): Move this timing logic into the camera manager
@@ -224,6 +221,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             }
             // NOTE(brandyn): Done from here because the frame must have "done" called on it
             ((WarpManager) getManager(WarpManager.class)).processFrame(frameEvent);
+            ((PicarusManager) getManager(PicarusManager.class)).processFrame(frameEvent);
         } finally {
             frameEvent.done();
         }
@@ -274,7 +272,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             sensorTypes = new TreeMap<String, Integer>();
             dataWifi = dataRemote = dataLocal = false;
             lastSensorSaveTime = sensorDelay = 0.;
-            updateCardScrollView();
 
             ManagerManager.get().resetAll();
             HandlerHandler.get().resetAll();
@@ -307,17 +304,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         final PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "BackgroundService");
         wakeLock.acquire();
         wakeLock.release();
-    }
-
-    public void updateCardScrollView() {
-        if (activity == null || cardScroller == null)
-            return;
-        final ScriptActivity a = activity;
-        a.runOnUiThread(new Thread() {
-            public void run() {
-                cardScroller.updateViews(true);
-            }
-        });
     }
 
     public void onEventMainThread(ScriptEvent e) {
@@ -514,8 +500,17 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 Log.d(TAG, "Screen off");
+                CameraManager cm = ((CameraManager) bs.getManager(CameraManager.class));
+                if (cm != null) {
+                    cm.screenOff();
+                }
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 Log.d(TAG, "Screen on");
+                CameraManager cm = ((CameraManager) bs.getManager(CameraManager.class));
+                if (cm != null) {
+                    cm.screenOn();
+                }
+
             } else if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
                 BatteryDataProvider dp = (BatteryDataProvider) ((DataManager) bs.getManager(DataManager.class)).getProvider(WearScript.SENSOR.BATTERY.id());
                 if (dp != null)

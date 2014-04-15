@@ -27,6 +27,7 @@ public class ManagerManager {
     }
 
     public void newManagers(BackgroundService bs) {
+        add(new OpenCVManager(bs));
         add(new DataManager(bs));
         add(new CameraManager(bs));
         add(new BarcodeManager(bs));
@@ -37,6 +38,7 @@ public class ManagerManager {
         add(new MyoManager(bs));
         add(new ConnectionManager(bs));
         add(new WarpManager(bs));
+        add(new PicarusManager(bs));
         if (HardwareDetector.hasGDK) {
             add(new CardTreeManager(bs));
         }

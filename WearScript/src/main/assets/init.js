@@ -677,6 +677,30 @@ function WearScript() {
     this._cbPrefix = 'WS' + this._randstr(4);
     this.callbacks = {};
     this.cbCount = 0;
+    this.picarusModelCount = 0;
+    this.PicarusModel = function (model, callback) {
+        this.id = WS.picarusModelCount;
+        WS.picarusModelCount += 1;
+        callback = WS._funcfix(callback);
+        this.loaded = false;
+        WSRAW.picarusModelCreate(model, this.id, WS._funcwrap((function () {
+            this.loaded = true;
+            callback();
+        }).bind(this)));
+
+        this.process = function (input, callback) {
+            callback = WS._funcfix(callback);
+            WSRAW.picarusModelProcess(this.id, input, WS._funcwrap(function (x) {callback(atob(x))}));
+        };
+        this.processStream = function (callback) {
+            callback = WS._funcfix(callback);
+            WSRAW.picarusModelProcessStream(this.id, WS._funcwrap(function (x) {callback(atob(x))}));
+        };
+        this.processWarpTargets = function (callback) {
+            callback = WS._funcfix(callback);
+            WSRAW.picarusModelProcessWarp(this.id, WS._funcwrap(function (x) {callback(atob(x))}));
+        };
+    };
     this.Cards = function (cards) {
          this.cards = cards || [];
          this.isFunc = function (x) {return typeof x === 'function'};
@@ -806,7 +830,10 @@ function WearScript() {
     this.warpSetOverlay = function (data) {
         WSRAW.warpSetOverlay(data);
     }
-
+    this.cvInit = function (callback) {
+        callback = this._funcfix(callback);
+        WSRAW.cvInit(this._funcwrap(callback));
+    }
     this.warpPreviewSampleGlass = function (callback) {
         if (!callback)
             callback = '';
@@ -830,6 +857,18 @@ function WearScript() {
             WSRAW.cameraOn(period, maxHeight, maxWidth, false, this._funcwrap(callback));
         } else {
             WSRAW.cameraOn(period, maxHeight, maxWidth, false);
+        }
+    }
+    this.cameraOnBackgroundUnsafe = function (period, maxHeight, maxWidth, callback) {
+        if (!maxHeight)
+            maxHeight = 0;
+        if (!maxWidth)
+            maxwidth = 0;
+        if (callback) {
+            callback = this._funcfix(callback);
+            WSRAW.cameraOn(period, maxHeight, maxWidth, true, this._funcwrap(callback));
+        } else {
+            WSRAW.cameraOn(period, maxHeight, maxWidth, true);
         }
     }
     this.cameraPhoto = function (callback) {
@@ -943,6 +982,14 @@ function WearScript() {
     }
     this.myoTrain = function () {
         WSRAW.myoTrain();
+    }
+    this.picarus = function(model, input, callback) {
+        callback = this._funcfix(callback);
+        WSRAW.picarus(model, input, this._funcwrap(function (x) {callback(atob(x))}));
+    }
+    this.picarusStream = function(model, callback) {
+        callback = this._funcfix(callback);
+        WSRAW.picarusStream(model, this._funcwrap(function (x) {callback(atob(x))}));
     }
 }
 WS = new WearScript();

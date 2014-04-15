@@ -130,7 +130,7 @@ public class MyoManager extends Manager {
                 makeCall(ONMYO + pose.toString(), "");
                 makeCall(ONMYO, "'" + pose.toString() + "'");
                 // TODO(brandyn): Send timestamp
-                Utils.eventBusPost(new SendEvent(String.format("gesture:myo:%s:%s", pose.toString(), myo.getMacAddress().replaceAll(":", ""))));
+                Utils.eventBusPost(new SendEvent(String.format("gesture:myo:%s:%s", pose.toString(), myo.getMacAddress().replaceAll(":", "")), pose.toString()));
             }
         };
     }

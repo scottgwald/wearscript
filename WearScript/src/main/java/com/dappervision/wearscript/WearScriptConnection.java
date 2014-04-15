@@ -148,7 +148,9 @@ public abstract class WearScriptConnection {
     }
 
     private Value channelsValue() {
-        return listValue(scriptChannels);
+        synchronized (this) {
+            return listValue(scriptChannels);
+        }
     }
 
     public void subscribe(String channel) {
@@ -293,15 +295,16 @@ public abstract class WearScriptConnection {
     private String existsInternal(String channel) {
         String channelPartial = "";
         String[] parts = channel.split(":");
+        String channelPartialExists = null;
         for (String part : parts) {
             if (channelPartial.isEmpty())
                 channelPartial += part;
             else
                 channelPartial += ":" + part;
             if (scriptChannels.contains(channelPartial))
-                return channelPartial;
+                channelPartialExists = channelPartial;
         }
-        return null;
+        return channelPartialExists;
     }
 
     public boolean exists(String channel) {
