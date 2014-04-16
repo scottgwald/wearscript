@@ -44,7 +44,7 @@ dependencies {
             url '../myorepository'
         }
     }
-    compile('com.thalmic:myosdk:0.1.+@aar')
+    compile('com.thalmic:myosdk:0.2.+@aar')
 }
 
 
