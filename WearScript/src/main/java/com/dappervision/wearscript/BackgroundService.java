@@ -11,6 +11,10 @@ import android.media.AudioRecord;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
+import android.print.PrintManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.Menu;
@@ -26,6 +30,7 @@ import com.dappervision.wearscript.events.DataLogEvent;
 import com.dappervision.wearscript.events.JsCall;
 import com.dappervision.wearscript.events.LambdaEvent;
 import com.dappervision.wearscript.events.MediaEvent;
+import com.dappervision.wearscript.events.PrintEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
 import com.dappervision.wearscript.events.ScriptEvent;
@@ -57,6 +62,7 @@ import org.msgpack.type.ValueFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 public class BackgroundService extends Service implements AudioRecord.OnRecordPositionUpdateListener, OnInitListener {
@@ -77,6 +83,10 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
     private ActivityEvent.Mode activityMode;
     private String initScript;
 
+    public ScriptView getScriptView() {
+        return webview;
+    }
+
     static public String getDefaultUrl() {
         byte[] wsUrlArray = Utils.LoadData("", "qr.txt");
         if (wsUrlArray == null) {
@@ -95,6 +105,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         if (activity == null)
             return;
         final ScriptActivity a = activity;
+        //if (activityMode == mode) return;
         a.runOnUiThread(new Thread() {
             public void run() {
                 activityMode = mode;

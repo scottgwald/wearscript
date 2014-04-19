@@ -1,5 +1,6 @@
 package com.dappervision.wearscript;
 
+import android.content.Intent;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 
@@ -23,6 +24,7 @@ import com.dappervision.wearscript.events.PicarusModelCreateEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessStreamEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessWarpEvent;
+import com.dappervision.wearscript.events.PrintEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
 import com.dappervision.wearscript.events.SendEvent;
@@ -46,6 +48,7 @@ import com.dappervision.wearscript.managers.EyeManager;
 import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.OpenCVManager;
 import com.dappervision.wearscript.managers.PicarusManager;
+import com.dappervision.wearscript.managers.WSPrintManager;
 import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
@@ -344,6 +347,12 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void print(String cb) {
+        Log.i(TAG, "Print");
+        Utils.eventBusPost(new CallbackRegistration(WSPrintManager.class, cb).setEvent(WSPrintManager.PRINT_JOB));
+    }
+
+    @JavascriptInterface
     public void subscribe(String name, String cb) {
         Log.i(TAG, "subscribe");
         Utils.eventBusPost(new ChannelSubscribeEvent(name, cb));
@@ -443,7 +452,6 @@ public class WearScript {
         requiresGDK();
         Utils.eventBusPost(new LiveCardEvent(false, 0));
     }
-
     @JavascriptInterface
     public void displayCardTree() {
         Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.CARD_TREE));

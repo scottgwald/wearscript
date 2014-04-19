@@ -8,6 +8,10 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
+import android.print.PrintManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,12 +20,16 @@ import android.view.WindowManager;
 
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Log;
+import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.events.ActivityResultEvent;
 import com.dappervision.wearscript.events.MediaEvent;
 import com.dappervision.wearscript.events.ScriptEvent;
 import com.dappervision.wearscript.events.StartActivityEvent;
 import com.dappervision.wearscript.managers.CameraManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScriptActivity extends Activity {
     protected static final String TAG = "ScriptActivity";
@@ -31,6 +39,7 @@ public class ScriptActivity extends Activity {
     private ServiceConnection mConnection;
     private String extra;
     private boolean mHadUrlExtra = false;
+    private List<PrintJob> mPrintJobs = new ArrayList<PrintJob>();
 
     public ScriptActivity() {
     }
@@ -194,4 +203,8 @@ public class ScriptActivity extends Activity {
         Utils.eventBusPost(event);
         return false;
     }
+
+
+
+
 }

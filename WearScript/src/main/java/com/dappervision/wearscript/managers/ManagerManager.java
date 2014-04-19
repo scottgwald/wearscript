@@ -38,6 +38,7 @@ public class ManagerManager {
         add(new ConnectionManager(bs));
         add(new WarpManager(bs));
         add(new PicarusManager(bs));
+        add(new WSPrintManager(bs));
         if (HardwareDetector.hasGDK) {
             add(new CardTreeManager(bs));
         }

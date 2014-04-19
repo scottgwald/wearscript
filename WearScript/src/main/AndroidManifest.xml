@@ -36,7 +36,7 @@
         android:required="true" />
 
     <uses-sdk
-        android:minSdkVersion="15"
+        android:minSdkVersion="19"
         android:targetSdkVersion="19" />
 
     <supports-screens
@@ -74,6 +74,10 @@
             android:icon="@drawable/ic_stop"
             android:label="@string/stop"
             android:launchMode="singleInstance"></activity>
+        <activity
+            android:name=".ui.PrintActivity"
+            android:configChanges="keyboardHidden"
+            android:label="wsPrint"></activity>
         <activity
             android:name=".launcher.MainActivity"
             android:configChanges="keyboardHidden"

@@ -14,9 +14,9 @@ public class QRActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+        //intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
         startActivityForResult(intent, 0);
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
