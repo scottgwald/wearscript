@@ -395,12 +395,15 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         loadUrl(e.getCall());
     }
 
-    public void onEvent(SayEvent e) {
+    public void onEventMainThread(SayEvent e) {
         say(e.getMsg(), e.getInterrupt());
     }
 
-    public void onEvent(ActivityEvent e) {
+    public void onEventMainThread(ActivityEvent e) {
         if (e.getMode() == ActivityEvent.Mode.CREATE) {
+            CameraManager cm = ((CameraManager) getManager(CameraManager.class));
+            if (cm != null && cm.getActivityVisible())
+                return;
             Intent i = new Intent(this, ScriptActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
@@ -419,11 +422,11 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         sensorDelay = e.getSensorDelay() * 1000000000L;
     }
 
-    public void onEvent(ScreenEvent e) {
+    public void onEventMainThread(ScreenEvent e) {
         wake();
     }
 
-    public void onEvent(ShutdownEvent e) {
+    public void onEventMainThread(ShutdownEvent e) {
         shutdown();
     }
 
@@ -460,6 +463,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
 
     public ScriptView createScriptView() {
         ScriptView mCallback = new ScriptView(this);
+        mCallback.setBackgroundColor(0);
         return mCallback;
     }
 

@@ -4,6 +4,8 @@ import android.util.Base64;
 import android.webkit.JavascriptInterface;
 
 import com.dappervision.wearscript.events.ActivityEvent;
+import com.dappervision.wearscript.events.BluetoothBondEvent;
+import com.dappervision.wearscript.events.BluetoothModeEvent;
 import com.dappervision.wearscript.events.BluetoothWriteEvent;
 import com.dappervision.wearscript.events.CallbackRegistration;
 import com.dappervision.wearscript.events.CameraEvents;
@@ -481,6 +483,16 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void bluetoothDiscover(String callback) {
+        Utils.eventBusPost(new CallbackRegistration(BluetoothManager.class, callback).setEvent(BluetoothManager.DISCOVERY_START));
+    }
+
+    @JavascriptInterface
+    public void bluetoothBond(String address, String pin) {
+        Utils.eventBusPost(new BluetoothBondEvent(address, pin));
+    }
+
+    @JavascriptInterface
     public void bluetoothRead(String device, String callback) {
         Utils.eventBusPost(new CallbackRegistration(BluetoothManager.class, callback).setEvent(BluetoothManager.READ + device));
     }
@@ -488,6 +500,16 @@ public class WearScript {
     @JavascriptInterface
     public void bluetoothWrite(String address, String data) {
         Utils.eventBusPost(new BluetoothWriteEvent(address, data));
+    }
+
+    @JavascriptInterface
+    public void bluetoothEnable() {
+        Utils.eventBusPost(new BluetoothModeEvent(true));
+    }
+
+    @JavascriptInterface
+    public void bluetoothDisable() {
+        Utils.eventBusPost(new BluetoothModeEvent(false));
     }
 
     @JavascriptInterface
