@@ -167,13 +167,13 @@ public class ScriptActivity extends Activity {
         bs.onConfigurationChanged(newConfig);
     }
 
-    public void onEvent(StartActivityEvent event) {
+    public void onEventBackgroundThread(StartActivityEvent event) {
         startActivityForResult(event.getIntent(), event.getRequestCode());
     }
 
     public void onEventMainThread(MediaEvent e){
-        Intent intent = new Intent(this, WSActivity.class);
-        intent.putExtra(WSActivity.MODE_KEY, WSActivity.MODE_MEDIA);
+        Intent intent = new Intent(this, MediaActivity.class);
+        intent.putExtra(MediaActivity.MODE_KEY, MediaActivity.MODE_MEDIA);
         intent.putExtra(MediaPlayerFragment.ARG_URL, e.getUri());
         intent.putExtra(MediaPlayerFragment.ARG_LOOP, e.isLooping());
         startActivity(intent);

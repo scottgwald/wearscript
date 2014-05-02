@@ -17,6 +17,8 @@ import com.dappervision.wearscript.events.DataLogEvent;
 import com.dappervision.wearscript.events.GistSyncEvent;
 import com.dappervision.wearscript.events.JsCall;
 import com.dappervision.wearscript.events.LiveCardEvent;
+import com.dappervision.wearscript.events.LiveCardSetMenuEvent;
+import com.dappervision.wearscript.events.MediaActionEvent;
 import com.dappervision.wearscript.events.MediaEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
 import com.dappervision.wearscript.events.MyoTrainEvent;
@@ -26,6 +28,7 @@ import com.dappervision.wearscript.events.PicarusModelCreateEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessStreamEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessWarpEvent;
+import com.dappervision.wearscript.events.MyoTrainEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
 import com.dappervision.wearscript.events.SendEvent;
@@ -35,7 +38,6 @@ import com.dappervision.wearscript.events.ServerConnectEvent;
 import com.dappervision.wearscript.events.ShutdownEvent;
 import com.dappervision.wearscript.events.SoundEvent;
 import com.dappervision.wearscript.events.SpeechRecognizeEvent;
-import com.dappervision.wearscript.events.WarpDrawEvent;
 import com.dappervision.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
@@ -50,6 +52,7 @@ import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.MyoManager;
 import com.dappervision.wearscript.managers.OpenCVManager;
 import com.dappervision.wearscript.managers.PicarusManager;
+import com.dappervision.wearscript.managers.MyoManager;
 import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
@@ -163,6 +166,21 @@ public class WearScript {
         } catch (URISyntaxException e) {
             // TODO(kurtisnelson): Handle
         }
+    }
+
+    @JavascriptInterface
+    public void mediaPlay(){
+        Utils.eventBusPost(new MediaActionEvent("play"));
+    }
+
+    @JavascriptInterface
+    public void mediaPause(){
+        Utils.eventBusPost(new MediaActionEvent("pause"));
+    }
+
+    @JavascriptInterface
+    public void mediaStop(){
+        Utils.eventBusPost(new MediaActionEvent("stop"));
     }
 
     @JavascriptInterface
@@ -450,8 +468,9 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void liveCardCreate(boolean nonSilent, double period) {
+    public void liveCardCreate(boolean nonSilent, double period, String menu) {
         requiresGDK();
+        Utils.eventBusPost(new LiveCardSetMenuEvent(menu));
         Utils.eventBusPost(new LiveCardEvent(nonSilent, period));
     }
 
@@ -582,6 +601,16 @@ public class WearScript {
     public void picarusModelProcessWarp(int id, String callback) {
         Utils.eventBusPost((new CallbackRegistration(PicarusManager.class, callback)).setEvent(PicarusManager.MODEL_WARP + id));
         Utils.eventBusPost(new PicarusModelProcessWarpEvent(id));
+    }
+
+    @JavascriptInterface
+    public void myoTrain() {
+        Utils.eventBusPost(new MyoTrainEvent());
+    }
+
+    @JavascriptInterface
+    public void myoPair(String callback) {
+        Utils.eventBusPost(new CallbackRegistration(MyoManager.class, callback).setEvent(MyoManager.PAIR));
     }
 
     private void requiresGDK() {

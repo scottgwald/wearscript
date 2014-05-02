@@ -38,6 +38,7 @@ public class ManagerManager {
         add(new MyoManager(bs));
         add(new ConnectionManager(bs));
         add(new WarpManager(bs));
+        add(new LiveCardManager(bs));
         add(new PicarusManager(bs));
         if (HardwareDetector.hasGDK) {
             add(new CardTreeManager(bs));

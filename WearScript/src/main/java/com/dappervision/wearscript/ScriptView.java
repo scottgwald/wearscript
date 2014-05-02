@@ -30,7 +30,10 @@ public class ScriptView extends WebView implements SurfaceHolder.Callback, Direc
     ScriptView(final BackgroundService context) {
         super(context);
         paused = false;
+        // NOTE(brandyn): Fix for KK error: http://stackoverflow.com/questions/20675554/webview-rendering-issue-in-android-kitkat
+        //setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         // Enable localStorage in webview
+        getSettings().setAllowUniversalAccessFromFileURLs(true);
         getSettings().setDomStorageEnabled(true);
         Utils.getEventBus().register(this);
         this.context = context;
@@ -66,8 +69,8 @@ public class ScriptView extends WebView implements SurfaceHolder.Callback, Direc
         liveCard = new LiveCard(context, "myid");
         Log.d(TAG, "Publishing LiveCard");
         liveCard.setDirectRenderingEnabled(true).getSurfaceHolder().addCallback(this);
-
         Intent intent = new Intent(context, MenuActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         liveCard.setAction(PendingIntent.getActivity(context, 0, intent, 0));
         if (nonSilent)
             liveCard.publish(LiveCard.PublishMode.REVEAL);
