@@ -560,15 +560,6 @@ public class WearScript {
         Utils.eventBusPost(new ControlEvent(event, adb));
     }
 
-    @JavascriptInterface
-    public void myoTrain() {
-        Utils.eventBusPost(new MyoTrainEvent());
-    }
-
-    @JavascriptInterface
-    public void myoPair(String callback) {
-        Utils.eventBusPost(new CallbackRegistration(MyoManager.class, callback).setEvent(MyoManager.PAIR));
-    }
     public void picarus(String model, String input, String callback) {
         Utils.eventBusPost((new CallbackRegistration(PicarusManager.class, callback)).setEvent(callback));
         Utils.eventBusPost(new PicarusEvent(Base64.decode(model.getBytes(), Base64.NO_WRAP),
