@@ -210,6 +210,8 @@ public class WearScript {
         Utils.eventBusPost(new MediaActionEvent("jump", jumpTo));
     }
 
+    public void mediaSeekTo(int msecs) { Utils.eventBusPost(new MediaActionEvent("seekTo", msecs)); }
+
     @JavascriptInterface
     public void serverConnect(String server, String callback) {
         Log.i(TAG, "serverConnect: " + server);

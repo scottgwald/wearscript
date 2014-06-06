@@ -108,6 +108,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             rewind(e.getMagnitude());
         } else if (action.equals("fastForward")) {
             fastForward(e.getMagnitude());
+        } else if (action.equals("seekTo")) {
+            mp.seekTo(e.getMagnitude());
         }
     }
 
