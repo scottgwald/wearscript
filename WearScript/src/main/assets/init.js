@@ -707,8 +707,9 @@ function WearScript() {
             callback=WS._funcfix(callback);
             WSRAW.mediaOnGesture(type, WS._funcwrap(callback));
         }.bind(this);
-        this.jump = function(jumpTo) {
-            WSRAW.mediaJump(jumpTo);
+        this.jump = function(deltaMsecs)
+        {
+            WSRAW.mediaJump(deltaMsecs);
         }.bind(this);
         this.seekTo = function(msecs) {
             WSRAW.mediaSeekTo(msecs);
