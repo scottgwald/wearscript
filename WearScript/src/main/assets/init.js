@@ -717,6 +717,18 @@ function WearScript() {
         this.seekBackwards = function(msecs) {
             WSRAW.mediaSeekBackwards(msecs);
         }.bind(this);
+
+        this.seekToEnd = function() {
+            this.seekBackwards(0);
+        }
+        this.seekToBeginning = function() {
+            this.seekTo(0);
+        }
+
+        this.onGesture = function (type,callback){
+            callback=WS._funcfix(callback);
+            WSRAW.mediaOnGesture(type,WS._funcwrap(callback));
+        }.bind(this);
     }
     this.PicarusModel = function (id) {
         this.id = id;
