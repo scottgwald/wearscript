@@ -4,6 +4,7 @@ import android.util.Base64;
 import android.webkit.JavascriptInterface;
 
 import com.dappervision.wearscript.events.ActivityEvent;
+import com.dappervision.wearscript.events.BackgroundSpeechEvent;
 import com.dappervision.wearscript.events.BluetoothBondEvent;
 import com.dappervision.wearscript.events.BluetoothModeEvent;
 import com.dappervision.wearscript.events.BluetoothWriteEvent;
@@ -50,6 +51,7 @@ import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.MediaManager;
 import com.dappervision.wearscript.managers.OpenCVManager;
 import com.dappervision.wearscript.managers.PicarusManager;
+import com.dappervision.wearscript.managers.SpeechManager;
 import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
@@ -468,8 +470,17 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void speechRecognize(String prompt, String callback) {
+    public void speechRecognize(String prompt, String callback)
+    {
         Utils.eventBusPost(new SpeechRecognizeEvent(prompt, callback));
+    }
+
+    @JavascriptInterface
+    public void backgroundSpeechRecognize(String endResult,String partialResult)
+    {
+        Utils.eventBusPost(new CallbackRegistration(SpeechManager.class,endResult).setEvent("finalResult"));
+        Utils.eventBusPost(new CallbackRegistration(SpeechManager.class,partialResult).setEvent("partialResult"));
+        Utils.eventBusPost(new BackgroundSpeechEvent(endResult));
     }
 
     @JavascriptInterface

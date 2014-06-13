@@ -995,7 +995,8 @@ function WearScript() {
     this.wifiScan = function () {
         WSRAW.wifiScan();
     }
-    this.serverConnect = function (server, callback) {
+    this.serverConnect = function (server, callback)
+    {
         callback = this._funcfix(callback);
         WSRAW.serverConnect(server, this._funcwrap(callback));
     }
@@ -1012,6 +1013,12 @@ function WearScript() {
     this.speechRecognize = function (prompt, callback) {
         callback = this._funcfix(callback);
         WSRAW.speechRecognize(prompt, this._funcwrap(function (x) {callback(atob(x))}));
+    }
+    this.backgroundSpeechRecognize = function (finalCallback,partialCallback)
+    {
+        finalCallback = this._funcfix(finalCallback);
+        partialCallback = this._funcfix(partialCallback);
+        WSRAW.backgroundSpeechRecognize(this._funcwrap(function (x) {finalCallback(atob(x))}),this._funcwrap(function (x) {partialCallback(atob(x))}));
     }
     this.liveCardCreate = function (nonSilent, period) {
         var menuParsed = [];
@@ -1077,6 +1084,7 @@ function WearScript() {
     this.pebbleVibe = function(type) {
         WSRAW.pebbleVibe(type);
     }
+
     this.control = function(cmd, adb) {
         if(!adb)
             adb = false;

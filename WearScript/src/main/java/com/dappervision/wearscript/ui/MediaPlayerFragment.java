@@ -3,6 +3,7 @@ package com.dappervision.wearscript.ui;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.SpeechRecognizer;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -202,8 +203,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         final int startDelay=100;
         seekTimes = new ArrayList<Integer>();
         final int duration = mp.getDuration();
-
-
 
         if (direction==0)
         {
