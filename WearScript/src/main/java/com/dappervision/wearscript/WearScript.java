@@ -156,7 +156,9 @@ public class WearScript {
 
     @JavascriptInterface
     public void mediaLoad(String uri, boolean looping){
-        try {
+        try
+        {
+            Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.MEDIA));
             Utils.eventBusPost(new MediaEvent(new URI(uri), looping));
         } catch (URISyntaxException e) {
             // TODO(kurtisnelson): Handle
@@ -497,7 +499,8 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void displayCardTree() {
+    public void displayCardTree()
+    {
         Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.CARD_TREE));
     }
 

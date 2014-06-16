@@ -21,6 +21,7 @@ import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
+import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 
@@ -336,10 +337,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        if (mp.isPlaying())
-            mp.stop();
-        mp.release();
-        mp = null;
+        if(mp!=null)
+        {
+            if (mp.isPlaying())
+                mp.stop();
+            mp.release();
+            mp = null;
+        }
         Utils.getEventBus().unregister(this);
     }
 
@@ -360,6 +364,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         return false;
     }
 
+    public void onEvent(MediaShutDownEvent e)
+    {
+        this.getActivity().finish();
+    }
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         if(progressBar != null){

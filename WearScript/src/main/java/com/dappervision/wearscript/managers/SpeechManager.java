@@ -86,6 +86,7 @@ public class SpeechManager extends Manager
         }
         public void onRmsChanged(float rmsdB)
         {
+
         }
         public void onBufferReceived(byte[] buffer)
         {
