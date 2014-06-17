@@ -5,14 +5,20 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.dappervision.wearscript.R;
+import com.dappervision.wearscript.Utils;
+import com.dappervision.wearscript.events.ActivityEvent;
 import com.google.android.glass.touchpad.GestureDetector;
 
 public class MediaActivity extends FragmentActivity {
     public static final String MODE_KEY = "MODE";
     public static final String MODE_MEDIA = "MODE_MEDIA";
     private GestureDetector gestureDetector;
+    private GestureFragment fragment;
 
     protected GestureFragment createFragment() {
         if (getIntent().getStringExtra(MODE_KEY).equals(MODE_MEDIA)){
@@ -29,9 +35,10 @@ public class MediaActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(getLayoutResId());
         FragmentManager manager = getSupportFragmentManager();
-        GestureFragment fragment = (GestureFragment) manager.findFragmentById(R.id.fragmentContainer);
+        fragment = (GestureFragment) manager.findFragmentById(R.id.fragmentContainer);
 
         if (fragment == null) {
             fragment = createFragment();
@@ -43,7 +50,14 @@ public class MediaActivity extends FragmentActivity {
         gestureDetector = new GestureDetector(this);
         gestureDetector.setBaseListener(fragment);
         gestureDetector.setScrollListener(fragment);
+
     }
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+    }
+
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {

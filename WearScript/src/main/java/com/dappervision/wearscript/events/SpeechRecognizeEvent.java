@@ -1,6 +1,7 @@
 package com.dappervision.wearscript.events;
 
 public class SpeechRecognizeEvent {
+
     private String prompt;
     private String callback;
 

@@ -17,6 +17,6 @@ public class ActivityEvent {
         WEBVIEW,
         OPENGL,
         CARD_TREE,
-        WARP, REFRESH
+        WARP, REFRESH, MEDIA
     }
 }
