@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.os.Handler;
+import android.widget.RelativeLayout;
 
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.R;
@@ -301,8 +302,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_media_player, container, false);
         surfaceView = (SurfaceView) v.findViewById(R.id.media_surface);
+        RelativeLayout relative = (RelativeLayout) v.findViewById(R.id.relative);
+        relative.addView(new View(this.getActivity()));
         progressBar = (ProgressBar) v.findViewById(R.id.video_progressBar);
         holder = surfaceView.getHolder();
+
         holder.addCallback(new SurfaceHolder.Callback() {
 
             public void surfaceCreated(SurfaceHolder holder) {
@@ -375,6 +379,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         surfaceView.setVisibility(View.VISIBLE);
         mediaPlayer.start();
+
     }
 
 

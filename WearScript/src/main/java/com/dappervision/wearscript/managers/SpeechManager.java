@@ -86,7 +86,6 @@ public class SpeechManager extends Manager
         }
         public void onRmsChanged(float rmsdB)
         {
-
         }
         public void onBufferReceived(byte[] buffer)
         {
@@ -108,11 +107,6 @@ public class SpeechManager extends Manager
             spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
             SpeechManager.this.makeCall("finalResult",String.format("\"%s\"", spokenText));
             recognizer.stopListening();
-            for (String key : results.keySet())
-            {
-                Log.d(TAG,key);
-            }
-
         }
         public void onPartialResults(Bundle partialResults)
         {

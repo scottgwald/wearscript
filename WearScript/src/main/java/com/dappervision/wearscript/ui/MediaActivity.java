@@ -35,10 +35,11 @@ public class MediaActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(getLayoutResId());
         FragmentManager manager = getSupportFragmentManager();
         fragment = (GestureFragment) manager.findFragmentById(R.id.fragmentContainer);
-                
+
         if (fragment == null) {
             fragment = createFragment();
             manager.beginTransaction()
