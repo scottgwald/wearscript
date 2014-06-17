@@ -194,9 +194,11 @@ public class WearScript {
     {
         Utils.eventBusPost(new CallbackRegistration(MediaManager.class, callback).setEvent(gesture));
     }
+
     @JavascriptInterface
     public void mediaJump(int deltaMsecs){ Utils.eventBusPost(new MediaActionEvent("jump",deltaMsecs)); }
 
+    @JavascriptInterface
     public void mediaSeekTo(int msecs) { Utils.eventBusPost(new MediaActionEvent("seekTo", msecs)); }
 
     @JavascriptInterface
