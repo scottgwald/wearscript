@@ -155,9 +155,8 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaLoad(String uri, boolean looping){
-        try
-        {
+    public void mediaLoad(String uri, boolean looping) {
+        try {
             Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.MEDIA));
             Utils.eventBusPost(new MediaEvent(new URI(uri), looping));
         } catch (URISyntaxException e) {
@@ -181,24 +180,34 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaPlayReverse(int speed){ Utils.eventBusPost(new MediaActionEvent("playReverse",speed)); }
+    public void mediaPlayReverse(int speed) {
+        Utils.eventBusPost(new MediaActionEvent("playReverse",speed));
+    }
 
     @JavascriptInterface
-    public void mediaPlayFastForward(int speed){ Utils.eventBusPost(new MediaActionEvent("playFastForward",speed)); }
+    public void mediaPlayFastForward(int speed) {
+        Utils.eventBusPost(new MediaActionEvent("playFastForward",speed));
+    }
 
     @JavascriptInterface
-    public void mediaFastForward(int speed){ Utils.eventBusPost(new MediaActionEvent("fastForward",speed)); }
+    public void mediaFastForward(int speed) {
+        Utils.eventBusPost(new MediaActionEvent("fastForward",speed));
+    }
 
     @JavascriptInterface
-    public void mediaRewind(int speed){ Utils.eventBusPost(new MediaActionEvent("rewind",speed)); }
+    public void mediaRewind(int speed) {
+        Utils.eventBusPost(new MediaActionEvent("rewind",speed));
+    }
 
     @JavascriptInterface
-    public void mediaOnGesture(String gesture, String callback)
-    {
+    public void mediaOnGesture(String gesture, String callback) {
         Utils.eventBusPost(new CallbackRegistration(MediaManager.class, callback).setEvent(gesture));
     }
+
     @JavascriptInterface
-    public void mediaJump(int jumpTo){ Utils.eventBusPost(new MediaActionEvent("jump",jumpTo)); }
+    public void mediaJump(int jumpTo) {
+        Utils.eventBusPost(new MediaActionEvent("jump", jumpTo));
+    }
 
     @JavascriptInterface
     public void serverConnect(String server, String callback) {
@@ -472,16 +481,16 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void speechRecognize(String prompt, String callback)
-    {
+    public void speechRecognize(String prompt, String callback) {
         Utils.eventBusPost(new SpeechRecognizeEvent(prompt, callback));
     }
 
     @JavascriptInterface
-    public void backgroundSpeechRecognize(String endResult,String partialResult)
-    {
-        Utils.eventBusPost(new CallbackRegistration(SpeechManager.class,endResult).setEvent("finalResult"));
-        Utils.eventBusPost(new CallbackRegistration(SpeechManager.class,partialResult).setEvent("partialResult"));
+    public void backgroundSpeechRecognize(String endResult, String partialResult) {
+        Utils.eventBusPost(new CallbackRegistration(SpeechManager.class, endResult)
+                .setEvent("finalResult"));
+        Utils.eventBusPost(new CallbackRegistration(SpeechManager.class, partialResult)
+                .setEvent("partialResult"));
         Utils.eventBusPost(new BackgroundSpeechEvent(endResult));
     }
 
@@ -499,8 +508,7 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void displayCardTree()
-    {
+    public void displayCardTree() {
         Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.CARD_TREE));
     }
 
