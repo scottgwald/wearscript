@@ -6,9 +6,6 @@ import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 
-/**
- * Created by christianvazquez on 6/10/14.
- */
 public class MediaManager extends Manager {
 
     public MediaManager(BackgroundService service) {

@@ -2,10 +2,6 @@ package com.dappervision.wearscript.events;
 
 import com.google.android.glass.touchpad.Gesture;
 
-
-/**
- * Created by christianvazquez on 6/11/14.
- */
 public class MediaGestureEvent {
     private final Gesture gesture;
 

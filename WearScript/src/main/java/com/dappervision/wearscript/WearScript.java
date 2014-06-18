@@ -181,22 +181,22 @@ public class WearScript {
 
     @JavascriptInterface
     public void mediaPlayReverseFromEnd(int speed) {
-        Utils.eventBusPost(new MediaActionEvent("playReverse",speed));
+        Utils.eventBusPost(new MediaActionEvent("playReverse", speed));
     }
 
     @JavascriptInterface
     public void mediaPlayFastForwardFromBeginning(int speed) {
-        Utils.eventBusPost(new MediaActionEvent("playFastForward",speed));
+        Utils.eventBusPost(new MediaActionEvent("playFastForward", speed));
     }
 
     @JavascriptInterface
     public void mediaFastForward(int speed) {
-        Utils.eventBusPost(new MediaActionEvent("fastForward",speed));
+        Utils.eventBusPost(new MediaActionEvent("fastForward", speed));
     }
 
     @JavascriptInterface
     public void mediaRewind(int speed) {
-        Utils.eventBusPost(new MediaActionEvent("rewind",speed));
+        Utils.eventBusPost(new MediaActionEvent("rewind", speed));
     }
 
     @JavascriptInterface
