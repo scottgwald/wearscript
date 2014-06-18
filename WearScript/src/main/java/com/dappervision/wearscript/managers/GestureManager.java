@@ -20,6 +20,7 @@ public class GestureManager extends Manager {
     public void onEvent(MotionEvent e) {
         detector.onMotionEvent(e);
     }
+
 }
 
 class MyGestureDetector extends GestureDetector implements GestureDetector.BaseListener, GestureDetector.FingerListener, GestureDetector.ScrollListener, GestureDetector.TwoFingerScrollListener {
