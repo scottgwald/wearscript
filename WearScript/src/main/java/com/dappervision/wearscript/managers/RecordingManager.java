@@ -10,6 +10,7 @@ import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.events.CallbackRegistration;
 
 public class RecordingManager extends Manager {
+    public static final String FILEPATH = "filepath";
     BroadcastReceiver broadcastReceiver;
     public static String TAG = "RecordingManager";
     public static String SAVED = "SAVED";
@@ -50,7 +51,7 @@ public class RecordingManager extends Manager {
             Log.d(TAG, "in onReceive()");
             if (intent.getAction().equals("com.wearscript.record.FILE_WRITTEN_AUDIO")) {
                 Log.d(TAG, "in RecordingBroadcastReceiver");
-                rm.makeCall(SAVED, intent.getStringExtra("filepath"));
+                rm.makeCall(SAVED, intent.getStringExtra(FILEPATH));
                 rm.jsCallbacks.remove(SAVED);
             }
         }
