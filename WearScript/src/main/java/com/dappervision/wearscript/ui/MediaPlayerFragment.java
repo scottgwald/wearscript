@@ -22,6 +22,8 @@ import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
+import com.dappervision.wearscript.managers.ManagerManager;
+import com.dappervision.wearscript.managers.MediaManager;
 import com.google.android.glass.touchpad.Gesture;
 
 import java.io.IOException;
@@ -85,6 +87,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void onEvent(MediaActionEvent e) {
         String action = e.getAction();
+        Log.d(TAG, "in onEvent()");
+        Log.d(TAG, "action: " + e.getAction());
+
         if (action.equals("play")) {
             interrupt = true;
             mp.start();
@@ -109,7 +114,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         } else if (action.equals("seekTo")) {
             mp.seekTo(e.getMsecs());
         } else if (action.equals("seekBackwards")) {
-            mp.seekTo(mp.getDuration() - e.getMsecs());
+            seekBackwards(e.getMsecs());
         }
     }
 
@@ -124,6 +129,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         } else {
             mp.seekTo(newPosition);
         }
+    }
+
+    private void seekBackwards(int msecs) {
+        mp.seekTo(mp.getDuration());
+        jump(-msecs);
     }
 
     private void stutter(int period) {
@@ -161,7 +171,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void modifiedSpeedPlayback(final int speed, boolean forward, boolean fromEndpoint) {
-
         if (speed <= 0) return;
         mp.pause();
         final int startDelay = 100;
@@ -189,6 +198,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 }
             }
         }
+
         mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
             @Override
             public void onSeekComplete(MediaPlayer mediaPlayer) {
@@ -317,6 +327,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         surfaceView.setVisibility(View.VISIBLE);
         mediaPlayer.start();
+        ((MediaManager) ManagerManager.get().get(MediaManager.class)).onMediaPlayerPrepared();
     }
 
 

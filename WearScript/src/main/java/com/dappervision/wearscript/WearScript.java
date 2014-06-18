@@ -157,9 +157,10 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaLoad(String uri, boolean looping) {
+    public void mediaLoad(String uri, boolean looping, String callback){
         try {
-            Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.MEDIA));
+            Utils.eventBusPost(new CallbackRegistration(MediaManager.class, callback)
+                    .setEvent(MediaManager.MEDIA_PLAYER_PREPARED));
             Utils.eventBusPost(new MediaEvent(new URI(uri), looping));
         } catch (URISyntaxException e) {
             // TODO(kurtisnelson): Handle
