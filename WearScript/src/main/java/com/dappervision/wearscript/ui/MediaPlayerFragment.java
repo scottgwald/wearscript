@@ -20,8 +20,7 @@ import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
-import com.dappervision.wearscript.managers.ManagerManager;
-import com.dappervision.wearscript.managers.MediaManager;
+import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
 import com.google.android.glass.touchpad.Gesture;
 
 import java.io.IOException;
@@ -335,7 +334,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         surfaceView.setVisibility(View.VISIBLE);
         mediaPlayer.start();
-        ((MediaManager) ManagerManager.get().get(MediaManager.class)).onMediaPlayerPrepared();
+        Utils.eventBusPost(new MediaPlayerReadyEvent());
     }
 
 
