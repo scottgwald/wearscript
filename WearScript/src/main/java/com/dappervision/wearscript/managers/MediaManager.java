@@ -1,18 +1,11 @@
 package com.dappervision.wearscript.managers;
 
-import android.content.Context;
-import android.view.MotionEvent;
-
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.events.CallbackRegistration;
 import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
-import com.google.android.glass.touchpad.Gesture;
-import com.google.android.glass.touchpad.GestureDetector;
-
-import org.json.simple.JSONObject;
 
 /**
  * Created by christianvazquez on 6/10/14.
@@ -20,6 +13,7 @@ import org.json.simple.JSONObject;
 public class MediaManager extends Manager
 {
 
+    public static final String MEDIA_PLAYER_PREPARED = "MEDIA_PLAYER_PREPARED";
 
     public MediaManager(BackgroundService service)
     {
@@ -58,5 +52,13 @@ public class MediaManager extends Manager
         this.makeCall("onTwoFingerScroll", String.format("%f, %f, %f", e.getV1(), e.getV2(), e.getV3()));
     }
 
+    public void onEvent(CallbackRegistration e) {
+        registerCallback(e.getEvent(), e.getCallback());
+    }
+
+    public void onMediaPlayerPrepared() {
+        makeCall(MEDIA_PLAYER_PREPARED, "");
+        jsCallbacks.remove(MEDIA_PLAYER_PREPARED);
+    }
 }
 
