@@ -5,10 +5,8 @@ import android.content.Context;
 /**
  * Created by christianvazquez on 6/12/14.
  */
-public class BackgroundSpeechEvent
-{
+public class BackgroundSpeechEvent {
     private String callback;
-    private Context activity;
 
     public BackgroundSpeechEvent(String callback)
     {
@@ -18,7 +16,4 @@ public class BackgroundSpeechEvent
     public String getCallback() {
         return callback;
     }
-
-    public Context getContext(){return activity;}
-
 }

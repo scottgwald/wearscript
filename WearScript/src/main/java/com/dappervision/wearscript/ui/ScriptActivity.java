@@ -176,9 +176,7 @@ public class ScriptActivity extends Activity {
         intent.putExtra(MediaActivity.MODE_KEY, MediaActivity.MODE_MEDIA);
         intent.putExtra(MediaPlayerFragment.ARG_URL, e.getUri());
         intent.putExtra(MediaPlayerFragment.ARG_LOOP, e.isLooping());
-
         startActivity(intent);
-
     }
 
     @Override

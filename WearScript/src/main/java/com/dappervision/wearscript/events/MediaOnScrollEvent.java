@@ -3,28 +3,25 @@ package com.dappervision.wearscript.events;
 /**
  * Created by christianvazquez on 6/11/14.
  */
-public class MediaOnScrollEvent
-{
-    private float v1,v2,v3;
+public class MediaOnScrollEvent {
+    private float displacement, delta, velocity;
 
-    public MediaOnScrollEvent(float v1, float v2, float v3)
-    {
-        this.v1=v1;
-        this.v2=v2;
-        this.v3=v3;
+    public MediaOnScrollEvent(float v1, float v2, float v3) {
+        this.displacement = v1;
+        this.delta = v2;
+        this.velocity = v3;
     }
 
-    public float getV1()
-    {
-        return v1;
+    public float getDisplacement() {
+        return displacement;
     }
-    public float getV2()
-    {
-        return v2;
+
+    public float getDelta() {
+        return delta;
     }
-    public float getV3()
-    {
-        return v3;
+
+    public float getVelocity() {
+        return velocity;
     }
 
 }

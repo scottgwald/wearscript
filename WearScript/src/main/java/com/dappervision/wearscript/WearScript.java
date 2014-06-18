@@ -158,7 +158,6 @@ public class WearScript {
     public void mediaLoad(String uri, boolean looping){
         try
         {
-            Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.MEDIA));
             Utils.eventBusPost(new MediaEvent(new URI(uri), looping));
         } catch (URISyntaxException e) {
             // TODO(kurtisnelson): Handle
@@ -181,10 +180,10 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaPlayReverse(int speed){ Utils.eventBusPost(new MediaActionEvent("playReverse",speed)); }
+    public void mediaPlayReverseFromEnd(int speed){ Utils.eventBusPost(new MediaActionEvent("playReverse",speed)); }
 
     @JavascriptInterface
-    public void mediaPlayFastForward(int speed){ Utils.eventBusPost(new MediaActionEvent("playFastForward",speed)); }
+    public void mediaPlayFastForwardFromBeginning(int speed){ Utils.eventBusPost(new MediaActionEvent("playFastForward",speed)); }
 
     @JavascriptInterface
     public void mediaFastForward(int speed){ Utils.eventBusPost(new MediaActionEvent("fastForward",speed)); }

@@ -698,11 +698,11 @@ function WearScript() {
         this.fastForward = function(speed){
             WSRAW.mediaFastForward(speed);
         }.bind(this);
-        this.playReverse = function(speed){
-            WSRAW.mediaPlayReverse(speed);
+        this.playReverseFromEnd = function(speed){
+            WSRAW.mediaPlayReverseFromEnd(speed);
         }.bind(this);
-        this.playFastForward = function(speed){
-            WSRAW.mediaPlayFastForward(speed);
+        this.playFastForwardFromBeginning = function(speed){
+            WSRAW.mediaPlayFastForwardFromBeginning(speed);
         }.bind(this);
         this.onGesture = function (type,callback){
             callback=WS._funcfix(callback);
