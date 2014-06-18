@@ -54,7 +54,8 @@ public class SpeechManager extends Manager {
 
     public void onEventMainThread(BackgroundSpeechEvent e) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "voice.recognition.test");
         recognizer.startListening(intent);
     }
@@ -91,7 +92,8 @@ public class SpeechManager extends Manager {
         public void onError(int error) {}
 
         public void onResults(Bundle results) {
-            ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            ArrayList<String> data = results
+                    .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             Log.d(TAG, "onResults: " + data.get(0));
             String spokenText = data.get(0);
             spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
@@ -100,7 +102,8 @@ public class SpeechManager extends Manager {
         }
 
         public void onPartialResults(Bundle partialResults) {
-            ArrayList<String> data = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            ArrayList<String> data = partialResults
+                    .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             String spokenText = data.get(0);
             spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
             SpeechManager.this.makeCall("partialResult", String.format("\"%s\"", spokenText));

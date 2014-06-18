@@ -23,15 +23,18 @@ public class MediaManager extends Manager {
     }
 
     public void onEvent(MediaOnFingerCountChangedEvent e) {
-        this.makeCall("onFingerCountChanged", String.format("%d, %d", e.getCountOne(), e.getCountTwo()));
+        this.makeCall("onFingerCountChanged",
+                String.format("%d, %d", e.getCountOne(), e.getCountTwo()));
     }
 
     public void onEvent(MediaOnScrollEvent e) {
-        this.makeCall("onScroll", String.format("%f, %f, %f", e.getDisplacement(), e.getDelta(), e.getVelocity()));
+        this.makeCall("onScroll",
+                String.format("%f, %f, %f", e.getDisplacement(), e.getDelta(), e.getVelocity()));
     }
 
     public void onEvent(MediaOnTwoFingerScrollEvent e) {
-        this.makeCall("onTwoFingerScroll", String.format("%f, %f, %f", e.getDisplacement(), e.getDelta(), e.getVelocity()));
+        this.makeCall("onTwoFingerScroll",
+                String.format("%f, %f, %f", e.getDisplacement(), e.getDelta(), e.getVelocity()));
     }
 }
 

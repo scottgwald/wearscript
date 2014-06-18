@@ -201,7 +201,8 @@ public class WearScript {
 
     @JavascriptInterface
     public void mediaOnGesture(String gesture, String callback) {
-        Utils.eventBusPost(new CallbackRegistration(MediaManager.class, callback).setEvent(gesture));
+        Utils.eventBusPost(new CallbackRegistration(MediaManager.class, callback)
+                .setEvent(gesture));
     }
 
     @JavascriptInterface
