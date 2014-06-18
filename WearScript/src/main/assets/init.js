@@ -691,25 +691,23 @@ function WearScript() {
         this.stop = function () {
             WSRAW.mediaStop();
         }.bind(this);
-        this.rewind = function (speed)
-        {
+        this.rewind = function (speed) {
             WSRAW.mediaRewind(speed);
         }.bind(this);
-        this.fastForward = function(speed){
+        this.fastForward = function(speed) {
             WSRAW.mediaFastForward(speed);
         }.bind(this);
-        this.playReverse = function(speed){
+        this.playReverse = function(speed) {
             WSRAW.mediaPlayReverse(speed);
         }.bind(this);
-        this.playFastForward = function(speed){
+        this.playFastForward = function(speed) {
             WSRAW.mediaPlayFastForward(speed);
         }.bind(this);
-        this.onGesture = function (type,callback){
+        this.onGesture = function (type, callback) {
             callback=WS._funcfix(callback);
-            WSRAW.mediaOnGesture(type,WS._funcwrap(callback));
+            WSRAW.mediaOnGesture(type, WS._funcwrap(callback));
         }.bind(this);
-        this.jump = function(jumpTo)
-        {
+        this.jump = function(jumpTo) {
             WSRAW.mediaJump(jumpTo);
         }.bind(this);
 
@@ -995,8 +993,7 @@ function WearScript() {
     this.wifiScan = function () {
         WSRAW.wifiScan();
     }
-    this.serverConnect = function (server, callback)
-    {
+    this.serverConnect = function (server, callback) {
         callback = this._funcfix(callback);
         WSRAW.serverConnect(server, this._funcwrap(callback));
     }
@@ -1014,11 +1011,15 @@ function WearScript() {
         callback = this._funcfix(callback);
         WSRAW.speechRecognize(prompt, this._funcwrap(function (x) {callback(atob(x))}));
     }
-    this.backgroundSpeechRecognize = function (finalCallback,partialCallback)
-    {
+    this.backgroundSpeechRecognize = function (finalCallback, partialCallback) {
         finalCallback = this._funcfix(finalCallback);
         partialCallback = this._funcfix(partialCallback);
-        WSRAW.backgroundSpeechRecognize(this._funcwrap(function (x) {finalCallback(atob(x))}),this._funcwrap(function (x) {partialCallback(atob(x))}));
+        WSRAW.backgroundSpeechRecognize(
+            this._funcwrap(function (x) {
+                finalCallback(atob(x))
+            }), this._funcwrap(function (x) {
+                partialCallback(atob(x))
+        }));
     }
     this.liveCardCreate = function (nonSilent, period) {
         var menuParsed = [];
