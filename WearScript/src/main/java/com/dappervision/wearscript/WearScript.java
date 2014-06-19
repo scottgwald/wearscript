@@ -334,12 +334,12 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void startAudioBuffer(String fileName) {
+    public void startAudioBuffer(String filePath) {
         Log.d(TAG, "in startAudioBuffer()!");
 
         Intent intent = new Intent("com.wearscript.record.RECORD_AUDIO")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .putExtra("fileName", fileName);
+                .putExtra("filePath", filePath);
         bs.startService(intent);
 
         /*Intent intent = new Intent();
