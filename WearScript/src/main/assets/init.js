@@ -691,6 +691,27 @@ function WearScript() {
         this.stop = function () {
             WSRAW.mediaStop();
         }.bind(this);
+        this.rewind = function (speed) {
+            WSRAW.mediaRewind(speed);
+        }.bind(this);
+        this.fastForward = function(speed) {
+            WSRAW.mediaFastForward(speed);
+        }.bind(this);
+        this.playReverseFromEnd = function(speed) {
+            WSRAW.mediaPlayReverseFromEnd(speed);
+        }.bind(this);
+        this.playFastForwardFromBeginning = function(speed) {
+            WSRAW.mediaPlayFastForwardFromBeginning(speed);
+        }.bind(this);
+        this.onGesture = function (type, callback) {
+            callback=WS._funcfix(callback);
+            WSRAW.mediaOnGesture(type, WS._funcwrap(callback));
+        }.bind(this);
+        this.jump = function(jumpTo) {
+            WSRAW.mediaJump(jumpTo);
+        }.bind(this);
+
+
     }
     this.PicarusModel = function (id) {
         this.id = id;
@@ -990,6 +1011,16 @@ function WearScript() {
         callback = this._funcfix(callback);
         WSRAW.speechRecognize(prompt, this._funcwrap(function (x) {callback(atob(x))}));
     }
+    this.backgroundSpeechRecognize = function (finalCallback, partialCallback) {
+        finalCallback = this._funcfix(finalCallback);
+        partialCallback = this._funcfix(partialCallback);
+        WSRAW.backgroundSpeechRecognize(
+            this._funcwrap(function (x) {
+                finalCallback(atob(x))
+            }), this._funcwrap(function (x) {
+                partialCallback(atob(x))
+        }));
+    }
     this.liveCardCreate = function (nonSilent, period) {
         var menuParsed = [];
         var menu = Array.prototype.slice.call(arguments).slice(2);
@@ -1054,6 +1085,7 @@ function WearScript() {
     this.pebbleVibe = function(type) {
         WSRAW.pebbleVibe(type);
     }
+
     this.control = function(cmd, adb) {
         if(!adb)
             adb = false;

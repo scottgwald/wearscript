@@ -13,11 +13,12 @@ public class MediaActivity extends FragmentActivity {
     public static final String MODE_KEY = "MODE";
     public static final String MODE_MEDIA = "MODE_MEDIA";
     private GestureDetector gestureDetector;
+    private GestureFragment fragment;
 
     protected GestureFragment createFragment() {
-        if (getIntent().getStringExtra(MODE_KEY).equals(MODE_MEDIA)){
+        if (getIntent().getStringExtra(MODE_KEY).equals(MODE_MEDIA)) {
             return new MediaPlayerFragment().newInstance((Uri) getIntent().getParcelableExtra(MediaPlayerFragment.ARG_URL), getIntent().getBooleanExtra(MediaPlayerFragment.ARG_LOOP, false));
-        }else{
+        } else {
             return null;
         }
     }
@@ -29,9 +30,10 @@ public class MediaActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(getLayoutResId());
         FragmentManager manager = getSupportFragmentManager();
-        GestureFragment fragment = (GestureFragment) manager.findFragmentById(R.id.fragmentContainer);
+        fragment = (GestureFragment) manager.findFragmentById(R.id.fragmentContainer);
 
         if (fragment == null) {
             fragment = createFragment();
@@ -43,6 +45,11 @@ public class MediaActivity extends FragmentActivity {
         gestureDetector = new GestureDetector(this);
         gestureDetector.setBaseListener(fragment);
         gestureDetector.setScrollListener(fragment);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

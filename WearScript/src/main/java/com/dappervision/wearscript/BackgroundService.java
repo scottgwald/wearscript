@@ -25,6 +25,7 @@ import com.dappervision.wearscript.events.CameraEvents;
 import com.dappervision.wearscript.events.DataLogEvent;
 import com.dappervision.wearscript.events.JsCall;
 import com.dappervision.wearscript.events.LambdaEvent;
+import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
 import com.dappervision.wearscript.events.ScriptEvent;
@@ -258,6 +259,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
     public void reset() {
         synchronized (lock) {
             Log.d(TAG, "reset");
+            Utils.eventBusPost(new MediaShutDownEvent());
             // NOTE(brandyn): Put in a better spot
             if (webview != null) {
                 webview.stopLoading();
