@@ -23,6 +23,7 @@ import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
+import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 
@@ -69,7 +70,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void createMediaPlayer() {
-        if (progressBar != null)
+        if (progressBar != null && mediaUri != null)
             progressBar.setVisibility(View.VISIBLE);
         mp = new MediaPlayer();
         if (mediaUri != null) {
@@ -84,7 +85,35 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             if (getArguments().getBoolean(ARG_LOOP))
                 mp.setLooping(true);
             mp.prepareAsync();
+        } else {
+            if (progressBar != null)
+                progressBar.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void setMediaSource(Uri uri, boolean looping) {
+
+        mediaUri = uri;
+        if (mp == null) {
+            return;
+        }
+        if (mp.isPlaying()) {
+            mp.stop();
+        }
+        try {
+            mp.reset();
+            mp.setDataSource(getActivity(), mediaUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mp.setOnErrorListener(this);
+        mp.setOnPreparedListener(this);
+        mp.setLooping(looping);
+        mp.prepareAsync();
+    }
+
+    public void onEvent(MediaSourceEvent e) {
+        this.setMediaSource(e.getUri(), e.isLooping());
     }
 
     public void onEvent(MediaActionEvent e) {

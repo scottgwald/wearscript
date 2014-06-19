@@ -1,23 +1,15 @@
 package com.dappervision.wearscript.events;
 
 import android.net.Uri;
-
 import java.net.URI;
 
-public class MediaEvent {
+public class MediaSourceEvent {
     private final URI uri;
     private final boolean looping;
-    private final boolean status;
 
-    public MediaEvent(URI uri, boolean looping) {
+    public MediaSourceEvent(URI uri, boolean looping) {
         this.uri = uri;
         this.looping = looping;
-        this.status = false;
-    }
-    public MediaEvent() {
-        this.uri = null;
-        this.looping = false;
-        this.status = false;
     }
 
     public boolean isLooping() {
@@ -25,9 +17,6 @@ public class MediaEvent {
     }
 
     public Uri getUri() {
-        if (uri == null) {
-            return null;
-        }
         return android.net.Uri.parse(uri.toString());
     }
 }

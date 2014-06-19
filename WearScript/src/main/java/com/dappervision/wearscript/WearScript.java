@@ -21,6 +21,7 @@ import com.dappervision.wearscript.events.LiveCardEvent;
 import com.dappervision.wearscript.events.LiveCardSetMenuEvent;
 import com.dappervision.wearscript.events.MediaActionEvent;
 import com.dappervision.wearscript.events.MediaEvent;
+import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
 import com.dappervision.wearscript.events.PicarusBenchmarkEvent;
 import com.dappervision.wearscript.events.PicarusEvent;
@@ -195,11 +196,14 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaSetSource(String uri) {
+    public void mediaSetSource(String uri, boolean looping) {
         try {
-            Utils.eventBusPost(new MediaEvent(new URI(uri),false));
+            Utils.eventBusPost(new MediaSourceEvent(new URI(uri), looping));
         } catch (URISyntaxException e) {
         }
+    }
+
+    @JavascriptInterface
     public void mediaPlayReverseFromEnd(int speed) {
         Utils.eventBusPost(new MediaActionEvent("playReverse", speed));
     }

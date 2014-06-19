@@ -681,7 +681,11 @@ function WearScript() {
     this.Media = function (url, loop) {
         if (!loop)
             loop = false;
-        WSRAW.mediaLoad(url, loop);
+        if (typeof url == 'undefined') {
+            WSRAW.mediaCreate();
+        } else {
+            WSRAW.mediaLoad(url, loop);
+        }
         this.play = function () {
             WSRAW.mediaPlay();
         }.bind(this);
@@ -709,6 +713,9 @@ function WearScript() {
         }.bind(this);
         this.jump = function(jumpTo) {
             WSRAW.mediaJump(jumpTo);
+        }.bind(this);
+        this.setSource = function(uri, looping) {
+            WSRAW.mediaSetSource(uri,looping);
         }.bind(this);
 
 
