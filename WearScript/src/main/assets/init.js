@@ -1109,5 +1109,8 @@ function WearScript() {
         callback = this._funcfix(callback);
         WSRAW.saveAudioBuffer(this._funcwrap(callback));
     }
+    this.stopAudioBuffer = function() {
+        WSRAW.stopAudioBuffer();
+    }
 }
 WS = new WearScript();

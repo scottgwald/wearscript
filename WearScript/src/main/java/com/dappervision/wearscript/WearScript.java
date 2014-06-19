@@ -359,6 +359,12 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void stopAudioBuffer() {
+        Intent intent = new Intent("com.wearscript.record.STOP_AUDIO");
+        bs.startService(intent);
+    }
+
+    @JavascriptInterface
     public void activityCreate() {
         Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.CREATE));
     }
