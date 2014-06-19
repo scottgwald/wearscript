@@ -160,6 +160,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void mediaCreate() {
+        Utils.eventBusPost(new MediaEvent());
+    }
+
+    @JavascriptInterface
     public void mediaPlay(){
         Utils.eventBusPost(new MediaActionEvent("play"));
     }
@@ -172,6 +177,24 @@ public class WearScript {
     @JavascriptInterface
     public void mediaStop(){
         Utils.eventBusPost(new MediaActionEvent("stop"));
+    }
+
+    @JavascriptInterface
+    public void mediaStartRecording() {
+        Utils.eventBusPost(new MediaActionEvent("record"));
+    }
+
+    @JavascriptInterface
+    public void mediaPauseRecording() {
+        Utils.eventBusPost(new MediaActionEvent("pauseRecording"));
+    }
+
+    @JavascriptInterface
+    public void mediaSetSource(String uri) {
+        try {
+            Utils.eventBusPost(new MediaEvent(new URI(uri),false));
+        } catch (URISyntaxException e) {
+        }
     }
 
     @JavascriptInterface

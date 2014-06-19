@@ -14,6 +14,11 @@ public class MediaEvent {
         this.looping = looping;
         this.status = false;
     }
+    public MediaEvent() {
+        this.uri = null;
+        this.looping = false;
+        this.status = false;
+    }
 
     public boolean isLooping() {
         return looping;
