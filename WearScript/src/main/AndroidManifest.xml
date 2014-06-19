@@ -105,5 +105,10 @@
         </receiver>
 
         <service android:name="com.dappervision.wearscript.BackgroundService" />
+        <service
+            android:name="com.dappervision.wearscript.ui.VideoRecordService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 </manifest>
