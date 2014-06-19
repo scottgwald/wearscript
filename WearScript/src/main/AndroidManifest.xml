@@ -59,6 +59,11 @@
             android:exported="true"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"></activity>
         <activity
+            android:name=".ui.RecordActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"></activity>
+        <activity
             android:name=".ui.QRActivity"
             android:configChanges="keyboardHidden"
             android:label="WearScript QR"></activity>

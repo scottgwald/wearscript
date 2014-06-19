@@ -973,6 +973,9 @@ function WearScript() {
             WSRAW.cameraVideo();
         }
     }
+    this.cameraVideoBackground = function () {
+        WSRAW.cameraVideoBackground();
+    }
     this.cameraOff = function () {
         WSRAW.cameraOff();
     }

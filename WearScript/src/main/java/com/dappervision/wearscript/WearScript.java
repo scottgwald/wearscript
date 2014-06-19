@@ -21,6 +21,7 @@ import com.dappervision.wearscript.events.LiveCardEvent;
 import com.dappervision.wearscript.events.LiveCardSetMenuEvent;
 import com.dappervision.wearscript.events.MediaActionEvent;
 import com.dappervision.wearscript.events.MediaEvent;
+import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
 import com.dappervision.wearscript.events.PicarusBenchmarkEvent;
 import com.dappervision.wearscript.events.PicarusEvent;
@@ -50,12 +51,11 @@ import com.dappervision.wearscript.managers.EyeManager;
 import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.MediaManager;
 import com.dappervision.wearscript.managers.OpenCVManager;
+import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.PicarusManager;
 import com.dappervision.wearscript.managers.SpeechManager;
 import com.dappervision.wearscript.managers.WarpManager;
-import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
-import com.dappervision.wearscript.ui.MediaPlayerFragment;
 
 import org.json.simple.JSONObject;
 
@@ -321,6 +321,11 @@ public class WearScript {
         CallbackRegistration cr = new CallbackRegistration(CameraManager.class, callback);
         cr.setEvent(CameraManager.VIDEO_PATH);
         Utils.eventBusPost(cr);
+    }
+
+    @JavascriptInterface
+    public void cameraVideoBackground() {
+        Utils.eventBusPost(new MediaRecordEvent(MediaRecordEvent.Type.VIDEO));
     }
 
     @JavascriptInterface

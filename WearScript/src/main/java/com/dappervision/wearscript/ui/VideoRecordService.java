@@ -25,4 +25,8 @@ public class VideoRecordService extends Service {
     public void startRecording() {
 
     }
+
+    public void stopRecording() {
+
+    }
 }
