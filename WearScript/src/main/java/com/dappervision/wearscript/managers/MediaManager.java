@@ -10,8 +10,7 @@ import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
 
-public class MediaManager extends Manager
-{
+public class MediaManager extends Manager {
     public static final String TAG = "MediaManager";
     public static final String MEDIA_PLAYER_PREPARED = "MEDIA_PLAYER_PREPARED";
 
