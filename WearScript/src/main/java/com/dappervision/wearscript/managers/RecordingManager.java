@@ -23,7 +23,6 @@ public class RecordingManager extends Manager {
     public void onEvent(CallbackRegistration e) {
         if (e.getManager().equals(this.getClass())) {
             registerCallback(e.getEvent(), e.getCallback());
-            //startActivity();
             Log.d(TAG, "in onEvent(CallbackRegistration e)!");
 
             Log.d(TAG, "registering for callback");
