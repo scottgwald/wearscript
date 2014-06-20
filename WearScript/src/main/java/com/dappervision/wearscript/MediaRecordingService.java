@@ -79,7 +79,7 @@ public class MediaRecordingService extends Service {
         mediaRecorder.setCamera(camera);
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        int profileInt = CamcorderProfile.QUALITY_720P;
+        int profileInt = CamcorderProfile.QUALITY_480P;
         android.util.Log.v(TAG, "Checking for profile: " + CamcorderProfile.hasProfile(profileInt));
         CamcorderProfile profile = CamcorderProfile.get(profileInt);
         mediaRecorder.setOutputFormat(profile.fileFormat);
@@ -192,7 +192,6 @@ public class MediaRecordingService extends Service {
             android.util.Log.e(TAG, "OH. MY God. Throwable. ", tr);
             camera.release();
         }
-        //sv.setVisibility(View.INVISIBLE);
     }
 
     /**
