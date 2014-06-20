@@ -1,5 +1,6 @@
 package com.dappervision.wearscript;
 
+import android.content.Intent;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 
@@ -52,10 +53,11 @@ import com.dappervision.wearscript.managers.MediaManager;
 import com.dappervision.wearscript.managers.OpenCVManager;
 import com.dappervision.wearscript.managers.PicarusManager;
 import com.dappervision.wearscript.managers.SpeechManager;
+import com.dappervision.wearscript.managers.RecordingManager;
+
 import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
-import com.dappervision.wearscript.ui.MediaPlayerFragment;
 
 import org.json.simple.JSONObject;
 
@@ -155,9 +157,10 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaLoad(String uri, boolean looping) {
+    public void mediaLoad(String uri, boolean looping, String callback) {
         try {
-            Utils.eventBusPost(new ActivityEvent(ActivityEvent.Mode.MEDIA));
+            Utils.eventBusPost(new CallbackRegistration(MediaManager.class, callback)
+                    .setEvent(MediaManager.MEDIA_PLAYER_PREPARED));
             Utils.eventBusPost(new MediaEvent(new URI(uri), looping));
         } catch (URISyntaxException e) {
             // TODO(kurtisnelson): Handle
@@ -206,8 +209,18 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaJump(int jumpTo) {
-        Utils.eventBusPost(new MediaActionEvent("jump", jumpTo));
+    public void mediaJump(int deltaMsecs){
+        Utils.eventBusPost(new MediaActionEvent("jump",deltaMsecs));
+    }
+
+    @JavascriptInterface
+    public void mediaSeekTo(int msecs) {
+        Utils.eventBusPost(new MediaActionEvent("seekTo", msecs));
+    }
+
+    @JavascriptInterface
+    public void mediaSeekBackwards(int msecs) {
+        Utils.eventBusPost(new MediaActionEvent("seekBackwards", msecs));
     }
 
     @JavascriptInterface
@@ -334,6 +347,24 @@ public class WearScript {
         cameraOn(imagePeriod, maxHeight, maxWidth, background);
         CallbackRegistration cr = new CallbackRegistration(CameraManager.class, callback);
         cr.setEvent(0);
+        Utils.eventBusPost(cr);
+    }
+
+    @JavascriptInterface
+    public void startAudioBuffer() {
+        Log.d(TAG, "in startAudioBuffer()!");
+
+        Intent intent = new Intent("com.wearscript.record.RECORD_AUDIO").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        bs.startService(intent);
+    }
+
+    @JavascriptInterface
+    public void saveAudioBuffer(String callback) {
+        Log.d(TAG, "in saveAudioBuffer()");
+        Intent intent = new Intent("com.wearscript.record.SAVE_AUDIO").putExtra("millis", System.currentTimeMillis());
+        bs.startService(intent);
+        CallbackRegistration cr = new CallbackRegistration(RecordingManager.class, callback);
+        cr.setEvent(RecordingManager.SAVED);
         Utils.eventBusPost(cr);
     }
 

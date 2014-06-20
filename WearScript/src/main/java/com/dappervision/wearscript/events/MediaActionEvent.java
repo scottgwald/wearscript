@@ -3,23 +3,22 @@ package com.dappervision.wearscript.events;
 public class MediaActionEvent {
 
     private final String action;
-    private final int magnitude;
+    private final int msecs;
 
     public MediaActionEvent(String action) {
         this.action = action;
-        this.magnitude = 0;
+        this.msecs = 0;
     }
-
-    public MediaActionEvent(String action, int magnitude) {
+    public MediaActionEvent(String action, int msecs) {
         this.action = action;
-        this.magnitude = magnitude;
+        this.msecs = msecs;
     }
 
     public String getAction() {
         return action;
     }
 
-    public int getMagnitude() {
-        return magnitude;
+    public int getMsecs() {
+        return msecs;
     }
 }
