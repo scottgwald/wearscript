@@ -51,7 +51,6 @@ public class SpeechManager extends Manager {
         }
     }
 
-
     public void onEventMainThread(BackgroundSpeechEvent e) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,

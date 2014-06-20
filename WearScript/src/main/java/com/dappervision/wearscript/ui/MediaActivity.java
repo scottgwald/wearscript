@@ -52,18 +52,15 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
         mSurfaceView.getHolder().addCallback(this);
         FragmentManager manager = getSupportFragmentManager();
         fragment = (GestureFragment) manager.findFragmentById(R.id.fragmentContainer);
-
         if (fragment == null) {
             fragment = createFragment();
             manager.beginTransaction()
                     .add(R.id.fragmentContainer, fragment)
                     .commit();
         }
-
         gestureDetector = new GestureDetector(this);
         gestureDetector.setBaseListener(fragment);
         gestureDetector.setScrollListener(fragment);
-
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 Log.i(TAG, "Setting Surface");
@@ -75,12 +72,7 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
                 Log.i(TAG, "Service Disconnected");
             }
         };
-
-        Log.d(TAG, "binding media recording service");
-
-
     }
-
 
     @Override
     public void onPause() {
@@ -110,20 +102,17 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         Log.d("CREATED", "Surface made");
-        MediaActivity.this.startService(new Intent(MediaActivity.this, MediaRecordingService.class));
+        MediaActivity.this.startService(new Intent(MediaActivity.this,
+                MediaRecordingService.class));
         MediaActivity.this.bindService(new Intent(MediaActivity.this,
                 MediaRecordingService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
-
-    }
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {}
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
-    }
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {}
 
 
 }

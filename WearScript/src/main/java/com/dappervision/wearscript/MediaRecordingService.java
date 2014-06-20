@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceView;
+
 import com.dappervision.wearscript.events.MediaPauseEvent;
 import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.MediaRecordPathEvent;
@@ -42,17 +43,17 @@ public class MediaRecordingService extends Service {
     }
 
     @Override
-    public int  onStartCommand(Intent i, int z, int y) {
+    public int onStartCommand(Intent i, int z, int y) {
         camera = getCameraInstanceRetry();
-        return super.onStartCommand(i,z,y);
+        return super.onStartCommand(i, z, y);
     }
 
     public String getCurrentFile() {
         return null;
     }
 
-    public void onEvent (MediaRecordEvent e) {
-        if(e.getFilePath() == null) {
+    public void onEvent(MediaRecordEvent e) {
+        if (e.getFilePath() == null) {
             this.generateOutputMediaFile();
         } else {
             filePath = e.getFilePath();
@@ -60,11 +61,12 @@ public class MediaRecordingService extends Service {
         Utils.eventBusPost(new MediaRecordPathEvent(filePath));
         this.startRecording();
     }
+
     public void onEvent(MediaPauseEvent e) {
         this.stopRecording();
     }
 
-    private boolean prepareVideoRecorder(){
+    private boolean prepareVideoRecorder() {
         try {
             camera.stopPreview();
             camera.setPreviewDisplay(null);
@@ -77,7 +79,6 @@ public class MediaRecordingService extends Service {
         mediaRecorder.setCamera(camera);
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-
         int profileInt = CamcorderProfile.QUALITY_720P;
         android.util.Log.v(TAG, "Checking for profile: " + CamcorderProfile.hasProfile(profileInt));
         CamcorderProfile profile = CamcorderProfile.get(profileInt);
@@ -114,11 +115,10 @@ public class MediaRecordingService extends Service {
     public void stopRecording() {
         Log.v(TAG, "Stopping recording.");
         if (mediaRecorder != null)
-        mediaRecorder.stop();
+            mediaRecorder.stop();
         releaseMediaRecorder();
         releaseCamera();
     }
-
 
 
     private void releaseCamera() {
@@ -139,24 +139,23 @@ public class MediaRecordingService extends Service {
 
     private Camera getCameraInstanceRetry() {
         Camera c = null;
-        Log.v(TAG,"getTheCamera");
+        Log.v(TAG, "getTheCamera");
         // keep trying to acquire the camera until "maximumWaitTimeForCamera" seconds have passed
         boolean acquiredCam = false;
         int timePassed = 0;
         while (!acquiredCam && timePassed < maximumWaitTimeForCamera) {
             try {
                 c = Camera.open();
-                Log.v(TAG,"acquired the camera");
+                Log.v(TAG, "acquired the camera");
                 acquiredCam = true;
                 return c;
-            }
-            catch (Exception e) {
-                Log.e(TAG,"Exception encountered opening camera:" + e.getLocalizedMessage());
+            } catch (Exception e) {
+                Log.e(TAG, "Exception encountered opening camera:" + e.getLocalizedMessage());
             }
             try {
                 Thread.sleep(200);
             } catch (InterruptedException ee) {
-                Log.e(TAG,"Exception encountered sleeping:" + ee.getLocalizedMessage());
+                Log.e(TAG, "Exception encountered sleeping:" + ee.getLocalizedMessage());
             }
             timePassed += 200;
         }
@@ -171,7 +170,7 @@ public class MediaRecordingService extends Service {
 
     public void setSurfaceView(SurfaceView sv) {
         dummy = sv;
-        if(camera == null) {
+        if (camera == null) {
             camera = getCameraInstanceRetry();
         }
 
@@ -196,20 +195,21 @@ public class MediaRecordingService extends Service {
         //sv.setVisibility(View.INVISIBLE);
     }
 
-    /** Create a File for saving an image or video */
+    /**
+     * Create a File for saving an image or video
+     */
     private void generateOutputMediaFile() {
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory(),"wearscript_video");
-        if (! mediaStorageDir.exists()){
-            if (! mediaStorageDir.mkdirs()) {
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "wearscript_video");
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
                 Log.d(TAG, "failed to create directory");
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         filePath = mediaStorageDir.getPath() + File.separator +
-                    "VID_" + timeStamp + ".mp4";
+                "VID_" + timeStamp + ".mp4";
         Log.v(TAG, "Output file: " + filePath);
     }
-
 
 
 }
