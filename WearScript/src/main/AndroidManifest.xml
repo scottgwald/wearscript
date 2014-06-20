@@ -105,7 +105,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver
+        <!--receiver
             android:name=".managers.RecordingManager$RecordingBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
@@ -114,7 +114,7 @@
                 <action android:name="com.wearscript.record.FILE_WRITTEN_AUDIO" />
                 <action android:name="com.wearscript.record.FILE_WRITTEN_VIDEO" />
             </intent-filter>
-        </receiver>
+        </receiver-->
 
         <service android:name="com.dappervision.wearscript.BackgroundService" />
     </application>
