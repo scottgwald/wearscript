@@ -5,6 +5,7 @@ import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
+import com.dappervision.wearscript.events.MediaRecordPathEvent;
 
 public class MediaManager extends Manager {
 
@@ -35,6 +36,10 @@ public class MediaManager extends Manager {
     public void onEvent(MediaOnTwoFingerScrollEvent e) {
         this.makeCall("onTwoFingerScroll",
                 String.format("%f, %f, %f", e.getDisplacement(), e.getDelta(), e.getVelocity()));
+    }
+
+    public void onEvent(MediaRecordPathEvent e) {
+        this.makeCall("startRecording",String.format("'%s'", e.getPath()));
     }
 }
 

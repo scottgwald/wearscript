@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.SurfaceView;
 import com.dappervision.wearscript.events.MediaPauseEvent;
 import com.dappervision.wearscript.events.MediaRecordEvent;
+import com.dappervision.wearscript.events.MediaRecordPathEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class MediaRecordingService extends Service {
         } else {
             filePath = e.getFilePath();
         }
+        Utils.eventBusPost(new MediaRecordPathEvent(filePath));
         this.startRecording();
     }
     public void onEvent(MediaPauseEvent e) {

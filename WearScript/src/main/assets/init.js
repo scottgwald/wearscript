@@ -717,11 +717,24 @@ function WearScript() {
         this.setSource = function(uri, looping) {
             WSRAW.mediaSetSource(uri,looping);
         }.bind(this);
-        this.startRecording = function(path) {
-            if (!path) {
-                WSRAW.mediaStartRecording(null);
+        this.startRecording = function(path,callback) {
+            if (!path && !callback) {
+                WSRAW.mediaStartRecording(null,null);
+            } else if (path && callback) {
+                callback = WS._funcfix(callback);
+                WSRAW.mediaStartRecording(path,WS._funcwrap(callback));
             } else {
-                WSRAW.mediaStartRecording(path);
+                if(!callback) {
+                      if(typeof path == 'function') {
+                             path = WS._funcfix(path);
+                             WSRAW.mediaStartRecording(null,WS._funcwrap(path));
+                       } else {
+                             WSRAW.mediaStartRecording(path,null);
+                       }
+                } else if (!path) {
+                     callback = WS._funcfix(callback);
+                     WSRAW.mediaStartRecording(null,WS._funcwrap(callback));
+                }
             }
         }.bind(this);
         this.pauseRecording = function() {
