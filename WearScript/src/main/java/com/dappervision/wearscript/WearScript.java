@@ -214,10 +214,14 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaSeekTo(int msecs) { Utils.eventBusPost(new MediaActionEvent("seekTo", msecs)); }
+    public void mediaSeekTo(int msecs) {
+        Utils.eventBusPost(new MediaActionEvent("seekTo", msecs));
+    }
 
     @JavascriptInterface
-    public void mediaSeekBackwards(int msecs) { Utils.eventBusPost(new MediaActionEvent("seekBackwards", msecs)); }
+    public void mediaSeekBackwards(int msecs) {
+        Utils.eventBusPost(new MediaActionEvent("seekBackwards", msecs));
+    }
 
     @JavascriptInterface
     public void serverConnect(String server, String callback) {
