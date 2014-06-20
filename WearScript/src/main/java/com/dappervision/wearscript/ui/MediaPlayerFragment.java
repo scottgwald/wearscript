@@ -10,6 +10,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.os.Handler;
 import android.widget.RelativeLayout;
@@ -49,7 +50,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private List<Integer> seekTimes;
     private long prevJumpTime;
     private int seekPosition = 0;
-
+    private RelativeLayout relative;
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -67,6 +68,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         setRetainInstance(true);
         mediaUri = getArguments().getParcelable(ARG_URL);
         createMediaPlayer();
+        
     }
 
     private void createMediaPlayer() {
@@ -270,7 +272,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_media_player, container, false);
         surfaceView = (SurfaceView) v.findViewById(R.id.media_surface);
-        RelativeLayout relative = (RelativeLayout) v.findViewById(R.id.relative);
+        relative = (RelativeLayout) v.findViewById(R.id.relative);
         relative.addView(new View(this.getActivity()));
         progressBar = (ProgressBar) v.findViewById(R.id.video_progressBar);
         holder = surfaceView.getHolder();
@@ -364,4 +366,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         return false;
     }
 
+    public void setSurfaceView(SurfaceView sv){
+
+    }
 }

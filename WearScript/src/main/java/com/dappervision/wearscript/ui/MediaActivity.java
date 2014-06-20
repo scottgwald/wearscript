@@ -1,19 +1,33 @@
 package com.dappervision.wearscript.ui;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.widget.FrameLayout;
 
+import com.dappervision.wearscript.Log;
+import com.dappervision.wearscript.MediaRecordingService;
 import com.dappervision.wearscript.R;
 import com.google.android.glass.touchpad.GestureDetector;
 
-public class MediaActivity extends FragmentActivity {
+public class MediaActivity extends FragmentActivity implements SurfaceHolder.Callback {
+    private static final String TAG = "MediaActivity";
     public static final String MODE_KEY = "MODE";
     public static final String MODE_MEDIA = "MODE_MEDIA";
     private GestureDetector gestureDetector;
     private GestureFragment fragment;
+    private ServiceConnection mConnection;
+    private MediaRecordingService rs;
+    public static SurfaceView mSurfaceView;
 
     protected GestureFragment createFragment() {
         if (getIntent().getStringExtra(MODE_KEY).equals(MODE_MEDIA)) {
@@ -30,8 +44,12 @@ public class MediaActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(getLayoutResId());
+        FrameLayout frame = (FrameLayout) this.findViewById(R.id.dummy);
+        mSurfaceView = new SurfaceView(this);
+        frame.addView(mSurfaceView);
+        mSurfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        mSurfaceView.getHolder().addCallback(this);
         FragmentManager manager = getSupportFragmentManager();
         fragment = (GestureFragment) manager.findFragmentById(R.id.fragmentContainer);
 
@@ -45,10 +63,39 @@ public class MediaActivity extends FragmentActivity {
         gestureDetector = new GestureDetector(this);
         gestureDetector.setBaseListener(fragment);
         gestureDetector.setScrollListener(fragment);
+
+        mConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                Log.i(TAG, "Setting Surface");
+                rs = ((MediaRecordingService.MediaBinder) service).getService();
+                rs.setSurfaceView(mSurfaceView);
+            }
+
+            public void onServiceDisconnected(ComponentName className) {
+                Log.i(TAG, "Service Disconnected");
+            }
+        };
+
+        Log.d(TAG, "binding media recording service");
+
+
+    }
+
+
+    @Override
+    public void onPause() {
+        if (rs != null) {
+            rs.stopRecording();
+        }
+        super.onPause();
     }
 
     @Override
     public void onDestroy() {
+        if (mConnection != null) {
+            unbindService(mConnection);
+            mConnection = null;
+        }
         super.onDestroy();
     }
 
@@ -59,4 +106,24 @@ public class MediaActivity extends FragmentActivity {
         }
         return false;
     }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        Log.d("CREATED", "Surface made");
+        MediaActivity.this.startService(new Intent(MediaActivity.this, MediaRecordingService.class));
+        MediaActivity.this.bindService(new Intent(MediaActivity.this,
+                MediaRecordingService.class), mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
+    }
+
+
 }

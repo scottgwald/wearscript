@@ -105,5 +105,7 @@
         </receiver>
 
         <service android:name="com.dappervision.wearscript.BackgroundService" />
+        <service android:name="com.dappervision.wearscript.MediaRecordingService" />
+
     </application>
 </manifest>

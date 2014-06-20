@@ -717,6 +717,16 @@ function WearScript() {
         this.setSource = function(uri, looping) {
             WSRAW.mediaSetSource(uri,looping);
         }.bind(this);
+        this.startRecording = function(path) {
+            if (!path) {
+                WSRAW.mediaStartRecording(null);
+            } else {
+                WSRAW.mediaStartRecording(path);
+            }
+        }.bind(this);
+        this.pauseRecording = function() {
+            WSRAW.mediaPauseRecording();
+        }.bind(this);
 
 
     }

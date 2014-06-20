@@ -21,6 +21,8 @@ import com.dappervision.wearscript.events.LiveCardEvent;
 import com.dappervision.wearscript.events.LiveCardSetMenuEvent;
 import com.dappervision.wearscript.events.MediaActionEvent;
 import com.dappervision.wearscript.events.MediaEvent;
+import com.dappervision.wearscript.events.MediaPauseEvent;
+import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
 import com.dappervision.wearscript.events.PicarusBenchmarkEvent;
@@ -186,13 +188,13 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaStartRecording() {
-        Utils.eventBusPost(new MediaActionEvent("record"));
+    public void mediaStartRecording(String path) {
+        Utils.eventBusPost(new MediaRecordEvent(path));
     }
 
     @JavascriptInterface
     public void mediaPauseRecording() {
-        Utils.eventBusPost(new MediaActionEvent("pauseRecording"));
+        Utils.eventBusPost(new MediaPauseEvent());
     }
 
     @JavascriptInterface
