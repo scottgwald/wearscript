@@ -353,11 +353,13 @@ public class WearScript {
     @JavascriptInterface
     public void saveAudioBuffer(String callback) {
         Log.d(TAG, "in saveAudioBuffer()");
-        Intent intent = new Intent("com.wearscript.record.SAVE_AUDIO").putExtra("millis", System.currentTimeMillis());
-        bs.startService(intent);
+
         CallbackRegistration cr = new CallbackRegistration(RecordingManager.class, callback);
         cr.setEvent(RecordingManager.SAVED);
         Utils.eventBusPost(cr);
+
+        Intent intent = new Intent("com.wearscript.record.SAVE_AUDIO").putExtra("millis", System.currentTimeMillis());
+        bs.startService(intent);
     }
 
     @JavascriptInterface
