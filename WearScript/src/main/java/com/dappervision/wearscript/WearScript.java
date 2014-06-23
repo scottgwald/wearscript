@@ -207,6 +207,11 @@ public class WearScript {
     public void mediaSeekBackwards(int msecs) { Utils.eventBusPost(new MediaActionEvent("seekBackwards", msecs)); }
 
     @JavascriptInterface
+    public void mediaQueue(String filePath) {
+        Utils.eventBusPost(new MediaActionEvent("queue", filePath));
+    }
+
+    @JavascriptInterface
     public void serverConnect(String server, String callback) {
         Log.i(TAG, "serverConnect: " + server);
         if (server.equals("{{WSUrl}}"))

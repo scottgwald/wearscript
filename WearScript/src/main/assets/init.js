@@ -726,6 +726,10 @@ function WearScript() {
             callback=WS._funcfix(callback);
             WSRAW.mediaOnGesture(type,WS._funcwrap(callback));
         }.bind(this);
+
+        this.queue = function (filePath) {
+            WSRAW.mediaQueue(filePath);
+        }
     }
     this.PicarusModel = function (id) {
         this.id = id;

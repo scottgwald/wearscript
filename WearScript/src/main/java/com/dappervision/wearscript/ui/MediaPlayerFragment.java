@@ -48,6 +48,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private long prevJumpTime;
     private int seekPosition = 0;
 
+    ArrayList<MediaPlayer> queue;
+
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -64,26 +66,28 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         Utils.getEventBus().register(this);
         setRetainInstance(true);
         mediaUri = getArguments().getParcelable(ARG_URL);
-        createMediaPlayer();
-
-
+        mp = createMediaPlayer(mediaUri);
+        queue = new ArrayList<MediaPlayer>();
+        queue.add(mp);
     }
 
-    private void createMediaPlayer() {
+    private MediaPlayer createMediaPlayer(Uri uri) {
+        MediaPlayer newMediaPlayer;
         if (progressBar != null)
             progressBar.setVisibility(View.VISIBLE);
-        mp = new MediaPlayer();
+        newMediaPlayer = new MediaPlayer();
         try {
-            mp.setDataSource(getActivity(), mediaUri);
+            newMediaPlayer.setDataSource(getActivity(), uri);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mp.setOnErrorListener(this);
-        mp.setOnPreparedListener(this);
+        newMediaPlayer.setOnErrorListener(this);
+        newMediaPlayer.setOnPreparedListener(this);
 
         if (getArguments().getBoolean(ARG_LOOP))
-            mp.setLooping(true);
-        mp.prepareAsync();
+            newMediaPlayer.setLooping(true);
+        newMediaPlayer.prepareAsync();
+        return newMediaPlayer;
     }
 
     public void onEvent(MediaActionEvent e) {
@@ -116,6 +120,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             mp.seekTo(e.getMsecs());
         } else if (action.equals("seekBackwards")) {
             seekBackwards(e.getMsecs());
+        } else if (action.equals("queue")) {
+            MediaPlayer newMediaPlayer = createMediaPlayer(new Uri.Builder().path(e.getFilePath()).build());
+            queue.get(queue.size() - 1).setNextMediaPlayer(newMediaPlayer);
         }
     }
 
@@ -317,12 +324,12 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             Log.w(TAG, "Server Died");
             mediaPlayer.release();
             mp = null;
-            createMediaPlayer();
+            mp = createMediaPlayer(mediaUri);
         } else if (i == MediaPlayer.MEDIA_ERROR_UNKNOWN) {
             Log.w(TAG, "Unknown Error, resetting");
             mediaPlayer.release();
             mp = null;
-            createMediaPlayer();
+            mp = createMediaPlayer(mediaUri);
         }
         return false;
     }
