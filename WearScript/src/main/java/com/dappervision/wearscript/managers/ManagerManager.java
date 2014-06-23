@@ -43,6 +43,7 @@ public class ManagerManager {
         if (HardwareDetector.hasGDK) {
             add(new CardTreeManager(bs));
         }
+        add(new SubtitleManager(bs));
     }
 
     public void add(Manager manager) {
