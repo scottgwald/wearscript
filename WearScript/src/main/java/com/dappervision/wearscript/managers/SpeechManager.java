@@ -97,7 +97,6 @@ public class SpeechManager extends Manager {
             String spokenText = data.get(0);
             spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
             SpeechManager.this.makeCall("finalResult", String.format("\"%s\"", spokenText));
-            recognizer.stopListening();
         }
 
         public void onPartialResults(Bundle partialResults) {
