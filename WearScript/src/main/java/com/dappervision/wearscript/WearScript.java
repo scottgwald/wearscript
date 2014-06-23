@@ -40,6 +40,7 @@ import com.dappervision.wearscript.events.ServerConnectEvent;
 import com.dappervision.wearscript.events.ShutdownEvent;
 import com.dappervision.wearscript.events.SoundEvent;
 import com.dappervision.wearscript.events.SpeechRecognizeEvent;
+import com.dappervision.wearscript.events.SubtitleEvent;
 import com.dappervision.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
@@ -53,12 +54,11 @@ import com.dappervision.wearscript.managers.EyeManager;
 import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.MediaManager;
 import com.dappervision.wearscript.managers.OpenCVManager;
+import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.PicarusManager;
 import com.dappervision.wearscript.managers.SpeechManager;
 import com.dappervision.wearscript.managers.WarpManager;
-import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
-import com.dappervision.wearscript.ui.MediaPlayerFragment;
 
 import org.json.simple.JSONObject;
 
@@ -198,6 +198,16 @@ public class WearScript {
     @JavascriptInterface
     public void mediaPauseRecording() {
         Utils.eventBusPost(new MediaPauseEvent());
+    }
+
+    @JavascriptInterface
+    public void mediaStartSubtitles(String filePath, int millis) {
+        Utils.eventBusPost(new SubtitleEvent(filePath, millis));
+    }
+
+    @JavascriptInterface
+    public void mediaPauseSubtitles() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @JavascriptInterface

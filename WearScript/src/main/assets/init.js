@@ -717,7 +717,7 @@ function WearScript() {
         this.setSource = function(uri, looping) {
             WSRAW.mediaSetSource(uri,looping);
         }.bind(this);
-        this.startRecording = function(path,callback) {
+        this.startRecording = function(path, callback) {
             if (!path && !callback) {
                 WSRAW.mediaStartRecording(null,null);
             } else if (path && callback) {
@@ -737,11 +737,23 @@ function WearScript() {
                 }
             }
         }.bind(this);
+
         this.pauseRecording = function() {
             WSRAW.mediaPauseRecording();
         }.bind(this);
 
+        this.startRecordingWithSubtitles(recordingPath, subtitlePath, recordingCallback) {
+            this.startRecording(recordingPath, callback);
+            this.startSubtitles(subtitlePath, new Date().getTime());
+        }
 
+        this.startSubtitles = function(subtitlePath, millis) {
+            WSRAW.mediaStartSubtitles(subtitlePath, millis);
+        }
+
+        this.pauseSubtitles = function() {
+            WSRAW.mediaPauseSubtitles();
+        }
     }
     this.PicarusModel = function (id) {
         this.id = id;

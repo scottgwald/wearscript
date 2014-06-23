@@ -15,6 +15,7 @@ import com.dappervision.wearscript.events.ActivityResultEvent;
 import com.dappervision.wearscript.events.BackgroundSpeechEvent;
 import com.dappervision.wearscript.events.SpeechRecognizeEvent;
 import com.dappervision.wearscript.events.StartActivityEvent;
+import com.dappervision.wearscript.events.SubtitleEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +60,11 @@ public class SpeechManager extends Manager {
         recognizer.startListening(intent);
     }
 
+    public void onEventMainThread(SubtitleEvent e) {
+        Utils.eventBusPost(new BackgroundSpeechEvent(""));
+        // subtitle file stuff here
+    }
+
     public void onEvent(SpeechRecognizeEvent e) {
         registerCallback(SPEECH, e.getCallback());
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -68,6 +74,16 @@ public class SpeechManager extends Manager {
 
 
     class SpeechListener implements RecognitionListener {
+        public SpeechListener() {}
+
+        public SpeechListener(String filePath, int millis) {
+            startSubtitleFile(filePath, millis);
+        }
+
+        public void startSubtitleFile(String filePath, int millis) {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
         static final String TAG = "SpeechListener";
 
         public void onReadyForSpeech(Bundle params) {
