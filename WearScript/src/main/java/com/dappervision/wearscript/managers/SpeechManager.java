@@ -17,8 +17,13 @@ import com.dappervision.wearscript.events.SpeechRecognizeEvent;
 import com.dappervision.wearscript.events.StartActivityEvent;
 import com.dappervision.wearscript.events.SubtitleEvent;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class SpeechManager extends Manager {
@@ -30,7 +35,7 @@ public class SpeechManager extends Manager {
     public SpeechManager(BackgroundService service) {
         super(service);
         recognizer = SpeechRecognizer.createSpeechRecognizer(service.getBaseContext());
-        recognizer.setRecognitionListener(new SpeechListener());
+        recognizer.setRecognitionListener(new SubtitleListener());
         reset();
     }
 
@@ -129,12 +134,39 @@ public class SpeechManager extends Manager {
     }
 
     class SubtitleListener extends SpeechListener {
+        private int numSubtitles = 0;
+        private String filePath;
+        private long startTimeMillis;
+        private PrintWriter printWriter;
+
+        public void setFilePath(String filePath) {
+            numSubtitles = 0;
+            try {
+                printWriter = new PrintWriter(new FileWriter(filePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void setStartTimeMillis(long startTimeMillis) {
+            this.startTimeMillis = startTimeMillis;
+        }
+
         public void onPartialResults(Bundle partialResults) {
             ArrayList<String> data = partialResults
                     .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             String spokenText = data.get(0);
             spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
-            // record file
+
+            printWriter.println(numSubtitles);
+            ++numSubtitles;
+            long timeDeltaMillis = System.currentTimeMillis() - startTimeMillis;
+            Date startDate = new Date(timeDeltaMillis);
+            Date endDate = new Date(timeDeltaMillis + 1000);
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss,SSS");
+            printWriter.println(formatter.format(startDate) + " --> " + formatter.format(endDate));
+            printWriter.println(spokenText);
+            printWriter.println();
         }
 
         public void onResults(Bundle results) {
