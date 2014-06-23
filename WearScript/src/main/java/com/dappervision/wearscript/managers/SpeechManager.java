@@ -168,6 +168,7 @@ public class SpeechManager extends Manager {
                     .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             String spokenText = data.get(0);
             spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
+            Log.d(TAG, "spoken text: " + spokenText);
 
             printWriter.println(numSubtitles);
             ++numSubtitles;
