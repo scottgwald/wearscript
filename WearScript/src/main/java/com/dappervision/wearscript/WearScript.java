@@ -188,6 +188,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void mediaTakeTwoRewind(int speed){
+        Utils.eventBusPost(new MediaActionEvent("takeTwoRewind",speed));
+    }
+
+    @JavascriptInterface
     public void mediaStartRecording(String path, String callback) {
         if (callback != null) {
             Utils.eventBusPost(new CallbackRegistration(MediaManager.class,callback).setEvent("startRecording"));

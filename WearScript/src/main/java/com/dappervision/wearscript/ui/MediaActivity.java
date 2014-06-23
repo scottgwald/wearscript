@@ -66,6 +66,8 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
                 Log.i(TAG, "Setting Surface");
                 rs = ((MediaRecordingService.MediaBinder) service).getService();
                 rs.setSurfaceView(mSurfaceView);
+                MediaPlayerFragment mediaFragment = (MediaPlayerFragment) fragment;
+                mediaFragment.setServiceHandle(rs);
             }
 
             public void onServiceDisconnected(ComponentName className) {

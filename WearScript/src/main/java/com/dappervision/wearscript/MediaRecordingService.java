@@ -19,6 +19,7 @@ import com.dappervision.wearscript.events.MediaRecordPathEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +31,10 @@ public class MediaRecordingService extends Service {
     private MediaRecorder mediaRecorder;
     private SurfaceView dummy;
     private String filePath;
+    private int currentFile = 0;
+    private int currentRecording = -1;
+    private ArrayList<String> fileFragments = new ArrayList<String>();
+
 
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -48,17 +53,25 @@ public class MediaRecordingService extends Service {
         return super.onStartCommand(i, z, y);
     }
 
-    public String getCurrentFile() {
-        return null;
-    }
-
     public void onEvent(MediaRecordEvent e) {
         if (e.getFilePath() == null) {
             this.generateOutputMediaFile();
         } else {
             filePath = e.getFilePath();
         }
+
         Utils.eventBusPost(new MediaRecordPathEvent(filePath));
+        this.startRecord(filePath);
+    }
+
+    public void startRecord(String path) {
+        if (path == null) {
+            this.generateOutputMediaFile();
+        } else {
+            filePath = path;
+        }
+        fileFragments.add(filePath);
+        this.currentRecording++;
         this.startRecording();
     }
 
@@ -67,6 +80,9 @@ public class MediaRecordingService extends Service {
     }
 
     private boolean prepareVideoRecorder() {
+        if( camera == null) {  //remove maybe?
+            camera = getCameraInstanceRetry();
+        }
         try {
             camera.stopPreview();
             camera.setPreviewDisplay(null);
@@ -107,12 +123,18 @@ public class MediaRecordingService extends Service {
     }
 
     private void startRecording() {
+
         Log.d(TAG, "startRecording()");
+
+        if (mediaRecorder != null) {
+            this.releaseMediaRecorder();
+        }
         prepareVideoRecorder();
         mediaRecorder.start();
     }
 
     public void stopRecording() {
+       // fileFragments.clear(); //clear all fragments
         Log.v(TAG, "Stopping recording.");
         if (mediaRecorder != null)
             mediaRecorder.stop();
@@ -198,7 +220,7 @@ public class MediaRecordingService extends Service {
      * Create a File for saving an image or video
      */
     private void generateOutputMediaFile() {
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "wearscript_video");
+        File mediaStorageDir = new File("/sdcard/", "wearscript_video");
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
                 Log.d(TAG, "failed to create directory");
@@ -209,6 +231,44 @@ public class MediaRecordingService extends Service {
                 "VID_" + timeStamp + ".mp4";
         Log.v(TAG, "Output file: " + filePath);
     }
+
+    public String getPreviousFile() {
+        if (currentFile-1 < 0 || currentFile > this.fileFragments.size()-1) {
+            return null;
+        } else {
+            currentFile--;
+            return this.fileFragments.get(currentFile);
+        }
+    }
+
+    public String getNextFile() {
+
+        currentFile++;
+        if (currentFile== currentRecording) {
+                this.stopRecording();
+                this.startRecord(null);
+            }
+        for (String s : this.fileFragments){
+            Log.d("LIST",s);
+        }
+        Log.d("CURRENT",Integer.toString(currentFile));
+        return this.fileFragments.get(currentFile);
+
+    }
+
+    public String getCurrentFile() {
+        Log.d("HERE","get current File");
+        Log.d("currentFile",Integer.toString(currentFile));
+        Log.d("currentRecording",Integer.toString(currentRecording));
+        if (currentFile == currentRecording) {
+            Log.d("HERE","calling stop");
+            this.stopRecording();
+            this.startRecord(null);
+        }
+        return this.fileFragments.get(currentFile);
+    }
+
+
 
 
 }

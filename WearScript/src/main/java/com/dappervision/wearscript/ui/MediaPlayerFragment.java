@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.widget.RelativeLayout;
 
 import com.dappervision.wearscript.Log;
+import com.dappervision.wearscript.MediaRecordingService;
 import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.events.MediaActionEvent;
@@ -29,12 +30,14 @@ import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener {
+public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener , MediaPlayer.OnCompletionListener {
     public static final String ARG_URL = "ARG_URL";
     public static final String ARG_LOOP = "ARG_LOOP";
     private static final String TAG = "MediaPlayerFragment";
@@ -51,6 +54,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private long prevJumpTime;
     private int seekPosition = 0;
     private RelativeLayout relative;
+    private MediaRecordingService rs;
+    private ArrayList<String> fileFragments = new ArrayList<String>();
+    private String currentFile="";
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -86,11 +92,14 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
             if (getArguments().getBoolean(ARG_LOOP))
                 mp.setLooping(true);
+            this.currentFile = mediaUri.toString();
             mp.prepareAsync();
         } else {
             if (progressBar != null)
                 progressBar.setVisibility(View.INVISIBLE);
         }
+
+        mp.setOnCompletionListener(this);
     }
 
     private void setMediaSource(Uri uri, boolean looping) {
@@ -104,6 +113,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         try {
             mp.reset();
+            Log.d("TRY",mediaUri.toString());
             mp.setDataSource(getActivity(), mediaUri);
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,7 +121,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mp.setOnErrorListener(this);
         mp.setOnPreparedListener(this);
         mp.setLooping(looping);
-        mp.prepareAsync();
+        this.currentFile = mediaUri.toString();
+        try {
+            mp.prepare();
+            mp.start();
+
+        } catch(IOException e){}
+
     }
 
     public void onEvent(MediaSourceEvent e) {
@@ -141,6 +157,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             rewind(e.getMagnitude());
         } else if (action.equals("fastForward")) {
             fastForward(e.getMagnitude());
+        } else if (action.equals("takeTwoRewind")) {
+            takeTwoRewind(e.getMagnitude());
         }
     }
 
@@ -251,6 +269,19 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             }
         }, startDelay);
     }
+
+    private void takeTwoRewind(final int speed) {
+        final String prevFile = rs.getCurrentFile();
+        if(prevFile != null)
+        Log.d("FILE", prevFile);
+        if (prevFile != null && !this.currentFile.equals(prevFile)) {
+            this.setMediaSource(android.net.Uri.parse(prevFile), false);
+            this.playReverseFromEnd(200);
+        } else {
+            this.rewind(speed);
+        }
+    }
+
 
     private void rewind(final int speed) {
         modifiedSpeedPlayback(speed, false, false);
@@ -368,5 +399,21 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void setSurfaceView(SurfaceView sv){
 
+    }
+
+    public void onCompletion(MediaPlayer mp) {
+        Log.d("HERE","on Completion called");
+        String nextFile = rs.getNextFile();
+        if(nextFile != null)
+        Log.d("HERE",nextFile);
+        if (nextFile == null) {
+            return;
+        } else {
+            this.setMediaSource(android.net.Uri.parse(nextFile), false);
+        }
+    }
+
+    public void setServiceHandle(MediaRecordingService service) {
+        rs = service;
     }
 }

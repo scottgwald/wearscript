@@ -740,6 +740,9 @@ function WearScript() {
         this.pauseRecording = function() {
             WSRAW.mediaPauseRecording();
         }.bind(this);
+        this.takeTwoRewind = function(speed) {
+            WSRAW.mediaTakeTwoRewind(speed);
+        }.bind(this);
 
 
     }
