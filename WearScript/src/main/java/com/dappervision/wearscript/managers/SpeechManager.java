@@ -127,4 +127,22 @@ public class SpeechManager extends Manager {
             Log.d(TAG, "onEvent " + eventType);
         }
     }
+
+    class SubtitleListener extends SpeechListener {
+        public void onPartialResults(Bundle partialResults) {
+            ArrayList<String> data = partialResults
+                    .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            String spokenText = data.get(0);
+            spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
+            // record file
+        }
+
+        public void onResults(Bundle results) {
+            ArrayList<String> data = results
+                    .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            Log.d(TAG, "onResults: " + data.get(0));
+            String spokenText = data.get(0);
+            spokenText = Base64.encodeToString(spokenText.getBytes(), Base64.NO_WRAP);
+        }
+    }
 }
