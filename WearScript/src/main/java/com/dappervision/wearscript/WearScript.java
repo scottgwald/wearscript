@@ -201,13 +201,13 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaStartSubtitles(String filePath, int millis) {
-        Utils.eventBusPost(new SubtitleEvent(filePath, millis));
+    public void mediaStartSubtitles(String filePath) {
+        Utils.eventBusPost(new SubtitleEvent(filePath, System.currentTimeMillis()));
     }
 
     @JavascriptInterface
     public void mediaPauseSubtitles() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        Utils.eventBusPost(new SubtitleEvent.Pause());
     }
 
     @JavascriptInterface

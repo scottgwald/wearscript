@@ -30,12 +30,14 @@ public class SpeechManager extends Manager {
     static private String SPEECH = "SPEECH";
     static final String TAG = "SpeechManager";
     private SpeechRecognizer recognizer;
+    SubtitleListener subtitleListener;
     private List list = Collections.synchronizedList(new ArrayList());
 
     public SpeechManager(BackgroundService service) {
         super(service);
         recognizer = SpeechRecognizer.createSpeechRecognizer(service.getBaseContext());
-        recognizer.setRecognitionListener(new SubtitleListener());
+        subtitleListener = new SubtitleListener();
+        recognizer.setRecognitionListener(subtitleListener);
         reset();
     }
 
@@ -67,7 +69,12 @@ public class SpeechManager extends Manager {
 
     public void onEventMainThread(SubtitleEvent e) {
         Utils.eventBusPost(new BackgroundSpeechEvent(""));
-        // subtitle file stuff here
+        subtitleListener.setFilePath(e.getFilePath());
+        subtitleListener.setStartTimeMillis(e.getStartTimeMillis());
+    }
+
+    public void onEventMainThread(SubtitleEvent.Pause e) {
+        subtitleListener.closeFile();
     }
 
     public void onEvent(SpeechRecognizeEvent e) {
@@ -150,6 +157,10 @@ public class SpeechManager extends Manager {
 
         public void setStartTimeMillis(long startTimeMillis) {
             this.startTimeMillis = startTimeMillis;
+        }
+
+        public void closeFile() {
+            printWriter.close();
         }
 
         public void onPartialResults(Bundle partialResults) {

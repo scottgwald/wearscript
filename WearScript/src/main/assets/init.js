@@ -742,13 +742,13 @@ function WearScript() {
             WSRAW.mediaPauseRecording();
         }.bind(this);
 
-        this.startRecordingWithSubtitles(recordingPath, subtitlePath, recordingCallback) {
+        this.startRecordingWithSubtitles = function(recordingPath, subtitlePath, recordingCallback) {
             this.startRecording(recordingPath, callback);
-            this.startSubtitles(subtitlePath, new Date().getTime());
+            this.startSubtitles(subtitlePath);
         }
 
-        this.startSubtitles = function(subtitlePath, millis) {
-            WSRAW.mediaStartSubtitles(subtitlePath, millis);
+        this.startSubtitles = function(subtitlePath) {
+            WSRAW.mediaStartSubtitles(subtitlePath);
         }
 
         this.pauseSubtitles = function() {
