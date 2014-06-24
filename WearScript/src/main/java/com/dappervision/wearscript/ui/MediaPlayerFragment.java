@@ -23,6 +23,7 @@ import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
 import com.google.android.glass.touchpad.Gesture;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,33 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         if (progressBar != null)
             progressBar.setVisibility(View.VISIBLE);
         mp = new MediaPlayer();
+        if (mediaUri != null) {
+            try {
+                mp.setDataSource(new FileInputStream(mediaUri.getPath()).getFD());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mp.setOnErrorListener(this);
+            mp.setOnPreparedListener(this);
+
+            if (getArguments().getBoolean(ARG_LOOP))
+                mp.setLooping(true);
+            mp.prepareAsync();
+        } else {
+            if (progressBar != null)
+                progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void setMediaSource(Uri uri, boolean looping) {
+
+        mediaUri = uri;
+        if (mp == null) {
+            return;
+        }
+        if (mp.isPlaying()) {
+            mp.stop();
+        }
         try {
             mp.setDataSource(getActivity(), mediaUri);
         } catch (IOException e) {
