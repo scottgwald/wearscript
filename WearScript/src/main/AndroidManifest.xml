@@ -105,8 +105,13 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="com.dappervision.wearscript.BackgroundService" />
-        <service android:name=".record.AudioRecorder" />
+        <service android:name=".record.AudioRecorder">
+            <intent-filter>
+                <action android:name="com.wearscript.record.RECORD_AUDIO" />
+                <action android:name="com.wearscript.record.SAVE_AUDIO" />
+                <action android:name="com.wearscript.record.STOP_AUDIO" />
+            </intent-filter>
+        </service>
 
         <service android:name="com.dappervision.wearscript.BackgroundService" />
     </application>

@@ -44,7 +44,9 @@ public class AudioRecorder extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LOG_TAG, "in onStartCommand()");
         if (intent.getAction() != null) {
+            Log.d(LOG_TAG, "received intent.getAction(): " + intent.getAction());
             if (intent.getAction().equals("com.wearscript.record.RECORD_AUDIO")) {
                 recorder = new AudioRecordThread(this, intent.getStringExtra("filePath"));
                 recorder.start();

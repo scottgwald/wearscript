@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class AudioRecordThread extends Thread {
 
-    private static final String LOG_TAG = "Audio";
+    private static final String LOG_TAG = "AudioRecordThread";
 
     private static final int RECORDER_SAMPLERATE = 8000;
     private static final int ENCODING_TYPE = AudioFormat.ENCODING_PCM_16BIT;
@@ -217,9 +217,6 @@ public class AudioRecordThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        nextFilePath = directoryAudio + File.separator + System.currentTimeMillis() + ".wav";
-        writeWavHeader(nextFilePath);
     }
 }
 
