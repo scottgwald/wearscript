@@ -211,12 +211,6 @@ public class AudioRecordThread extends Thread {
         Intent intent = new Intent("com.wearscript.record.FILE_WRITTEN_AUDIO").putExtra(FILEPATH, nextFilePath);
         context.sendBroadcast(intent);
         Log.d(LOG_TAG, "Sending broadcast: com.wearscript.record.FILE_WRITTEN_AUDIO");
-
-        try {
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
 
