@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.dappervision.wearscript.R;
+import com.dappervision.wearscript.Utils;
 
 import java.io.File;
 
@@ -50,7 +51,7 @@ public class AudioMergeActivity extends Activity {
 
             mService.stopRecording();
 
-            AudioMerger.merge(new File(pathA), new File(pathB), new File(pathOutput));
+            Utils.AudioMerger.merge(new File(pathA), new File(pathB), new File(pathOutput));
         }
 
         @Override
