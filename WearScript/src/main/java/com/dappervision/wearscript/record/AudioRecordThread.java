@@ -3,7 +3,9 @@ package com.dappervision.wearscript.record;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
+import android.media.AudioTrack;
 import android.media.MediaRecorder.AudioSource;
 import android.os.Environment;
 import android.util.Log;
@@ -18,8 +20,8 @@ public class AudioRecordThread extends Thread {
 
     private static final String LOG_TAG = "AudioRecordThread";
 
-    private static final int RECORDER_SAMPLERATE = 8000;
-    private static final int ENCODING_TYPE = AudioFormat.ENCODING_PCM_16BIT;
+    public static final int RECORDER_SAMPLERATE = 8000;
+    public static final int ENCODING_TYPE = AudioFormat.ENCODING_PCM_16BIT;
     public static final int WAV_HEADER_LENGTH = 44;
     public static final String FILEPATH = "filepath";
     private final int CHANNEL_TYPE = AudioFormat.CHANNEL_IN_MONO;
@@ -45,11 +47,25 @@ public class AudioRecordThread extends Thread {
     private ArrayList<byte[]> buffers;
     private byte[] totalBuffer;
 
+    private AudioTrack audioTrack;
+
     Context context;
 
     public AudioRecordThread(Context context, String filePath) {
         this.context = context;
         writeWavHeader(filePath);
+
+        audioTrack = new AudioTrack(
+                AudioManager.STREAM_VOICE_CALL,
+                AudioRecordThread.RECORDER_SAMPLERATE,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioRecordThread.ENCODING_TYPE,
+                AudioTrack.getMinBufferSize(
+                        AudioRecordThread.RECORDER_SAMPLERATE,
+                        AudioFormat.CHANNEL_OUT_MONO,
+                        AudioRecordThread.ENCODING_TYPE),
+                AudioTrack.MODE_STREAM);
+        audioTrack.play();
     }
 
     @Override
@@ -73,6 +89,8 @@ public class AudioRecordThread extends Thread {
                 synchronized (this) {
                     buffers.add(new byte[bufferSize]);
                     recorder.read(buffers.get(buffers.size() - 1), 0, bufferSize);
+                    Log.d(LOG_TAG, "writing to audioTrack in read loop: " + bufferSize + " bytes");
+                    audioTrack.write(buffers.get(buffers.size() - 1), 0, bufferSize);
                 }
                 Thread.sleep(5);
                 yield();
@@ -89,6 +107,7 @@ public class AudioRecordThread extends Thread {
             recorder.release();
             context.stopService(new Intent(context, AudioRecorder.class));
             Log.d(LOG_TAG, "Thread Terminated");
+            audioTrack.release();
         }
     }
 
@@ -200,17 +219,8 @@ public class AudioRecordThread extends Thread {
     }
 
     public void writeAudioDataToFile() {
+        Log.d(LOG_TAG, "in writeAudioDataToFile()");
         mergeBuffers();
-
-        try {
-            os.write(totalBuffer, 0, totalBuffer.length);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Intent intent = new Intent("com.wearscript.record.FILE_WRITTEN_AUDIO").putExtra(FILEPATH, nextFilePath);
-        context.sendBroadcast(intent);
-        Log.d(LOG_TAG, "Sending broadcast: com.wearscript.record.FILE_WRITTEN_AUDIO");
     }
 }
 

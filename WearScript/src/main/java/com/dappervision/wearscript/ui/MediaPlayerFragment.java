@@ -71,6 +71,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void createMediaPlayer() {
+
         if (progressBar != null)
             progressBar.setVisibility(View.VISIBLE);
         mp = new MediaPlayer();
