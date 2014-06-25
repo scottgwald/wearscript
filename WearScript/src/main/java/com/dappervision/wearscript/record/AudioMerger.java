@@ -1,9 +1,36 @@
 package com.dappervision.wearscript.record;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class AudioMerger {
-    public static File merge(File file1, File file2) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public static void merge(File file1, File file2, File output) {
+        byte[] file1contents, file2contents;
+        try {
+            file1contents = readAllBytes(file1);
+            file2contents = readAllBytes(file2);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        byte[] outputContents = new byte[file1contents.length + file2contents.length - AudioRecordThread.WAV_HEADER_LENGTH];
+        System.arraycopy(file1contents, 0, outputContents, 0, file1contents.length);
+        System.arraycopy(file2contents, 0, outputContents, file1contents.length, file2contents.length);
+        try {
+            new FileOutputStream(output).write(outputContents);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static byte[] readAllBytes(File file) throws IOException {
+        RandomAccessFile f = new RandomAccessFile(file, "r");
+        byte[] b = new byte[(int)f.length()];
+        f.read(b);
+        return b;
     }
 }
