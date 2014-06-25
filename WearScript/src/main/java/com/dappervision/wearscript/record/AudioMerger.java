@@ -18,7 +18,9 @@ public class AudioMerger {
 
         byte[] outputContents = new byte[file1contents.length + file2contents.length - AudioRecordThread.WAV_HEADER_LENGTH];
         System.arraycopy(file1contents, 0, outputContents, 0, file1contents.length);
-        System.arraycopy(file2contents, 0, outputContents, file1contents.length, file2contents.length);
+        System.arraycopy(file2contents, AudioRecordThread.WAV_HEADER_LENGTH,
+                outputContents, file1contents.length,
+                file2contents.length - AudioRecordThread.WAV_HEADER_LENGTH);
         try {
             new FileOutputStream(output).write(outputContents);
         } catch (IOException e) {
