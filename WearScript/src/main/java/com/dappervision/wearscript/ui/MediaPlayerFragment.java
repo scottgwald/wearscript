@@ -26,9 +26,11 @@ import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
+import com.dappervision.wearscript.takeTwo.FragmentedFile;
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -271,15 +273,44 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void takeTwoRewind(final int speed) {
-        final String prevFile = rs.getCurrentFile();
-        if(prevFile != null)
-        Log.d("FILE", prevFile);
-        if (prevFile != null && !this.currentFile.equals(prevFile)) {
-            this.setMediaSource(android.net.Uri.parse(prevFile), false);
-            this.playReverseFromEnd(200);
-        } else {
-            this.rewind(speed);
-        }
+//        final String prevFile = rs.getCurrentFile();
+//        if(prevFile != null)
+//        Log.d("FILE", prevFile);
+//        if (prevFile != null && !this.currentFile.equals(prevFile)) {
+//            this.setMediaSource(android.net.Uri.parse(prevFile), false);
+//            this.playReverseFromEnd(200);
+//        } else {
+//            this.rewind(speed);
+//        }
+        FragmentedFile file = new FragmentedFile(true);
+        File a = new File ("/sdcard/test1.mp4");
+        File b = new File ("/sdcard/test2.mp4");
+        File c = new File ("/sdcard/dos.mp4");
+        file.addFragment(a.getPath(),-1);
+        file.setTailDuration(this.getDuration(a.getPath()));
+        file.addFragment(b.getPath(), -1);
+        file.setTailDuration(this.getDuration(b.getPath()));
+        file.addFragment(c.getPath(), -1);
+        file.setTailDuration(this.getDuration(c.getPath()));
+
+        Log.d("FragmentedFile","File for time 1350: "+file.getFragmentFromTime(1350).getFilePath());
+        Log.d("FragmentedFile","In time: "+file.getFragmentFromTime(1350).getTimeInFile());
+
+        file.flattenFile();
+
+        Log.d("FragmentedFile","File for time 34816: "+file.getFragmentFromTime(34816).getFilePath());
+        Log.d("FragmentedFile","In time: "+file.getFragmentFromTime(34816).getTimeInFile());
+
+        Log.d("FragmentedFile","File for time 34815: "+file.getFragmentFromTime(34815).getFilePath());
+        Log.d("FragmentedFile","In time: "+file.getFragmentFromTime(34815).getTimeInFile());
+
+
+        Log.d("FragmentedFile","jump for time 1000 from test1 1000: "+file.getFragmentFromJump(1000,1000,"/sdcard/test1-test2.mp4").getFilePath());
+        Log.d("FragmentedFile","In time: "+file.getFragmentFromJump(1000,1000,"/sdcard/test1-test2.mp4").getTimeInFile());
+
+        Log.d("FragmentedFile","jump for time -1 from test2 34816: "+file.getFragmentFromJump(1,0,"/sdcard/test1-test2.mp4").getFilePath());
+        Log.d("FragmentedFile","In time: "+file.getFragmentFromJump(1,0,"/sdcard/test1-test2.mp4").getTimeInFile());
+        file.print();
     }
 
 
@@ -411,6 +442,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         } else {
             this.setMediaSource(android.net.Uri.parse(nextFile), false);
         }
+    }
+
+    public long getDuration(String path) {
+        MediaPlayer mp = MediaPlayer.create(this.getActivity(), Uri.parse(path));
+        return mp.getDuration();
     }
 
     public void setServiceHandle(MediaRecordingService service) {

@@ -38,4 +38,6 @@ dependencies {
     compile project(':opencv-android')
     compile files('libs/PebbleKit.jar')
     compile files('libs/android-support-v13.jar')
+    compile files ('libs/aspectjrt-1.7.3.jar')
+    compile files ('libs/isoparser-1.0.2.jar')
 }
