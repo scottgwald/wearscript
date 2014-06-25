@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class AudioMerger {
-    public static void merge(File file1, File file2, File output) {
+    public static boolean merge(File file1, File file2, File output) {
         byte[] file1contents, file2contents;
         try {
             file1contents = readAllBytes(file1);
             file2contents = readAllBytes(file2);
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+            return false;
         }
 
         byte[] outputContents = new byte[file1contents.length + file2contents.length - AudioRecordThread.WAV_HEADER_LENGTH];
@@ -23,8 +23,9 @@ public class AudioMerger {
             new FileOutputStream(output).write(outputContents);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-
+        return true;
     }
 
     public static byte[] readAllBytes(File file) throws IOException {

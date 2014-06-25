@@ -22,6 +22,14 @@ public class AudioMergeActivity extends Activity {
             AudioRecorder.LocalBinder binder = (AudioRecorder.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
+
+            mService.startRecording("/sdcard/wearscript/audio/a.wav");
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            mService.saveAndStartNewFile("/sdcard/wearscript/audio/b.wav");
         }
 
         @Override

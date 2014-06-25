@@ -56,13 +56,17 @@ public class AudioRecorder extends Service {
         }
         return 0;
     }
-    
+
     public void startRecording(String filePath) {
         recorder = new AudioRecordThread(this, filePath);
         recorder.start();
     }
 
     public void saveFile() {
+        recorder.writeAudioDataToFile();
+    }
+
+    public void saveAndStartNewFile() {
         recorder.writeAudioDataToFile();
     }
 
