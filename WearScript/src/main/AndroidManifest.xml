@@ -110,6 +110,11 @@
 
         <service android:name="com.dappervision.wearscript.BackgroundService" />
         <service android:name="com.dappervision.wearscript.MediaRecordingService" />
+        <service android:name=".record.AudioRecorder">
+            <intent-filter>
+                <action android:name="com.wearscript.AUDIO" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name="com.dappervision.wearscript.record.AudioMergeActivity"
