@@ -45,6 +45,8 @@ public class AudioMergeActivity extends Activity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            Log.d(TAG, "saving second file");
+            mService.saveFile();
 
             mService.stopRecording();
 
