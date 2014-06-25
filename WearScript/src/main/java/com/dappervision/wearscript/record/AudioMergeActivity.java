@@ -28,21 +28,22 @@ public class AudioMergeActivity extends Activity {
             mService = binder.getService();
             mBound = true;
 
-            String pathA = "/sdcard/wearscript/audio/a.wav";
-            String pathB = "/sdcard/wearscript/audio/b.wav";
-            String pathOutput = "/sdcard/wearscript/audio/merged.wav";
+            String pathA = "/sdcard/wearscript/audio/a1.wav";
+            String pathB = "/sdcard/wearscript/audio/b1.wav";
+            String pathOutput = "/sdcard/wearscript/audio/merged1.wav";
 
             mService.startRecording(pathA);
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            Log.d(TAG, "saving first file");
             mService.saveAndStartNewFile(pathB);
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
