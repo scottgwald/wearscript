@@ -135,37 +135,35 @@ public class Utils {
 
     public static class AudioMerger {
         public static boolean merge(List<File> toMerge, String output) {
-            byte[][] data = new byte[toMerge.size()][];
-            int start = toMerge.size() - 1;
-            int totalFileLength = 0;
-            for (int i = start; i >= 0; --i) {
-                data[i] = LoadFile(toMerge.get(i));
-                if (data[i] == null) {
-                    Log.e(TAG, "file contents could not be read: " + toMerge.get(i).getAbsolutePath());
+            FileOutputStream outputStream;
+            try {
+                outputStream = new FileOutputStream(output, false);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            byte[] buffer = new byte[1024];
+            for (int i = 0; i < toMerge.size(); ++i) {
+                Log.d(TAG, "merging file " + i);
+                int len;
+                boolean removeHeader = (i > 0);
+                try {
+                    FileInputStream inputStream = new FileInputStream(toMerge.get(i));
+                    while ((len = inputStream.read(buffer)) > 0) {
+                        int byteOffset = removeHeader ? AudioRecordThread.WAV_HEADER_LENGTH : 0;
+                        outputStream.write(buffer, byteOffset, len - byteOffset);
+                        removeHeader = false;
+                    }
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                     return false;
                 }
-                totalFileLength += data[i].length;
             }
-
-            byte[] outputContents = new byte[totalFileLength
-                    - AudioRecordThread.WAV_HEADER_LENGTH * (toMerge.size() - 1)];
-
-            // Copy first file, including WAV header
-            System.arraycopy(data[0], 0, outputContents, 0, data[0].length);
-
-            // Copy the rest of the files, excluding WAV headers
-            int totalDataRecorded = data[0].length;
-            for (int i = 1; i <= start; ++i) {
-                int lengthToCopy = data[i].length - AudioRecordThread.WAV_HEADER_LENGTH;
-                System.arraycopy(data[i], AudioRecordThread.WAV_HEADER_LENGTH,
-                        outputContents, totalDataRecorded,
-                        lengthToCopy);
-                totalDataRecorded += lengthToCopy;
-            }
+            Log.d(TAG, "finished merging into " + output);
 
             try {
-                FileOutputStream outputStream = new FileOutputStream(output, false);
-                outputStream.write(outputContents);
                 outputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();

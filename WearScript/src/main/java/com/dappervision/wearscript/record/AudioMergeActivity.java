@@ -32,10 +32,10 @@ public class AudioMergeActivity extends Activity {
             int numFiles = 5;
             ArrayList<File> files = new ArrayList<File>();
             for (int i = 0; i < numFiles; ++i) {
-                files.add(new File("/sdcard/wearscript/audio/part-3-" + i + ".wav"));
+                files.add(new File("/sdcard/wearscript/audio/part-4-" + i + ".wav"));
             }
 
-            String pathOutput = "/sdcard/wearscript/audio/merged5.wav";
+            String pathOutput = "/sdcard/wearscript/audio/merged9.wav";
 
             Log.d(TAG, "STARTING TO RECORD");
 
