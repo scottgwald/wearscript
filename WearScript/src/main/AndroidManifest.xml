@@ -118,7 +118,8 @@
 
         <activity
             android:name="com.dappervision.wearscript.record.AudioMergeActivity"
-            android:label="@string/title_activity_audio_merge" >
+            android:label="@string/title_activity_audio_merge"
+            android:exported="true">
         </activity>
     </application>
 
