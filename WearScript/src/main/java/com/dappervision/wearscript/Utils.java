@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
@@ -136,11 +135,14 @@ public class Utils {
     public static class AudioMerger {
         public static boolean merge(File file1, File file2, File output) {
             byte[] file1contents, file2contents;
-            try {
-                file1contents = readAllBytes(file1);
-                file2contents = readAllBytes(file2);
-            } catch (IOException e) {
-                e.printStackTrace();
+            file1contents = LoadFile(file1);
+            file2contents = LoadFile(file2);
+            if (file1contents == null) {
+                Log.e(TAG, "file contents could not be read: " + file1.getAbsolutePath());
+                return false;
+            }
+            if (file2contents == null) {
+                Log.e(TAG, "file contents could not be read: " + file2.getAbsolutePath());
                 return false;
             }
 
@@ -156,13 +158,6 @@ public class Utils {
                 return false;
             }
             return true;
-        }
-
-        public static byte[] readAllBytes(File file) throws IOException {
-            RandomAccessFile f = new RandomAccessFile(file, "r");
-            byte[] b = new byte[(int)f.length()];
-            f.read(b);
-            return b;
         }
     }
 }
