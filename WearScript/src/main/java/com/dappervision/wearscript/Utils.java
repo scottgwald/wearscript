@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
@@ -133,8 +134,15 @@ public class Utils {
     }
 
     public static class AudioMerger {
-        public static boolean merge(File file1, File file2, File output) {
-            byte[] file1contents, file2contents;
+        public static boolean merge(List<File> toMerge, File output) {
+            byte[][] data = new byte[toMerge.size()][];
+            int start = toMerge.size() - 1;
+            int length = 0;
+            for (int i = start; i >= 0; --i) {
+                data[i] = LoadFile(toMerge.get(i));
+                length += data[i].length;
+            }
+
             file1contents = LoadFile(file1);
             file2contents = LoadFile(file2);
             if (file1contents == null) {

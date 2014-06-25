@@ -15,6 +15,7 @@ import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.Utils;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class AudioMergeActivity extends Activity {
     private static final String TAG = "AudioMergeActivity";
@@ -28,31 +29,33 @@ public class AudioMergeActivity extends Activity {
             mService = binder.getService();
             mBound = true;
 
-            String pathA = "/sdcard/wearscript/audio/a1.wav";
-            String pathB = "/sdcard/wearscript/audio/b1.wav";
+            int numFiles = 5;
+            ArrayList<File> files = new ArrayList<File>();
+            for (int i = 0; i < numFiles; ++i) {
+                files.add(new File("/sdcard/wearscript/audio/part-" + i + ".wav"));
+            }
+
             String pathOutput = "/sdcard/wearscript/audio/merged1.wav";
 
-            mService.startRecording(pathA);
+            mService.startRecording(files.get(0).toString());
 
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for (int i = 1; i < numFiles; ++i) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d(TAG, "saving file " + i);
+                if (i < numFiles - 1) {
+                    mService.saveAndStartNewFile(files.get(i).toString());
+                } else {
+                    mService.saveFile();
+                }
             }
-            Log.d(TAG, "saving first file");
-            mService.saveAndStartNewFile(pathB);
-
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Log.d(TAG, "saving second file");
-            mService.saveFile();
 
             mService.stopRecording();
 
-            Utils.AudioMerger.merge(new File(pathA), new File(pathB), new File(pathOutput));
+            Utils.AudioMerger.merge(files, new File(pathOutput));
         }
 
         @Override
