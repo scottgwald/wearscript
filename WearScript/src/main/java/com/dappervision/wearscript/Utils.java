@@ -137,28 +137,32 @@ public class Utils {
         public static boolean merge(List<File> toMerge, File output) {
             byte[][] data = new byte[toMerge.size()][];
             int start = toMerge.size() - 1;
-            int length = 0;
+            int totalFileLength = 0;
             for (int i = start; i >= 0; --i) {
                 data[i] = LoadFile(toMerge.get(i));
-                length += data[i].length;
+                if (data[i] == null) {
+                    Log.e(TAG, "file contents could not be read: " + toMerge.get(i).getAbsolutePath());
+                    return false;
+                }
+                totalFileLength += data[i].length;
             }
 
-            file1contents = LoadFile(file1);
-            file2contents = LoadFile(file2);
-            if (file1contents == null) {
-                Log.e(TAG, "file contents could not be read: " + file1.getAbsolutePath());
-                return false;
-            }
-            if (file2contents == null) {
-                Log.e(TAG, "file contents could not be read: " + file2.getAbsolutePath());
-                return false;
+            byte[] outputContents = new byte[totalFileLength
+                    - AudioRecordThread.WAV_HEADER_LENGTH * (toMerge.size() - 1)];
+
+            // Copy first file, including WAV header
+            System.arraycopy(data[0], 0, outputContents, 0, data[0].length);
+
+            // Copy the rest of the files, excluding WAV headers
+            int totalDataRecorded = 0;
+            for (int i = 1; i < start; --i) {
+                int lengthToCopy = data[i].length - AudioRecordThread.WAV_HEADER_LENGTH;
+                System.arraycopy(data[i], AudioRecordThread.WAV_HEADER_LENGTH,
+                        outputContents, totalDataRecorded,
+                        lengthToCopy);
+                totalDataRecorded += lengthToCopy;
             }
 
-            byte[] outputContents = new byte[file1contents.length + file2contents.length - AudioRecordThread.WAV_HEADER_LENGTH];
-            System.arraycopy(file1contents, 0, outputContents, 0, file1contents.length);
-            System.arraycopy(file2contents, AudioRecordThread.WAV_HEADER_LENGTH,
-                    outputContents, file1contents.length,
-                    file2contents.length - AudioRecordThread.WAV_HEADER_LENGTH);
             try {
                 new FileOutputStream(output).write(outputContents);
             } catch (IOException e) {
