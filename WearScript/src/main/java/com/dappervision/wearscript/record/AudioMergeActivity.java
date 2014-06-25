@@ -32,14 +32,16 @@ public class AudioMergeActivity extends Activity {
             int numFiles = 5;
             ArrayList<File> files = new ArrayList<File>();
             for (int i = 0; i < numFiles; ++i) {
-                files.add(new File("/sdcard/wearscript/audio/part-" + i + ".wav"));
+                files.add(new File("/sdcard/wearscript/audio/part-3-" + i + ".wav"));
             }
 
-            String pathOutput = "/sdcard/wearscript/audio/merged1.wav";
+            String pathOutput = "/sdcard/wearscript/audio/merged5.wav";
+
+            Log.d(TAG, "STARTING TO RECORD");
 
             mService.startRecording(files.get(0).toString());
 
-            for (int i = 1; i < numFiles; ++i) {
+            for (int i = 0; i < numFiles; ++i) {
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
@@ -47,7 +49,7 @@ public class AudioMergeActivity extends Activity {
                 }
                 Log.d(TAG, "saving file " + i);
                 if (i < numFiles - 1) {
-                    mService.saveAndStartNewFile(files.get(i).toString());
+                    mService.saveAndStartNewFile(files.get(i + 1).toString());
                 } else {
                     mService.saveFile();
                 }
@@ -55,7 +57,9 @@ public class AudioMergeActivity extends Activity {
 
             mService.stopRecording();
 
-            Utils.AudioMerger.merge(files, new File(pathOutput));
+            Log.d(TAG, "STOPPING RECORDING");
+
+            Utils.AudioMerger.merge(files, pathOutput);
         }
 
         @Override

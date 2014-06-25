@@ -134,7 +134,7 @@ public class Utils {
     }
 
     public static class AudioMerger {
-        public static boolean merge(List<File> toMerge, File output) {
+        public static boolean merge(List<File> toMerge, String output) {
             byte[][] data = new byte[toMerge.size()][];
             int start = toMerge.size() - 1;
             int totalFileLength = 0;
@@ -154,8 +154,8 @@ public class Utils {
             System.arraycopy(data[0], 0, outputContents, 0, data[0].length);
 
             // Copy the rest of the files, excluding WAV headers
-            int totalDataRecorded = 0;
-            for (int i = 1; i < start; --i) {
+            int totalDataRecorded = data[0].length;
+            for (int i = 1; i <= start; ++i) {
                 int lengthToCopy = data[i].length - AudioRecordThread.WAV_HEADER_LENGTH;
                 System.arraycopy(data[i], AudioRecordThread.WAV_HEADER_LENGTH,
                         outputContents, totalDataRecorded,
@@ -164,7 +164,9 @@ public class Utils {
             }
 
             try {
-                new FileOutputStream(output).write(outputContents);
+                FileOutputStream outputStream = new FileOutputStream(output, false);
+                outputStream.write(outputContents);
+                outputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
