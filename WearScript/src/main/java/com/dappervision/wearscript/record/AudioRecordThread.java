@@ -199,7 +199,7 @@ public class AudioRecordThread extends Thread {
 
     public void writeAudioDataToFile() {
         String nextFilePath = directoryAudio + File.separator + System.currentTimeMillis() + ".wav";
-        writeWavHeader(nextFilePath);
+        writeAudioDataToFile(nextFilePath);
     }
 
     public void writeAudioDataToFile(String nextFilePath) {

@@ -67,7 +67,7 @@ public class AudioRecorder extends Service {
     }
 
     public void saveAndStartNewFile(String filePath) {
-        recorder.writeAudioDataToFile();
+        recorder.writeAudioDataToFile(filePath);
     }
 
     public void stopRecording() {

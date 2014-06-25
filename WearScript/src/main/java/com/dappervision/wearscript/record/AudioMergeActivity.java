@@ -7,12 +7,16 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.dappervision.wearscript.R;
 
+import java.io.File;
+
 public class AudioMergeActivity extends Activity {
+    private static final String TAG = "AudioMergeActivity";
 
     private AudioRecorder mService;
     private boolean mBound = false;
@@ -23,13 +27,28 @@ public class AudioMergeActivity extends Activity {
             mService = binder.getService();
             mBound = true;
 
-            mService.startRecording("/sdcard/wearscript/audio/a.wav");
+            String pathA = "/sdcard/wearscript/audio/a.wav";
+            String pathB = "/sdcard/wearscript/audio/b.wav";
+            String pathOutput = "/sdcard/wearscript/audio/merged.wav";
+
+            mService.startRecording(pathA);
+
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            mService.saveAndStartNewFile("/sdcard/wearscript/audio/b.wav");
+            mService.saveAndStartNewFile(pathB);
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            mService.stopRecording();
+
+            AudioMerger.merge(new File(pathA), new File(pathB), new File(pathOutput));
         }
 
         @Override
@@ -42,6 +61,7 @@ public class AudioMergeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_merge);
+        Log.d(TAG, "in onCreate()");
     }
 
     @Override
