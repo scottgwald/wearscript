@@ -89,8 +89,6 @@ public class AudioRecordThread extends Thread {
                 synchronized (this) {
                     buffers.add(new byte[bufferSize]);
                     recorder.read(buffers.get(buffers.size() - 1), 0, bufferSize);
-                    Log.d(LOG_TAG, "writing to audioTrack in read loop: " + bufferSize + " bytes");
-                    audioTrack.write(buffers.get(buffers.size() - 1), 0, bufferSize);
                 }
                 Thread.sleep(5);
                 yield();
@@ -221,6 +219,9 @@ public class AudioRecordThread extends Thread {
     public void writeAudioDataToFile() {
         Log.d(LOG_TAG, "in writeAudioDataToFile()");
         mergeBuffers();
+
+        Log.d(LOG_TAG, "writing to audioTrack " + totalBuffer.length + " bytes");
+        audioTrack.write(totalBuffer, 0, totalBuffer.length);
     }
 }
 
