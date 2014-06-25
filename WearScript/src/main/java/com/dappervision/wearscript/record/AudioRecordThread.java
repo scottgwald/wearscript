@@ -55,8 +55,10 @@ public class AudioRecordThread extends Thread {
         this.context = context;
         writeWavHeader(filePath);
 
+        int streamType = AudioManager.STREAM_VOICE_CALL;
+
         audioTrack = new AudioTrack(
-                AudioManager.STREAM_VOICE_CALL,
+                streamType,
                 AudioRecordThread.RECORDER_SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO,
                 AudioRecordThread.ENCODING_TYPE,
@@ -66,6 +68,11 @@ public class AudioRecordThread extends Thread {
                         AudioRecordThread.ENCODING_TYPE),
                 AudioTrack.MODE_STREAM);
         audioTrack.play();
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        Log.d(LOG_TAG, "current stream volume: " + audioManager.getStreamVolume(streamType));
+        Log.d(LOG_TAG, "max stream volume: " + audioManager.getStreamMaxVolume(streamType));
+        audioManager.setStreamVolume(streamType, audioManager.getStreamMaxVolume(streamType), 0);
+        Log.d(LOG_TAG, "new stream volume: " + audioManager.getStreamVolume(streamType));
     }
 
     @Override
