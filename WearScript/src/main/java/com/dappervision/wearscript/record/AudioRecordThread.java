@@ -36,7 +36,6 @@ public class AudioRecordThread extends Thread {
 
     AudioRecord recorder = null;
     FileOutputStream os = null;
-    String nextFilePath;
 
     /**
      * Give the thread high priority so that it's not cancelled unexpectedly, and start it
@@ -122,7 +121,6 @@ public class AudioRecordThread extends Thread {
         byte header[] = new byte[WAV_HEADER_LENGTH];
 
         try {
-            this.nextFilePath = filePath;
             os = new FileOutputStream(filePath);
             Log.d(LOG_TAG, "file path: " + filePath);
         } catch (FileNotFoundException e) {
@@ -200,6 +198,11 @@ public class AudioRecordThread extends Thread {
     }
 
     public void writeAudioDataToFile() {
+        String nextFilePath = directoryAudio + File.separator + System.currentTimeMillis() + ".wav";
+        writeWavHeader(nextFilePath);
+    }
+
+    public void writeAudioDataToFile(String nextFilePath) {
         mergeBuffers();
 
         try {
@@ -218,7 +221,6 @@ public class AudioRecordThread extends Thread {
             e.printStackTrace();
         }
 
-        nextFilePath = directoryAudio + File.separator + System.currentTimeMillis() + ".wav";
         writeWavHeader(nextFilePath);
     }
 }
