@@ -18,7 +18,6 @@ import com.dappervision.wearscript.events.MediaRecordPathEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,9 +29,6 @@ public class MediaRecordingService extends Service {
     private MediaRecorder mediaRecorder;
     private SurfaceView dummy;
     private String filePath;
-    private int currentFile = 0;
-    private int currentRecording = -1;
-    private ArrayList<String> fileFragments = new ArrayList<String>();
 
 
     public IBinder onBind(Intent intent) {
@@ -69,8 +65,6 @@ public class MediaRecordingService extends Service {
         } else {
             filePath = path;
         }
-        fileFragments.add(filePath);
-        this.currentRecording++;
         this.startRecording();
     }
 
