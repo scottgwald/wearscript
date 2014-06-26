@@ -63,13 +63,13 @@ public class CompositeFile {
             } else {
 
             }
-            FileEntry lastFragment = this.files.get(this.files.size()-2);
+            FileEntry lastFile = this.files.get(this.files.size()-2);
             if (merged) {
                 for (int i=0;i< toMerge.size();i++) {
                     this.files.remove(0);
                 }
-                this.files.add(0,new FileEntry(mergedFileName,0,lastFragment
-                        .getStartTime()+lastFragment.getFileDuration()));
+                this.files.add(0, new FileEntry(mergedFileName, 0, lastFile
+                        .getStartTime() + lastFile.getFileDuration()));
             }
             return true;
         }
