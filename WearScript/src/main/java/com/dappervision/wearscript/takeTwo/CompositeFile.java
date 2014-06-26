@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FragmentedFile {
+public class CompositeFile {
     private ArrayList<FileFragment> fragments;
     private boolean isVideo;
     private boolean tailIsFinished = true;
 
-    public FragmentedFile (boolean isVideo) {
+    public CompositeFile(boolean isVideo) {
         fragments = new ArrayList<FileFragment>();
         this.isVideo = isVideo;
     }
@@ -169,7 +169,7 @@ public class FragmentedFile {
             }
         }
         if (target == null) {
-            throw new IllegalArgumentException("File is not a fragment of FragmentedFile");
+            throw new IllegalArgumentException("File is not a fragment of CompositeFile");
         }
         long relativeJump = mSecsInFile + mSecsJump + target.getStartTime();
         return getFragmentFromTime(relativeJump);
