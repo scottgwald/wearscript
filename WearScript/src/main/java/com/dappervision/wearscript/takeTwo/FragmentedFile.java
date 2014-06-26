@@ -35,7 +35,7 @@ public class FragmentedFile {
             FileFragment lastFragment = this.fragments.get(fragments.size()-1);
             fragments.add(new FileFragment(filePath
                     ,lastFragment
-                    .getRelativeTimeInFile()+ lastFragment.
+                    .getStartTime()+ lastFragment.
                     getFileDuration(), fileDuration));
             this.tailIsFinished = false;
         }
@@ -69,7 +69,7 @@ public class FragmentedFile {
                     this.fragments.remove(0);
                 }
                 this.fragments.add(0,new FileFragment(mergedFileName,0,lastFragment
-                        .getRelativeTimeInFile()+lastFragment.getFileDuration()));
+                        .getStartTime()+lastFragment.getFileDuration()));
             }
             return true;
         }
@@ -146,17 +146,17 @@ public class FragmentedFile {
 
         FileTimeTuple target = null;
         for (int i = 0 ; i < fragments.size()-1; i ++) {
-            if (fragments.get(i).getRelativeTimeInFile() <= mSecsFromBeginning &&
-                    fragments.get(i+1).getRelativeTimeInFile() > mSecsFromBeginning) {
+            if (fragments.get(i).getStartTime() <= mSecsFromBeginning &&
+                    fragments.get(i+1).getStartTime() > mSecsFromBeginning) {
                 target = new FileTimeTuple(fragments.get(i).getFilePath(),
-                        mSecsFromBeginning-fragments.get(i).getRelativeTimeInFile());
+                        mSecsFromBeginning-fragments.get(i).getStartTime());
                 break;
             }
         }
 
         if (target == null) {
             target = new FileTimeTuple(this.fragments.get(this.fragments.size()-1).getFilePath(),
-                    mSecsFromBeginning -this.fragments.get(this.fragments.size()-1).getRelativeTimeInFile());
+                    mSecsFromBeginning -this.fragments.get(this.fragments.size()-1).getStartTime());
         }
         return target;
     }
@@ -171,13 +171,13 @@ public class FragmentedFile {
         if (target == null) {
             throw new IllegalArgumentException("File is not a fragment of FragmentedFile");
         }
-        long relativeJump = mSecsInFile + mSecsJump + target.getRelativeTimeInFile();
+        long relativeJump = mSecsInFile + mSecsJump + target.getStartTime();
         return getFragmentFromTime(relativeJump);
     }
 
     public void print() {
         for (FileFragment f : fragments) {
-            Log.d("print file", f.getFilePath() + " : "+ Long.toString(f.getRelativeTimeInFile()));
+            Log.d("print file", f.getFilePath() + " : "+ Long.toString(f.getStartTime()));
         }
     }
 
