@@ -12,8 +12,6 @@ import android.util.Log;
 import android.view.SurfaceView;
 
 import com.dappervision.wearscript.events.MediaPauseEvent;
-import com.dappervision.wearscript.events.MediaRecordEvent;
-import com.dappervision.wearscript.events.MediaRecordPathEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,11 +44,6 @@ public class MediaRecordingService extends Service {
     public int onStartCommand(Intent i, int z, int y) {
         camera = getCameraInstanceRetry();
         return super.onStartCommand(i, z, y);
-    }
-
-    public void onEvent(MediaRecordEvent e) {
-        Utils.eventBusPost(new MediaRecordPathEvent(filePath));
-        this.startRecord(e.getFilePath());
     }
 
     public void startRecord(String path) {
@@ -217,5 +210,9 @@ public class MediaRecordingService extends Service {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         filePath = mediaStorageDir.getPath() + File.separator + timeStamp + ".mp4";
         Log.v(TAG, "Output file: " + filePath);
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 }

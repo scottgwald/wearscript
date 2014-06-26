@@ -22,6 +22,8 @@ import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
+import com.dappervision.wearscript.events.MediaRecordEvent;
+import com.dappervision.wearscript.events.MediaRecordPathEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.takeTwo.CompositeFile;
@@ -135,6 +137,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void onEvent(MediaSourceEvent e) {
         this.setMediaSource(e.getUri(), e.isLooping());
+    }
+
+    public void onEvent(MediaRecordEvent e) {
+        rs.startRecord(e.getFilePath());
+        Utils.eventBusPost(new MediaRecordPathEvent(rs.getFilePath()));
     }
 
     public void onEvent(MediaActionEvent e) {
