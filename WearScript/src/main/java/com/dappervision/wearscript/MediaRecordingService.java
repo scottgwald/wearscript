@@ -227,8 +227,7 @@ public class MediaRecordingService extends Service {
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        filePath = mediaStorageDir.getPath() + File.separator +
-                "VID_" + timeStamp + ".mp4";
+        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + ".mp4";
         Log.v(TAG, "Output file: " + filePath);
     }
 }
