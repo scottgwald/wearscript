@@ -1,12 +1,12 @@
 package com.dappervision.wearscript.takeTwo;
 
 
-public class FileFragment {
+public class FileEntry {
     private final String filePath;
     private long fileDuration;
     private long startTime;
 
-    public FileFragment (String filePath, long startTime , long fileDuration) {
+    public FileEntry(String filePath, long startTime, long fileDuration) {
         this.filePath = filePath;
         this.startTime = startTime;
         this.fileDuration = fileDuration;
