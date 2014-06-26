@@ -7,7 +7,6 @@ import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -232,44 +231,4 @@ public class MediaRecordingService extends Service {
                 "VID_" + timeStamp + ".mp4";
         Log.v(TAG, "Output file: " + filePath);
     }
-
-    public String getPreviousFile() {
-        if (currentFile-1 < 0 || currentFile > this.fileFragments.size()-1) {
-            return null;
-        } else {
-            currentFile--;
-            return this.fileFragments.get(currentFile);
-        }
-    }
-
-    public String getNextFile() {
-
-        currentFile++;
-        if (currentFile== currentRecording) {
-                this.stopRecording();
-                this.startRecord(null);
-            }
-        for (String s : this.fileFragments){
-            Log.d("LIST",s);
-        }
-        Log.d("CURRENT",Integer.toString(currentFile));
-        return this.fileFragments.get(currentFile);
-
-    }
-
-    public String getCurrentFile() {
-        Log.d("HERE","get current File");
-        Log.d("currentFile",Integer.toString(currentFile));
-        Log.d("currentRecording",Integer.toString(currentRecording));
-        if (currentFile == currentRecording) {
-            Log.d("HERE","calling stop");
-            this.stopRecording();
-            this.startRecord(null);
-        }
-        return this.fileFragments.get(currentFile);
-    }
-
-
-
-
 }
