@@ -440,15 +440,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     public void onCompletion(MediaPlayer mp) {
-        Log.d("HERE", "on Completion called");
-        String nextFile = rs.getNextFile();
-        if(nextFile != null)
-        Log.d("HERE",nextFile);
-        if (nextFile == null) {
-            return;
-        } else {
-            this.setMediaSource(android.net.Uri.parse(nextFile), false);
-        }
     }
 
     public long getDuration(String path) {
