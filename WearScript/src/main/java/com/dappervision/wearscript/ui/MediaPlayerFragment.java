@@ -3,7 +3,7 @@ package com.dappervision.wearscript.ui;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.speech.SpeechRecognizer;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.os.Handler;
 import android.widget.RelativeLayout;
 
 import com.dappervision.wearscript.Log;
@@ -27,8 +26,8 @@ import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.takeTwo.FragmentedFile;
+import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
 import com.google.android.glass.touchpad.Gesture;
-import com.google.android.glass.touchpad.GestureDetector;
 
 import java.io.File;
 import java.io.IOException;
@@ -138,6 +137,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void onEvent(MediaActionEvent e) {
         String action = e.getAction();
+        Log.d(TAG, "in onEvent()");
+        Log.d(TAG, "action: " + e.getAction());
+
         if (action.equals("play")) {
             interrupt = true;
             mp.start();
@@ -149,18 +151,22 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             interrupt = true;
             mp.pause();
         } else if (action.equals("playReverse")) {
-            playReverseFromEnd(e.getMagnitude());
+            playReverseFromEnd(e.getMsecs());
         } else if (action.equals("jump")) {
             interrupt = true;
-            jump(e.getMagnitude());
+            jump(e.getMsecs());
         } else if (action.equals("playFastForward")) {
-            playFastForwardFromBeginning(e.getMagnitude());
+            playFastForwardFromBeginning(e.getMsecs());
         } else if (action.equals("rewind")) {
-            rewind(e.getMagnitude());
+            rewind(e.getMsecs());
         } else if (action.equals("fastForward")) {
-            fastForward(e.getMagnitude());
+            fastForward(e.getMsecs());
         } else if (action.equals("takeTwoRewind")) {
-            takeTwoRewind(e.getMagnitude());
+            takeTwoRewind(e.getMsecs());
+        } else if (action.equals("seekTo")) {
+            mp.seekTo(e.getMsecs());
+        } else if (action.equals("seekBackwards")) {
+            seekBackwards(e.getMsecs());
         }
     }
 
@@ -175,6 +181,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         } else {
             mp.seekTo(newPosition);
         }
+    }
+
+    private void seekBackwards(int msecs) {
+        mp.seekTo(mp.getDuration());
+        jump(-msecs);
     }
 
     private void stutter(int period) {
@@ -212,7 +223,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void modifiedSpeedPlayback(final int speed, boolean forward, boolean fromEndpoint) {
-
         if (speed <= 0) return;
         mp.pause();
         final int startDelay = 100;
@@ -240,6 +250,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 }
             }
         }
+
         mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
             @Override
             public void onSeekComplete(MediaPlayer mediaPlayer) {
@@ -410,6 +421,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         surfaceView.setVisibility(View.VISIBLE);
         mediaPlayer.start();
+        Utils.eventBusPost(new MediaPlayerReadyEvent());
     }
 
 

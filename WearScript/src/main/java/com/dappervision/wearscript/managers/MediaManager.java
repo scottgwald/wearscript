@@ -1,13 +1,19 @@
 package com.dappervision.wearscript.managers;
 
+import android.util.Log;
+
 import com.dappervision.wearscript.BackgroundService;
+import com.dappervision.wearscript.events.CallbackRegistration;
 import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaRecordPathEvent;
+import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
 
 public class MediaManager extends Manager {
+    public static final String TAG = "MediaManager";
+    public static final String MEDIA_PLAYER_PREPARED = "MEDIA_PLAYER_PREPARED";
 
     public MediaManager(BackgroundService service) {
         super(service);
@@ -39,7 +45,20 @@ public class MediaManager extends Manager {
     }
 
     public void onEvent(MediaRecordPathEvent e) {
-        this.makeCall("startRecording",String.format("'%s'", e.getPath()));
+        this.makeCall("startRecording", String.format("'%s'", e.getPath()));
+    }
+    public void onEvent(CallbackRegistration e) {
+        registerCallback(e.getEvent(), e.getCallback());
+    }
+
+    public void onEvent(MediaPlayerReadyEvent e) {
+        onMediaPlayerPrepared();
+    }
+
+    public void onMediaPlayerPrepared() {
+        Log.d(TAG, "in onMediaPlayerPrepared()");
+        makeCall(MEDIA_PLAYER_PREPARED, "");
+        jsCallbacks.remove(MEDIA_PLAYER_PREPARED);
     }
 }
 
