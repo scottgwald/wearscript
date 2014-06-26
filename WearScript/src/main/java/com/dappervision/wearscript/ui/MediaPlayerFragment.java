@@ -1,5 +1,6 @@
 package com.dappervision.wearscript.ui;
 
+import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,8 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.MediaRecordingService;
@@ -23,6 +28,8 @@ import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
+import com.dappervision.wearscript.events.MediaPauseEvent;
+import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.takeTwo.FragmentedFile;
@@ -38,7 +45,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener , MediaPlayer.OnCompletionListener {
+public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener , MediaPlayer.OnCompletionListener, MediaController.MediaPlayerControl {
     public static final String ARG_URL = "ARG_URL";
     public static final String ARG_LOOP = "ARG_LOOP";
     private static final String TAG = "MediaPlayerFragment";
@@ -58,6 +65,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private MediaRecordingService rs;
     private ArrayList<String> fileFragments = new ArrayList<String>();
     private String currentFile="";
+    private MediaHUD hud;
+    private MediaController controller;
+    private Handler handler = new Handler();
+    private SeekBar seekBar;
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -75,7 +86,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         setRetainInstance(true);
         mediaUri = getArguments().getParcelable(ARG_URL);
         createMediaPlayer();
-        
+        controller = new MediaController(this.getActivity(),false);
+
+
     }
 
     private void createMediaPlayer() {
@@ -131,6 +144,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     }
 
+    public void onEvent(MediaRecordEvent e) {
+        hud.showRecording();
+    }
+    public void onEvent(MediaPauseEvent e) {
+        hud.stopRecording();
+    }
+
     public void onEvent(MediaSourceEvent e) {
         this.setMediaSource(e.getUri(), e.isLooping());
     }
@@ -142,6 +162,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
         if (action.equals("play")) {
             interrupt = true;
+            hud.clear();
             mp.start();
         } else if (action.equals("stop")) {
             interrupt = true;
@@ -149,6 +170,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             getActivity().finish();
         } else if (action.equals("pause")) {
             interrupt = true;
+            hud.showPause();
             mp.pause();
         } else if (action.equals("playReverse")) {
             playReverseFromEnd(e.getMsecs());
@@ -173,6 +195,12 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private void jump(int jumpVectorMSecs) {
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return;
+
+        if(jumpVectorMSecs < 0) {
+            hud.showSkipBack();
+        } else {
+            hud.showSkipForward();
+        }
         int newPosition = mp.getCurrentPosition() + jumpVectorMSecs;
         if (jumpVectorMSecs > 0 && newPosition > mp.getDuration()) {
             mp.seekTo(mp.getDuration());
@@ -341,13 +369,26 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         modifiedSpeedPlayback(speed, true, true);
     }
 
+    private void setUpSeekBar() {
+        seekBar.setMax(100);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(10,700);
+        seekBar.setLayoutParams(params);
+        seekBar.setProgress(1);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_media_player, container, false);
+        hud = new MediaHUD(this.getActivity());
+        hud.setZOrderMediaOverlay(true);
+        hud.getHolder().setFormat(PixelFormat.TRANSPARENT);
+        seekBar = new SeekBar(this.getActivity());
+        this.setUpSeekBar();
         surfaceView = (SurfaceView) v.findViewById(R.id.media_surface);
         relative = (RelativeLayout) v.findViewById(R.id.relative);
         relative.addView(new View(this.getActivity()));
-        progressBar = (ProgressBar) v.findViewById(R.id.video_progressBar);
+        relative.addView(hud);
+        relative.addView(seekBar);
         holder = surfaceView.getHolder();
 
         holder.addCallback(new SurfaceHolder.Callback() {
@@ -391,6 +432,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             mp = null;
         }
         Utils.getEventBus().unregister(this);
+
     }
 
     @Override
@@ -420,6 +462,16 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             progressBar.setVisibility(View.GONE);
         }
         surfaceView.setVisibility(View.VISIBLE);
+
+
+        handler.post(new Runnable() {
+
+            public void run() {
+
+
+            }
+        });
+
         mediaPlayer.start();
         Utils.eventBusPost(new MediaPlayerReadyEvent());
     }
@@ -428,6 +480,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     @Override
     public boolean onGesture(Gesture gesture) {
         Utils.eventBusPost(new MediaGestureEvent(gesture));
+        if(!gesture.name().equals("SWIPE_DOWN"))
+        controller.show(200);
         return false;
     }
 
@@ -446,14 +500,15 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void onCompletion(MediaPlayer mp) {
         Log.d("HERE","on Completion called");
-        String nextFile = rs.getNextFile();
-        if(nextFile != null)
-        Log.d("HERE",nextFile);
-        if (nextFile == null) {
-            return;
-        } else {
-            this.setMediaSource(android.net.Uri.parse(nextFile), false);
-        }
+        hud.showStop();
+//        String nextFile = rs.getNextFile();
+//        if(nextFile != null)
+//        Log.d("HERE",nextFile);
+//        if (nextFile == null) {
+//            return;
+//        } else {
+//            this.setMediaSource(android.net.Uri.parse(nextFile), false);
+//        }
     }
 
     public long getDuration(String path) {
@@ -464,4 +519,46 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public void setServiceHandle(MediaRecordingService service) {
         rs = service;
     }
+
+
+    public void start() {
+        mp.start();
+    }
+
+    public void pause() {
+        mp.pause();
+    }
+
+    public int getDuration() {
+        return mp.getDuration();
+    }
+
+    public int getCurrentPosition() {
+        return mp.getCurrentPosition();
+    }
+
+    public void seekTo(int i) {
+        mp.seekTo(i);
+    }
+
+    public boolean isPlaying() {
+        return mp.isPlaying();
+    }
+
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    public boolean canPause() {
+        return false;
+    }
+
+    public boolean canSeekBackward() {
+        return false;
+    }
+
+    public boolean canSeekForward() {
+        return false;
+    }
+    public int getAudioSessionId(){return 0;}
 }
