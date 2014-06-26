@@ -170,6 +170,16 @@ public class CompositeFile {
         return getFileFromTime(relativeJump);
     }
 
+    /**
+     * Returns the time relative to the beginning of the first file, given an arbitrary time in an
+     * arbitrary file.
+     * @param tuple The FileTimeTuple containing the file and time within that file
+     * @return The time in absolute form, relative to the beginning of the first file
+     */
+    public long getTime(FileTimeTuple tuple) {
+        return tuple.getTimeInFile() + getFileEntry(tuple.getFilePath()).getStartTime();
+    }
+
     public FileEntry getFileEntry(String filePath) {
         FileEntry target = null;
         for (FileEntry f : files) {
