@@ -162,17 +162,22 @@ public class CompositeFile {
     }
 
     public FileTimeTuple getFileFromJump(long mSecsJump, long mSecsInFile, String filePath) {
+        FileEntry target = getFileEntry(filePath);
+        if (target == null) {
+            throw new IllegalArgumentException("File " + filePath + " is not an entry of CompositeFile");
+        }
+        long relativeJump = mSecsInFile + mSecsJump + target.getStartTime();
+        return getFileFromTime(relativeJump);
+    }
+
+    public FileEntry getFileEntry(String filePath) {
         FileEntry target = null;
         for (FileEntry f : files) {
             if (f.getFilePath().equals(filePath)) {
                 target = f;
             }
         }
-        if (target == null) {
-            throw new IllegalArgumentException("File " + filePath + " is not an entry of CompositeFile");
-        }
-        long relativeJump = mSecsInFile + mSecsJump + target.getStartTime();
-        return getFileFromTime(relativeJump);
+        return target;
     }
 
     public void print() {
