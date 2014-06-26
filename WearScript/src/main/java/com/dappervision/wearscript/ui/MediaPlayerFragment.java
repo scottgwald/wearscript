@@ -167,20 +167,20 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private void jump(int jumpVectorMSecs) {
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return;
-        int newPosition = mp.getCurrentPosition() + jumpVectorMSecs;
-        if (newPosition > mp.getDuration() || newPosition < 0) {
-            FileTimeTuple fileTime = compositeFile.getFileFromJump(
+        FileTimeTuple fileTime = compositeFile.getFileFromJump(
                     jumpVectorMSecs,
                     mp.getCurrentPosition(),
                     mediaUri.getPath());
+        Uri newUri = Uri.fromFile(new File(fileTime.getFilePath()));
+        if (!newUri.equals(mediaUri)) {
             try {
-                mp.setDataSource(getActivity(), Uri.fromFile(new File(fileTime.getFilePath())));
+                mp.setDataSource(getActivity(), newUri);
                 mp.seekTo((int)fileTime.getTimeInFile());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            mp.seekTo(newPosition);
+            mp.seekTo((int)fileTime.getTimeInFile());
         }
     }
 
