@@ -55,6 +55,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private ArrayList<String> fileFragments = new ArrayList<String>();
     private String currentFile="";
 
+    //TODO: put this somewhere else
+    CompositeFile compositeFile;
+
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
         args.putParcelable(ARG_URL, uri);
@@ -71,7 +74,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         setRetainInstance(true);
         mediaUri = getArguments().getParcelable(ARG_URL);
         createMediaPlayer();
-        
+
+        compositeFile = new CompositeFile(true);
     }
 
     private void createMediaPlayer() {
