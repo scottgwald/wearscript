@@ -46,13 +46,14 @@ public class MediaRecordingService extends Service {
         return super.onStartCommand(i, z, y);
     }
 
-    public void startRecord(String path) {
+    public String startRecord(String path) {
         if (path == null) {
             this.generateOutputMediaFile();
         } else {
             filePath = path;
         }
         this.startRecording();
+        return filePath;
     }
 
     public void onEvent(MediaPauseEvent e) {
