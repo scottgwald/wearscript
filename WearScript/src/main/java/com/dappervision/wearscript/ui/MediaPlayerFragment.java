@@ -55,7 +55,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private int seekPosition = 0;
     private RelativeLayout relative;
     private MediaRecordingService rs;
-    private ArrayList<String> fileFragments = new ArrayList<String>();
     private CompositeFile videos;
 
     //TODO: put this somewhere else
