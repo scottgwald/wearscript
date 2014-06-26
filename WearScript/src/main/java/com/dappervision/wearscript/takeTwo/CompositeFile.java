@@ -201,6 +201,11 @@ public class CompositeFile {
         return tuple.getTimeInFile() + getFileEntry(tuple.getFilePath()).getStartTime();
     }
 
+    public int numBreaksAfter(FileEntry file) {
+        int index = files.indexOf(file);
+        return (files.size() - (isTailFinished() ? 1 : 2)) - index;
+    }
+
     public FileEntry getFileEntry(String filePath) {
         FileEntry target = null;
         for (FileEntry f : files) {

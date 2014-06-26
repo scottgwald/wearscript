@@ -1,5 +1,6 @@
 package com.dappervision.wearscript.ui;
 
+import android.gesture.Gesture;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener , MediaPlayer.OnCompletionListener {
     public static final String ARG_URL = "ARG_URL";
@@ -169,7 +171,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
     }
 
-    private void jump(int jumpVectorMSecs) {
+    private synchronized void jump(int jumpVectorMSecs) {
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return;
 
@@ -200,10 +202,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             videos.endOfFile(videos.getLastRecordedFile()),
                             jumpVectorMSecs + (now - start));
                 } else {
-                    rs.stopRecording();
-                    String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
-                    videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
-                    videos.addFile(newFilePath, -1);
+                    cutTail();
 
                     // seek to desired location in new file
                     fileTimeToSeek = videos.getFileFromJump(
@@ -211,15 +210,38 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             jumpVectorMSecs);
                 }
             } else {
-                fileTimeToSeek = null;
-                //TODO: implement this logic
+                fileTimeToSeek = videos.getFileFromJump(
+                        jumpVectorMSecs,
+                        mp.getCurrentPosition(),
+                        currentFile.getFilePath());
+                        //mediaUri.getPath());
+                if (videos.getTail().getFilePath().equals(fileTimeToSeek.getFilePath())) {
+                    cutTail();
+                    fileTimeToSeek = videos.getFileFromTime(videos.getTime(fileTimeToSeek));
+                }
             }
         }
 
         seekToFileTime(fileTimeToSeek);
     }
 
+    private void cutTail() {
+        rs.stopRecording();
+        String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
+        videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
+        videos.addFile(newFilePath, -1);
+    }
+
     private void seekToFileTime(FileTimeTuple fileTime) {
+        FileEntry file = videos.getFileEntry(fileTime.getFilePath());
+        if (videos.numBreaksAfter(file) > 0) {
+            long mSecsFromBeginning = videos.getTime(fileTime);
+            videos.flattenFile();
+            FileTimeTuple fileTimeToSeek = videos.getFileFromTime(mSecsFromBeginning);
+            seekToFileTime(fileTimeToSeek);
+            return;
+        }
+
         String filePathToSeek = fileTime.getFilePath();
         Uri newUri = Uri.fromFile(new File(filePathToSeek));
         if (!newUri.equals(mediaUri)) {
@@ -236,7 +258,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             }
         }
         mp.seekTo((int)fileTime.getTimeInFile());
-        videos.flattenFile();
     }
 
     private void stutter(int period) {
