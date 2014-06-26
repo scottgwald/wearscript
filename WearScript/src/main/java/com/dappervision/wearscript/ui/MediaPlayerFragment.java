@@ -25,6 +25,7 @@ import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.takeTwo.CompositeFile;
+import com.dappervision.wearscript.takeTwo.FileTimeTuple;
 import com.google.android.glass.touchpad.Gesture;
 
 import java.io.File;
@@ -167,10 +168,17 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return;
         int newPosition = mp.getCurrentPosition() + jumpVectorMSecs;
-        if (jumpVectorMSecs > 0 && newPosition > mp.getDuration()) {
-            mp.seekTo(mp.getDuration());
-        } else if (jumpVectorMSecs < 0 && newPosition < 0) {
-            mp.seekTo(0);
+        if (newPosition > mp.getDuration() || newPosition < 0) {
+            FileTimeTuple fileTime = compositeFile.getFileFromJump(
+                    jumpVectorMSecs,
+                    mp.getCurrentPosition(),
+                    mediaUri.getPath());
+            try {
+                mp.setDataSource(getActivity(), Uri.fromFile(new File(fileTime.getFilePath())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mp.seekTo((int)fileTime.getTimeInFile());
         } else {
             mp.seekTo(newPosition);
         }
