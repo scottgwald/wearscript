@@ -169,7 +169,7 @@ public class CompositeFile {
             }
         }
         if (target == null) {
-            throw new IllegalArgumentException("File is not a fragment of CompositeFile");
+            throw new IllegalArgumentException("File " + filePath + " is not an entry of CompositeFile");
         }
         long relativeJump = mSecsInFile + mSecsJump + target.getStartTime();
         return getFileFromTime(relativeJump);
