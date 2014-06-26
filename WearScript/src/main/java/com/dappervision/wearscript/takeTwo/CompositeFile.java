@@ -25,17 +25,17 @@ public class CompositeFile {
         this.isVideo = isVideo;
     }
 
-    public void addFragment (String filePath, long fileDuration) {
+    public void addFile(String filePath, long fileDuration) {
         if (files.isEmpty()) {
             files.add(new FileEntry(filePath,0,fileDuration));
         } else {
             if (!tailIsFinished) {
                 throw new IllegalStateException("Cannot Add Fragment: Recording in tail");
             }
-            FileEntry lastFragment = this.files.get(files.size()-1);
+            FileEntry lastFile = this.files.get(files.size()-1);
             files.add(new FileEntry(filePath
-                    ,lastFragment
-                    .getStartTime()+ lastFragment.
+                    ,lastFile
+                    .getStartTime()+ lastFile.
                     getFileDuration(), fileDuration));
         }
         this.tailIsFinished = false;
