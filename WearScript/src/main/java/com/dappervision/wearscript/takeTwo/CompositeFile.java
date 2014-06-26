@@ -37,8 +37,8 @@ public class CompositeFile {
                     ,lastFragment
                     .getStartTime()+ lastFragment.
                     getFileDuration(), fileDuration));
-            this.tailIsFinished = false;
         }
+        this.tailIsFinished = false;
     }
 
     public void setTailDuration(long duration) {
