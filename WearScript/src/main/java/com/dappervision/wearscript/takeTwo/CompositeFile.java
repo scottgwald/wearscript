@@ -16,24 +16,24 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CompositeFile {
-    private ArrayList<FileEntry> fragments;
+    private ArrayList<FileEntry> files;
     private boolean isVideo;
     private boolean tailIsFinished = true;
 
     public CompositeFile(boolean isVideo) {
-        fragments = new ArrayList<FileEntry>();
+        files = new ArrayList<FileEntry>();
         this.isVideo = isVideo;
     }
 
     public void addFragment (String filePath, long fileDuration) {
-        if (fragments.isEmpty()) {
-            fragments.add(new FileEntry(filePath,0,fileDuration));
+        if (files.isEmpty()) {
+            files.add(new FileEntry(filePath,0,fileDuration));
         } else {
             if (!tailIsFinished) {
                 throw new IllegalStateException("Cannot Add Fragment: Recording in tail");
             }
-            FileEntry lastFragment = this.fragments.get(fragments.size()-1);
-            fragments.add(new FileEntry(filePath
+            FileEntry lastFragment = this.files.get(files.size()-1);
+            files.add(new FileEntry(filePath
                     ,lastFragment
                     .getStartTime()+ lastFragment.
                     getFileDuration(), fileDuration));
@@ -42,17 +42,17 @@ public class CompositeFile {
     }
 
     public void setTailDuration(long duration) {
-        this.fragments.get(this.fragments.size()-1).setFileDuration(duration);
+        this.files.get(this.files.size()-1).setFileDuration(duration);
         this.tailIsFinished = true;
     }
 
     public boolean flattenFile(){
-        if (fragments.size() <=1 && !tailIsFinished) {
+        if (files.size() <=1 && !tailIsFinished) {
             return false;
         } else {
             ArrayList<FileEntry> toMerge = new ArrayList<FileEntry>();
-            for (int i = 0 ; i<this.fragments.size()-1 ; i++ ) {
-                toMerge.add(this.fragments.get(i));
+            for (int i = 0 ; i<this.files.size()-1 ; i++ ) {
+                toMerge.add(this.files.get(i));
             }
             String mergedFileName = generateMergedFileName(toMerge.get(0).getFilePath(),
                     toMerge.get(toMerge.size() - 1).getFilePath());
@@ -63,12 +63,12 @@ public class CompositeFile {
             } else {
 
             }
-            FileEntry lastFragment = this.fragments.get(this.fragments.size()-2);
+            FileEntry lastFragment = this.files.get(this.files.size()-2);
             if (merged) {
                 for (int i=0;i< toMerge.size();i++) {
-                    this.fragments.remove(0);
+                    this.files.remove(0);
                 }
-                this.fragments.add(0,new FileEntry(mergedFileName,0,lastFragment
+                this.files.add(0,new FileEntry(mergedFileName,0,lastFragment
                         .getStartTime()+lastFragment.getFileDuration()));
             }
             return true;
@@ -139,31 +139,31 @@ public class CompositeFile {
         return true;
     }
 
-    public FileTimeTuple getFragmentFromTime(long mSecsFromBeginning) {
+    public FileTimeTuple getFileFromTime(long mSecsFromBeginning) {
         if (mSecsFromBeginning < 0) {
             throw new IllegalArgumentException("Can't access negative values");
         }
 
         FileTimeTuple target = null;
-        for (int i = 0 ; i < fragments.size()-1; i ++) {
-            if (fragments.get(i).getStartTime() <= mSecsFromBeginning &&
-                    fragments.get(i+1).getStartTime() > mSecsFromBeginning) {
-                target = new FileTimeTuple(fragments.get(i).getFilePath(),
-                        mSecsFromBeginning-fragments.get(i).getStartTime());
+        for (int i = 0 ; i < files.size()-1; i ++) {
+            if (files.get(i).getStartTime() <= mSecsFromBeginning &&
+                    files.get(i+1).getStartTime() > mSecsFromBeginning) {
+                target = new FileTimeTuple(files.get(i).getFilePath(),
+                        mSecsFromBeginning- files.get(i).getStartTime());
                 break;
             }
         }
 
         if (target == null) {
-            target = new FileTimeTuple(this.fragments.get(this.fragments.size()-1).getFilePath(),
-                    mSecsFromBeginning -this.fragments.get(this.fragments.size()-1).getStartTime());
+            target = new FileTimeTuple(this.files.get(this.files.size()-1).getFilePath(),
+                    mSecsFromBeginning -this.files.get(this.files.size()-1).getStartTime());
         }
         return target;
     }
 
-    public FileTimeTuple getFragmentFromJump(long mSecsJump , long mSecsInFile , String filePath) {
+    public FileTimeTuple getFileFromJump(long mSecsJump, long mSecsInFile, String filePath) {
         FileEntry target = null;
-        for (FileEntry f : fragments) {
+        for (FileEntry f : files) {
             if (f.getFilePath().equals(filePath)) {
                 target = f;
             }
@@ -172,11 +172,11 @@ public class CompositeFile {
             throw new IllegalArgumentException("File is not a fragment of CompositeFile");
         }
         long relativeJump = mSecsInFile + mSecsJump + target.getStartTime();
-        return getFragmentFromTime(relativeJump);
+        return getFileFromTime(relativeJump);
     }
 
     public void print() {
-        for (FileEntry f : fragments) {
+        for (FileEntry f : files) {
             Log.d("print file", f.getFilePath() + " : "+ Long.toString(f.getStartTime()));
         }
     }
