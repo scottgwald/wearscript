@@ -55,6 +55,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private MediaRecordingService rs;
     private ArrayList<String> fileFragments = new ArrayList<String>();
     private String currentFile="";
+    private CompositeFile videos;
 
     //TODO: put this somewhere else
     CompositeFile compositeFile;
@@ -173,6 +174,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     mediaUri.getPath());
         Uri newUri = Uri.fromFile(new File(fileTime.getFilePath()));
         if (!newUri.equals(mediaUri)) {
+            //if ()
             try {
                 mp.setDataSource(getActivity(), newUri);
                 mp.seekTo((int)fileTime.getTimeInFile());

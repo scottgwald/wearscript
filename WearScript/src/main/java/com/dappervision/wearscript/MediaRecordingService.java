@@ -14,7 +14,6 @@ import android.view.SurfaceView;
 import com.dappervision.wearscript.events.MediaPauseEvent;
 import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.MediaRecordPathEvent;
-import com.dappervision.wearscript.takeTwo.CompositeFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +29,6 @@ public class MediaRecordingService extends Service {
     private MediaRecorder mediaRecorder;
     private SurfaceView dummy;
     private String filePath;
-    private CompositeFile videos;
 
 
     public IBinder onBind(Intent intent) {
@@ -51,14 +49,8 @@ public class MediaRecordingService extends Service {
     }
 
     public void onEvent(MediaRecordEvent e) {
-        if (e.getFilePath() == null) {
-            this.generateOutputMediaFile();
-        } else {
-            filePath = e.getFilePath();
-        }
-
         Utils.eventBusPost(new MediaRecordPathEvent(filePath));
-        this.startRecord(filePath);
+        this.startRecord(e.getFilePath());
     }
 
     public void startRecord(String path) {
@@ -127,11 +119,10 @@ public class MediaRecordingService extends Service {
         }
         prepareVideoRecorder();
         mediaRecorder.start();
-        videos.addFile(filePath, -1);
+
     }
 
     public void stopRecording() {
-       // fileFragments.clear(); //clear all fragments
         Log.v(TAG, "Stopping recording.");
         if (mediaRecorder != null)
             mediaRecorder.stop();
