@@ -293,11 +293,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         File a = new File ("/sdcard/test1.mp4");
         File b = new File ("/sdcard/test2.mp4");
         File c = new File ("/sdcard/dos.mp4");
-        file.addFragment(a.getPath(),-1);
+        file.addFile(a.getPath(), -1);
         file.setTailDuration(this.getDuration(a.getPath()));
-        file.addFragment(b.getPath(), -1);
+        file.addFile(b.getPath(), -1);
         file.setTailDuration(this.getDuration(b.getPath()));
-        file.addFragment(c.getPath(), -1);
+        file.addFile(c.getPath(), -1);
         file.setTailDuration(this.getDuration(c.getPath()));
 
         Log.d("CompositeFile","File for time 1350: "+file.getFileFromTime(1350).getFilePath());
