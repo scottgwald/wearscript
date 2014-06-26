@@ -58,7 +58,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private MediaRecordingService rs;
 
     private CompositeFile videos;
-    private FileEntry currentFile;
+    private FileEntry currentFile = null;
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -139,7 +139,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String path = rs.startRecord(e.getFilePath());
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
-        currentFile = videos.getTail();
     }
 
     public void onEvent(MediaActionEvent e) {
@@ -174,43 +173,70 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return;
 
-        if (videos.getTail().equals(currentFile)) {
-            // seek from present
-            if (jumpVectorMSecs > 0) {
-                //TODO: show icon saying this operation is not allowed
-                return;
-            }
-            long start = rs.getCurrentRecordingStartTimeMillis();
-            long now = System.currentTimeMillis();
-            if (now + jumpVectorMSecs < start) {
-                //TODO: jump to previous recorded file, let recording continue
+        FileTimeTuple fileTimeToSeek;
+        if (videos.isTailFinished()) {
+            if (currentFile == null) {
+                // at the tail!
+                //TODO: implement this logic
+                fileTimeToSeek = null;
             } else {
-                //TODO: stop current recording
-                //TODO: seek to desired location in new file
+                // normal case
+                fileTimeToSeek = videos.getFileFromJump(
+                        jumpVectorMSecs,
+                        mp.getCurrentPosition(),
+                        mediaUri.getPath());
             }
         } else {
-            // seek from past
-            FileTimeTuple fileTime = videos.getFileFromJump(
-                    jumpVectorMSecs,
-                    mp.getCurrentPosition(),
-                    mediaUri.getPath());
-            String filePathToSeek = fileTime.getFilePath();
-            Uri newUri = Uri.fromFile(new File(filePathToSeek));
-            if (!newUri.equals(mediaUri)) {
-                try {
-                    mp.setDataSource(getActivity(), newUri);
-                    mp.seekTo((int)fileTime.getTimeInFile());
-                } catch (IOException e) {
-                    e.printStackTrace();
+            if (currentFile == null) {
+                if (jumpVectorMSecs > 0) {
+                    //TODO: show icon saying this operation is not allowed
+                    return;
+                }
+                long start = rs.getCurrentRecordingStartTimeMillis();
+                long now = System.currentTimeMillis();
+                if (now + jumpVectorMSecs < start) {
+                    // jump to previous recorded file, let recording continue
+                    fileTimeToSeek = videos.getFileFromJump(
+                            videos.endOfFile(videos.getLastRecordedFile()),
+                            jumpVectorMSecs + (now - start));
+                } else {
+                    rs.stopRecording();
+                    String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
+                    videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
+                    videos.addFile(newFilePath, -1);
+
+                    // seek to desired location in new file
+                    fileTimeToSeek = videos.getFileFromJump(
+                            videos.endOfFile(videos.getLastRecordedFile()),
+                            jumpVectorMSecs);
                 }
             } else {
-                if (videos.getTail().getFilePath().equals(filePathToSeek)) {
-                    //TODO: stop current recording
-                    //TODO: seek to desired location in new file
-                }
-                mp.seekTo((int)fileTime.getTimeInFile());
+                fileTimeToSeek = null;
+                //TODO: implement this logic
             }
         }
+
+        seekToFileTime(fileTimeToSeek);
+    }
+
+    private void seekToFileTime(FileTimeTuple fileTime) {
+        String filePathToSeek = fileTime.getFilePath();
+        Uri newUri = Uri.fromFile(new File(filePathToSeek));
+        if (!newUri.equals(mediaUri)) {
+            try {
+                mp.setDataSource(getActivity(), newUri);
+                int timeToSeek = (int)fileTime.getTimeInFile();
+                mp.seekTo(timeToSeek);
+                if (timeToSeek > mp.getDuration()) {
+                    //TODO: show icon saying this operation is not allowed
+                }
+                currentFile = videos.getFileEntry(filePathToSeek);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        mp.seekTo((int)fileTime.getTimeInFile());
+        videos.flattenFile();
     }
 
     private void stutter(int period) {

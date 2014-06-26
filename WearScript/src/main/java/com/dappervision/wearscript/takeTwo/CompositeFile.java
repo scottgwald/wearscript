@@ -18,7 +18,7 @@ import java.util.List;
 public class CompositeFile {
     private ArrayList<FileEntry> files;
     private boolean isVideo;
-    private boolean tailIsFinished = true;
+    private boolean tailFinished = true;
 
     public CompositeFile(boolean isVideo) {
         files = new ArrayList<FileEntry>();
@@ -29,7 +29,7 @@ public class CompositeFile {
         if (files.isEmpty()) {
             files.add(new FileEntry(filePath,0,fileDuration));
         } else {
-            if (!tailIsFinished) {
+            if (!isTailFinished()) {
                 throw new IllegalStateException("Cannot Add Fragment: Recording in tail");
             }
             FileEntry lastFile = this.files.get(files.size()-1);
@@ -38,16 +38,16 @@ public class CompositeFile {
                     .getStartTime()+ lastFile.
                     getFileDuration(), fileDuration));
         }
-        this.tailIsFinished = false;
+        this.setTailFinished(false);
     }
 
     public void setTailDuration(long duration) {
         this.files.get(this.files.size()-1).setFileDuration(duration);
-        this.tailIsFinished = true;
+        this.setTailFinished(true);
     }
 
     public boolean flattenFile(){
-        if (files.size() <=1 && !tailIsFinished) {
+        if (files.size() <=1 && !isTailFinished()) {
             return false;
         } else {
             ArrayList<FileEntry> toMerge = new ArrayList<FileEntry>();
@@ -174,6 +174,23 @@ public class CompositeFile {
         return getFileFromTime(relativeJump);
     }
 
+    public FileTimeTuple getFileFromJump(FileTimeTuple now, long mSecsJump) {
+        return getFileFromJump(mSecsJump, now.getTimeInFile(), now.getFilePath());
+    }
+
+    public FileEntry getLastRecordedFile() {
+        if (isTailFinished()) {
+            return getTail();
+        } else if (files.size() > 1) {
+            return files.get(files.size() - 2);
+        }
+        return null;
+    }
+
+    public FileTimeTuple endOfFile(FileEntry file) {
+        return new FileTimeTuple(file.getFilePath(), file.getFileDuration());
+    }
+
     /**
      * Returns the time relative to the beginning of the first file, given an arbitrary time in an
      * arbitrary file.
@@ -202,5 +219,13 @@ public class CompositeFile {
 
     public int size() {
         return files.size();
+    }
+
+    public boolean isTailFinished() {
+        return tailFinished;
+    }
+
+    private void setTailFinished(boolean tailFinished) {
+        this.tailFinished = tailFinished;
     }
 }
