@@ -56,7 +56,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private RelativeLayout relative;
     private MediaRecordingService rs;
     private ArrayList<String> fileFragments = new ArrayList<String>();
-    private String currentFile="";
     private CompositeFile videos;
 
     //TODO: put this somewhere else
@@ -97,7 +96,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
             if (getArguments().getBoolean(ARG_LOOP))
                 mp.setLooping(true);
-            this.currentFile = mediaUri.toString();
             mp.prepareAsync();
         } else {
             if (progressBar != null)
@@ -126,7 +124,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mp.setOnErrorListener(this);
         mp.setOnPreparedListener(this);
         mp.setLooping(looping);
-        this.currentFile = mediaUri.toString();
         try {
             mp.prepare();
             mp.start();
