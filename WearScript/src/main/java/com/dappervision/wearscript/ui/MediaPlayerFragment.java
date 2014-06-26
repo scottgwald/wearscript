@@ -175,10 +175,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     mediaUri.getPath());
             try {
                 mp.setDataSource(getActivity(), Uri.fromFile(new File(fileTime.getFilePath())));
+                mp.seekTo((int)fileTime.getTimeInFile());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            mp.seekTo((int)fileTime.getTimeInFile());
         } else {
             mp.seekTo(newPosition);
         }
