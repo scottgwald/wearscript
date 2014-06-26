@@ -27,7 +27,7 @@ public class MediaRecordingService extends Service {
     private MediaRecorder mediaRecorder;
     private SurfaceView dummy;
     private String filePath;
-
+    private long currentRecordingStartTimeMillis;
 
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -113,7 +113,7 @@ public class MediaRecordingService extends Service {
         }
         prepareVideoRecorder();
         mediaRecorder.start();
-
+        setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
     }
 
     public void stopRecording() {
@@ -164,6 +164,14 @@ public class MediaRecordingService extends Service {
             timePassed += 200;
         }
         return c;
+    }
+
+    public long getCurrentRecordingStartTimeMillis() {
+        return currentRecordingStartTimeMillis;
+    }
+
+    public void setCurrentRecordingStartTimeMillis(long currentRecordingStartTimeMillis) {
+        this.currentRecordingStartTimeMillis = currentRecordingStartTimeMillis;
     }
 
     public class MediaBinder extends Binder {

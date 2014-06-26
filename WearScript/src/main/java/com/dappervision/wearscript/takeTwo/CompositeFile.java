@@ -76,6 +76,10 @@ public class CompositeFile {
 
     }
 
+    public FileEntry getTail() {
+        return files.get(files.size() - 1);
+    }
+
     private String generateMergedFileName (String firstMerge , String lastMerge) {
         String[] first = firstMerge.split("/");
         String firstName = first[first.length-1];
@@ -196,5 +200,7 @@ public class CompositeFile {
         }
     }
 
-
+    public int size() {
+        return files.size();
+    }
 }

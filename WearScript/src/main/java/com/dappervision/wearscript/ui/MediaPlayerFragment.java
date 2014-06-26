@@ -3,6 +3,7 @@ package com.dappervision.wearscript.ui;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -10,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
-import android.os.Handler;
 import android.widget.RelativeLayout;
 
 import com.dappervision.wearscript.Log;
@@ -27,6 +27,7 @@ import com.dappervision.wearscript.events.MediaRecordPathEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.takeTwo.CompositeFile;
+import com.dappervision.wearscript.takeTwo.FileEntry;
 import com.dappervision.wearscript.takeTwo.FileTimeTuple;
 import com.google.android.glass.touchpad.Gesture;
 
@@ -55,10 +56,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private int seekPosition = 0;
     private RelativeLayout relative;
     private MediaRecordingService rs;
-    private CompositeFile videos;
 
-    //TODO: put this somewhere else
-    CompositeFile compositeFile;
+    private CompositeFile videos;
+    private FileEntry currentFile;
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -77,7 +77,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mediaUri = getArguments().getParcelable(ARG_URL);
         createMediaPlayer();
 
-        compositeFile = new CompositeFile(true);
+        videos = new CompositeFile(true);
     }
 
     private void createMediaPlayer() {
@@ -139,6 +139,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String path = rs.startRecord(e.getFilePath());
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
+        currentFile = videos.getTail();
     }
 
     public void onEvent(MediaActionEvent e) {
@@ -172,21 +173,43 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private void jump(int jumpVectorMSecs) {
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return;
-        FileTimeTuple fileTime = compositeFile.getFileFromJump(
+
+        if (videos.getTail().equals(currentFile)) {
+            // seek from present
+            if (jumpVectorMSecs > 0) {
+                //TODO: show icon saying this operation is not allowed
+                return;
+            }
+            long start = rs.getCurrentRecordingStartTimeMillis();
+            long now = System.currentTimeMillis();
+            if (now + jumpVectorMSecs < start) {
+                //TODO: jump to previous recorded file, let recording continue
+            } else {
+                //TODO: stop current recording
+                //TODO: seek to desired location in new file
+            }
+        } else {
+            // seek from past
+            FileTimeTuple fileTime = videos.getFileFromJump(
                     jumpVectorMSecs,
                     mp.getCurrentPosition(),
                     mediaUri.getPath());
-        Uri newUri = Uri.fromFile(new File(fileTime.getFilePath()));
-        if (!newUri.equals(mediaUri)) {
-            //if ()
-            try {
-                mp.setDataSource(getActivity(), newUri);
+            String filePathToSeek = fileTime.getFilePath();
+            Uri newUri = Uri.fromFile(new File(filePathToSeek));
+            if (!newUri.equals(mediaUri)) {
+                try {
+                    mp.setDataSource(getActivity(), newUri);
+                    mp.seekTo((int)fileTime.getTimeInFile());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if (videos.getTail().getFilePath().equals(filePathToSeek)) {
+                    //TODO: stop current recording
+                    //TODO: seek to desired location in new file
+                }
                 mp.seekTo((int)fileTime.getTimeInFile());
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        } else {
-            mp.seekTo((int)fileTime.getTimeInFile());
         }
     }
 
