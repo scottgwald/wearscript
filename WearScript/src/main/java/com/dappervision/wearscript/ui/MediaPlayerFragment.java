@@ -1,6 +1,5 @@
 package com.dappervision.wearscript.ui;
 
-import android.gesture.Gesture;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -245,17 +244,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String filePathToSeek = fileTime.getFilePath();
         Uri newUri = Uri.fromFile(new File(filePathToSeek));
         if (!newUri.equals(mediaUri)) {
-            try {
-                mp.setDataSource(getActivity(), newUri);
-                int timeToSeek = (int)fileTime.getTimeInFile();
-                mp.seekTo(timeToSeek);
-                if (timeToSeek > mp.getDuration()) {
-                    //TODO: show icon saying this operation is not allowed
-                }
-                currentFile = videos.getFileEntry(filePathToSeek);
-            } catch (IOException e) {
-                e.printStackTrace();
+            setMediaSource(newUri, false);
+            int timeToSeek = (int)fileTime.getTimeInFile();
+            mp.seekTo(timeToSeek);
+            if (timeToSeek > mp.getDuration()) {
+                //TODO: show icon saying this operation is not allowed
             }
+            currentFile = videos.getFileEntry(filePathToSeek);
         }
         mp.seekTo((int)fileTime.getTimeInFile());
     }
