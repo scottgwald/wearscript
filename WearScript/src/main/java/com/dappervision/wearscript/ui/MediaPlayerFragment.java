@@ -269,6 +269,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             public void run() {
                 synchronized (MediaPlayerFragment.this) {
                     videos.flattenFile();
+                    FileEntry newCurrentFile = videos.getLastRecordedFile();
+                    setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
+                    mp.seekTo((int)(currentFile.getStartTime() + mp.getCurrentPosition()));
+                    currentFile = newCurrentFile;
                 }
             }
         }.start();
