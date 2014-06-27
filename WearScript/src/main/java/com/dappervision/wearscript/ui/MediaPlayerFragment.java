@@ -265,18 +265,16 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
         videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
         videos.addFile(newFilePath, -1);
+        new Thread() {
+            public void run() {
+                synchronized (MediaPlayerFragment.this) {
+                    videos.flattenFile();
+                }
+            }
+        }.start();
     }
 
     private void seekToFileTime(FileTimeTuple fileTime) {
-        FileEntry file = videos.getFileEntry(fileTime.getFilePath());
-        if (videos.numBreaksAfter(file) > 0) {
-            long mSecsFromBeginning = videos.getTime(fileTime);
-            videos.flattenFile();
-            FileTimeTuple fileTimeToSeek = videos.getFileFromTime(mSecsFromBeginning);
-            seekToFileTime(fileTimeToSeek);
-            return;
-        }
-
         String filePathToSeek = fileTime.getFilePath();
         Uri newUri = Uri.fromFile(new File(filePathToSeek));
         if (!newUri.equals(mediaUri)) {
