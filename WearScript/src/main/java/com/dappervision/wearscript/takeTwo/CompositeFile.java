@@ -233,4 +233,12 @@ public class CompositeFile {
     private void setTailFinished(boolean tailFinished) {
         this.tailFinished = tailFinished;
     }
+
+    public long getDuration() {
+        if (this.files.isEmpty()) {
+            return 0;
+        } else {
+            return this.files.get(this.files.size()-1).getStartTime();
+        }
+    }
 }

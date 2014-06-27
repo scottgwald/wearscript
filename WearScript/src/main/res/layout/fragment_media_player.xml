@@ -10,10 +10,4 @@
     android:layout_height="fill_parent"
     android:visibility="gone" />
 
-
-
-    <SeekBar android:id="@+id/seekBar1" android:max="100" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/media_surface"
-        android:indeterminate="false"></SeekBar>
 </RelativeLayout>

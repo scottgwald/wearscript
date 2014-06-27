@@ -11,18 +11,11 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-<<<<<<< HEAD
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
-import android.widget.RadioGroup;
-=======
-import android.widget.ProgressBar;
->>>>>>> jump-cut
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.MediaRecordingService;
 import com.dappervision.wearscript.R;
@@ -32,14 +25,11 @@ import com.dappervision.wearscript.events.MediaGestureEvent;
 import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
-<<<<<<< HEAD
 import com.dappervision.wearscript.events.MediaPauseEvent;
 import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
 import com.dappervision.wearscript.events.MediaSourceEvent;
-import com.dappervision.wearscript.takeTwo.FragmentedFile;
 import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
-=======
 import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.MediaRecordPathEvent;
 import com.dappervision.wearscript.events.MediaShutDownEvent;
@@ -47,9 +37,7 @@ import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.takeTwo.CompositeFile;
 import com.dappervision.wearscript.takeTwo.FileEntry;
 import com.dappervision.wearscript.takeTwo.FileTimeTuple;
->>>>>>> jump-cut
 import com.google.android.glass.touchpad.Gesture;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,12 +45,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-<<<<<<< HEAD
-public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener , MediaPlayer.OnCompletionListener, MediaController.MediaPlayerControl {
-=======
+
 
 public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener , MediaPlayer.OnCompletionListener {
->>>>>>> jump-cut
     public static final String ARG_URL = "ARG_URL";
     public static final String ARG_LOOP = "ARG_LOOP";
     private static final String TAG = "MediaPlayerFragment";
@@ -73,28 +58,24 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private SurfaceView surfaceView;
     private Handler stutterHandler;
     private Runnable stutterThread;
-    private int currentTime;
     private boolean interrupt;
     private List<Integer> seekTimes;
     private long prevJumpTime;
     private int seekPosition = 0;
     private RelativeLayout relative;
     private MediaRecordingService rs;
-<<<<<<< HEAD
     private ArrayList<String> fileFragments = new ArrayList<String>();
-    private String currentFile="";
     private MediaHUD hud;
     private MediaController controller;
     private Handler handler = new Handler();
     private SeekBar seekBar;
     private long currentTime;
     private long recording;
-    
-=======
-
     private CompositeFile videos;
     private FileEntry currentFile = null;
->>>>>>> jump-cut
+    private Handler seekBarHandler = new Handler();
+    private Runnable updateSeekBar;
+    private RelativeLayout barBackground;
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -112,14 +93,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         setRetainInstance(true);
         mediaUri = getArguments().getParcelable(ARG_URL);
         createMediaPlayer();
-<<<<<<< HEAD
-        controller = new MediaController(this.getActivity(),false);
-
-
-=======
-
         videos = new CompositeFile(true);
->>>>>>> jump-cut
     }
 
     private void createMediaPlayer() {
@@ -147,7 +121,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void setMediaSource(Uri uri, boolean looping) {
-
         mediaUri = uri;
         if (mp == null) {
             return;
@@ -168,15 +141,12 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         try {
             mp.prepare();
             mp.start();
+            seekBarHandler.postDelayed(updateSeekBar,1000);
 
         } catch(IOException e){}
-
     }
 
-    public void onEvent(MediaRecordEvent e) {
-        hud.showRecording();
-        this.recording = System.currentTimeMillis();
-    }
+
     public void onEvent(MediaPauseEvent e) {
         hud.stopRecording();
     }
@@ -186,6 +156,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     public void onEvent(MediaRecordEvent e) {
+        hud.showRecording();
         String path = rs.startRecord(e.getFilePath());
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
@@ -232,18 +203,12 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return;
 
-<<<<<<< HEAD
         if(jumpVectorMSecs < 0) {
             hud.showSkipBack();
         } else {
             hud.showSkipForward();
         }
-        int newPosition = mp.getCurrentPosition() + jumpVectorMSecs;
-        if (jumpVectorMSecs > 0 && newPosition > mp.getDuration()) {
-            mp.seekTo(mp.getDuration());
-        } else if (jumpVectorMSecs < 0 && newPosition < 0) {
-            mp.seekTo(0);
-=======
+
         FileTimeTuple fileTimeToSeek;
         if (videos.isTailFinished()) {
             if (currentFile == null) {
@@ -257,7 +222,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         mp.getCurrentPosition(),
                         mediaUri.getPath());
             }
->>>>>>> jump-cut
         } else {
             if (currentFile == null) {
                 if (jumpVectorMSecs > 0) {
@@ -346,7 +310,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         mp.start();
                     } else {
 
-                        mp.seekTo(currentTime);
+                        //mp.seekTo(currentTime);
                         mp.start();
                         stutterHandler.postDelayed(stutterThread, p);
 
@@ -426,44 +390,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void takeTwoRewind(final int speed) {
-//        final String prevFile = rs.getCurrentFile();
-//        if(prevFile != null)
-//        Log.d("FILE", prevFile);
-//        if (prevFile != null && !this.currentFile.equals(prevFile)) {
-//            this.setMediaSource(android.net.Uri.parse(prevFile), false);
-//            this.playReverseFromEnd(200);
-//        } else {
-//            this.rewind(speed);
-//        }
-        CompositeFile file = new CompositeFile(true);
-        File a = new File ("/sdcard/test1.mp4");
-        File b = new File ("/sdcard/test2.mp4");
-        File c = new File ("/sdcard/dos.mp4");
-        file.addFile(a.getPath(), -1);
-        file.setTailDuration(this.getDuration(a.getPath()));
-        file.addFile(b.getPath(), -1);
-        file.setTailDuration(this.getDuration(b.getPath()));
-        file.addFile(c.getPath(), -1);
-        file.setTailDuration(this.getDuration(c.getPath()));
 
-        Log.d("CompositeFile","File for time 1350: "+file.getFileFromTime(1350).getFilePath());
-        Log.d("CompositeFile","In time: "+file.getFileFromTime(1350).getTimeInFile());
-
-        file.flattenFile();
-
-        Log.d("CompositeFile","File for time 34816: "+file.getFileFromTime(34816).getFilePath());
-        Log.d("CompositeFile","In time: "+file.getFileFromTime(34816).getTimeInFile());
-
-        Log.d("CompositeFile","File for time 34815: "+file.getFileFromTime(34815).getFilePath());
-        Log.d("CompositeFile","In time: "+file.getFileFromTime(34815).getTimeInFile());
-
-
-        Log.d("CompositeFile","jump for time 1000 from test1 1000: "+file.getFileFromJump(1000, 1000, "/sdcard/test1-test2.mp4").getFilePath());
-        Log.d("CompositeFile","In time: "+file.getFileFromJump(1000, 1000, "/sdcard/test1-test2.mp4").getTimeInFile());
-
-        Log.d("CompositeFile","jump for time -1 from test2 34816: "+file.getFileFromJump(1, 0, "/sdcard/test1-test2.mp4").getFilePath());
-        Log.d("CompositeFile","In time: "+file.getFileFromJump(1, 0, "/sdcard/test1-test2.mp4").getTimeInFile());
-        file.print();
     }
 
 
@@ -484,10 +411,43 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void setUpSeekBar() {
-        seekBar.setMax(100);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(10,700);
+
+        barBackground = new RelativeLayout(this.getActivity());
+        RelativeLayout.LayoutParams bParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                100);
+        bParams.addRule(RelativeLayout.ALIGN_BOTTOM);
+        barBackground.setBackgroundColor(R.color.black);
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
         seekBar.setLayoutParams(params);
-        seekBar.setProgress(1);
+        seekBar.setProgress(0);
+        barBackground.addView(seekBar);
+
+
+        updateSeekBar = new Runnable() {
+            @Override
+            public void run() {
+                long now = System.currentTimeMillis();
+                long start = rs.getCurrentRecordingStartTimeMillis();
+
+                long totalTime = videos.getDuration() + (now - start);
+
+                seekBar.setMax((int)totalTime/1000);
+
+                if (mp != null) {
+
+                    long mCurrentPosition = (currentFile.getStartTime()+ mp.getCurrentPosition())/1000;
+                    seekBar.setProgress((int)mCurrentPosition);
+                    seekBarHandler.postDelayed(updateSeekBar, 1000);
+
+                }
+
+            }
+        };
+
+
     }
 
     @Override
@@ -502,7 +462,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         relative = (RelativeLayout) v.findViewById(R.id.relative);
         relative.addView(new View(this.getActivity()));
         relative.addView(hud);
-        relative.addView(seekBar);
+        relative.addView(barBackground);
         holder = surfaceView.getHolder();
 
         holder.addCallback(new SurfaceHolder.Callback() {
@@ -576,17 +536,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             progressBar.setVisibility(View.GONE);
         }
         surfaceView.setVisibility(View.VISIBLE);
-
-
-        handler.post(new Runnable() {
-
-            public void run() {
-
-
-            }
-        });
-
         mediaPlayer.start();
+        seekBarHandler.postDelayed(updateSeekBar,1000);
         Utils.eventBusPost(new MediaPlayerReadyEvent());
     }
 
@@ -594,8 +545,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     @Override
     public boolean onGesture(Gesture gesture) {
         Utils.eventBusPost(new MediaGestureEvent(gesture));
-        if(!gesture.name().equals("SWIPE_DOWN"))
-        controller.show(200);
         return false;
     }
 
@@ -613,19 +562,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     public void onCompletion(MediaPlayer mp) {
-<<<<<<< HEAD
         Log.d("HERE","on Completion called");
         hud.showStop();
-//        String nextFile = rs.getNextFile();
-//        if(nextFile != null)
-//        Log.d("HERE",nextFile);
-//        if (nextFile == null) {
-//            return;
-//        } else {
-//            this.setMediaSource(android.net.Uri.parse(nextFile), false);
-//        }
-=======
->>>>>>> jump-cut
     }
 
     public long getDuration(String path) {
@@ -638,44 +576,4 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
 
-    public void start() {
-        mp.start();
-    }
-
-    public void pause() {
-        mp.pause();
-    }
-
-    public int getDuration() {
-        return mp.getDuration();
-    }
-
-    public int getCurrentPosition() {
-        return mp.getCurrentPosition();
-    }
-
-    public void seekTo(int i) {
-        mp.seekTo(i);
-    }
-
-    public boolean isPlaying() {
-        return mp.isPlaying();
-    }
-
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    public boolean canPause() {
-        return false;
-    }
-
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    public boolean canSeekForward() {
-        return false;
-    }
-    public int getAudioSessionId(){return 0;}
 }
