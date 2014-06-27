@@ -25,7 +25,7 @@ public class CompositeFile {
         this.isVideo = isVideo;
     }
 
-    public void addFile(String filePath, long fileDuration) {
+    public synchronized void addFile(String filePath, long fileDuration) {
         if (files.isEmpty()) {
             files.add(new FileEntry(filePath,0,fileDuration));
         } else {
@@ -41,7 +41,7 @@ public class CompositeFile {
         this.setTailFinished(false);
     }
 
-    public void setTailDuration(long duration) {
+    public synchronized void setTailDuration(long duration) {
         this.files.get(this.files.size()-1).setFileDuration(duration);
         this.setTailFinished(true);
     }
@@ -63,20 +63,23 @@ public class CompositeFile {
             } else {
 
             }
-            FileEntry lastFile = this.files.get(this.files.size()-2);
-            if (merged) {
-                for (int i=0;i< toMerge.size();i++) {
-                    this.files.remove(0);
+
+            synchronized (this) {
+                FileEntry lastFile = this.files.get(this.files.size()-2);
+                if (merged) {
+                    for (int i=0;i< toMerge.size();i++) {
+                        this.files.remove(0);
+                    }
+                    this.files.add(0, new FileEntry(mergedFileName, 0, lastFile
+                            .getStartTime() + lastFile.getFileDuration()));
                 }
-                this.files.add(0, new FileEntry(mergedFileName, 0, lastFile
-                        .getStartTime() + lastFile.getFileDuration()));
+                return true;
             }
-            return true;
         }
 
     }
 
-    public FileEntry getTail() {
+    public synchronized FileEntry getTail() {
         return files.get(files.size() - 1);
     }
 
@@ -143,7 +146,7 @@ public class CompositeFile {
         return true;
     }
 
-    public FileTimeTuple getFileFromTime(long mSecsFromBeginning) {
+    public synchronized FileTimeTuple getFileFromTime(long mSecsFromBeginning) {
         if (mSecsFromBeginning < 0) {
             return new FileTimeTuple(files.get(0).getFilePath(),0);
         }
@@ -165,7 +168,7 @@ public class CompositeFile {
         return target;
     }
 
-    public FileTimeTuple getFileFromJump(long mSecsJump, long mSecsInFile, String filePath) {
+    public synchronized FileTimeTuple getFileFromJump(long mSecsJump, long mSecsInFile, String filePath) {
         FileEntry target = getFileEntry(filePath);
         if (target == null) {
             throw new IllegalArgumentException("File " + filePath + " is not an entry of CompositeFile");
@@ -174,11 +177,11 @@ public class CompositeFile {
         return getFileFromTime(relativeJump);
     }
 
-    public FileTimeTuple getFileFromJump(FileTimeTuple now, long mSecsJump) {
+    public synchronized FileTimeTuple getFileFromJump(FileTimeTuple now, long mSecsJump) {
         return getFileFromJump(mSecsJump, now.getTimeInFile(), now.getFilePath());
     }
 
-    public FileEntry getLastRecordedFile() {
+    public synchronized FileEntry getLastRecordedFile() {
         if (isTailFinished()) {
             return getTail();
         } else if (files.size() > 1) {
