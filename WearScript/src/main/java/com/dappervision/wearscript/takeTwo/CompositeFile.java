@@ -145,7 +145,7 @@ public class CompositeFile {
 
     public FileTimeTuple getFileFromTime(long mSecsFromBeginning) {
         if (mSecsFromBeginning < 0) {
-            throw new IllegalArgumentException("Can't access negative values");
+            return new FileTimeTuple(files.get(0).getFilePath(),0);
         }
 
         FileTimeTuple target = null;

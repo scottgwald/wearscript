@@ -202,7 +202,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             jumpVectorMSecs + (now - start));
                 } else {
                     cutTail();
-
                     // seek to desired location in new file
                     fileTimeToSeek = videos.getFileFromJump(
                             videos.endOfFile(videos.getLastRecordedFile()),
