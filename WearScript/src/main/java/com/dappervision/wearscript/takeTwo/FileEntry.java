@@ -1,14 +1,14 @@
 package com.dappervision.wearscript.takeTwo;
 
 
-public class FileFragment {
+public class FileEntry {
     private final String filePath;
     private long fileDuration;
-    private long relativeTimeInFile;
+    private long startTime;
 
-    public FileFragment (String filePath, long relativeTimeInFile , long fileDuration) {
+    public FileEntry(String filePath, long startTime, long fileDuration) {
         this.filePath = filePath;
-        this.relativeTimeInFile = relativeTimeInFile;
+        this.startTime = startTime;
         this.fileDuration = fileDuration;
     }
 
@@ -20,13 +20,15 @@ public class FileFragment {
         return fileDuration;
     }
 
-    public long getRelativeTimeInFile() {
-        return relativeTimeInFile;
+    public long getStartTime() {
+        return startTime;
     }
 
     public void setFileDuration (long duration) {
         fileDuration = duration;
     }
 
-    public void setFileRelativeTime (long relative) {relativeTimeInFile = relative;}
+    public void setStartTime (long startTime) {
+        this.startTime = startTime;
+    }
 }

@@ -7,19 +7,15 @@ import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceView;
 
 import com.dappervision.wearscript.events.MediaPauseEvent;
-import com.dappervision.wearscript.events.MediaRecordEvent;
-import com.dappervision.wearscript.events.MediaRecordPathEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,10 +27,7 @@ public class MediaRecordingService extends Service {
     private MediaRecorder mediaRecorder;
     private SurfaceView dummy;
     private String filePath;
-    private int currentFile = 0;
-    private int currentRecording = -1;
-    private ArrayList<String> fileFragments = new ArrayList<String>();
-
+    private long currentRecordingStartTimeMillis;
 
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -53,26 +46,14 @@ public class MediaRecordingService extends Service {
         return super.onStartCommand(i, z, y);
     }
 
-    public void onEvent(MediaRecordEvent e) {
-        if (e.getFilePath() == null) {
-            this.generateOutputMediaFile();
-        } else {
-            filePath = e.getFilePath();
-        }
-
-        Utils.eventBusPost(new MediaRecordPathEvent(filePath));
-        this.startRecord(filePath);
-    }
-
-    public void startRecord(String path) {
+    public String startRecord(String path) {
         if (path == null) {
             this.generateOutputMediaFile();
         } else {
             filePath = path;
         }
-        fileFragments.add(filePath);
-        this.currentRecording++;
         this.startRecording();
+        return filePath;
     }
 
     public void onEvent(MediaPauseEvent e) {
@@ -132,10 +113,10 @@ public class MediaRecordingService extends Service {
         }
         prepareVideoRecorder();
         mediaRecorder.start();
+        setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
     }
 
     public void stopRecording() {
-       // fileFragments.clear(); //clear all fragments
         Log.v(TAG, "Stopping recording.");
         if (mediaRecorder != null)
             mediaRecorder.stop();
@@ -185,6 +166,14 @@ public class MediaRecordingService extends Service {
         return c;
     }
 
+    public long getCurrentRecordingStartTimeMillis() {
+        return currentRecordingStartTimeMillis;
+    }
+
+    public void setCurrentRecordingStartTimeMillis(long currentRecordingStartTimeMillis) {
+        this.currentRecordingStartTimeMillis = currentRecordingStartTimeMillis;
+    }
+
     public class MediaBinder extends Binder {
         public MediaRecordingService getService() {
             return MediaRecordingService.this;
@@ -228,48 +217,11 @@ public class MediaRecordingService extends Service {
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        filePath = mediaStorageDir.getPath() + File.separator +
-                "VID_" + timeStamp + ".mp4";
+        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + ".mp4";
         Log.v(TAG, "Output file: " + filePath);
     }
 
-    public String getPreviousFile() {
-        if (currentFile-1 < 0 || currentFile > this.fileFragments.size()-1) {
-            return null;
-        } else {
-            currentFile--;
-            return this.fileFragments.get(currentFile);
-        }
+    public String getFilePath() {
+        return filePath;
     }
-
-    public String getNextFile() {
-
-        currentFile++;
-        if (currentFile== currentRecording) {
-                this.stopRecording();
-                this.startRecord(null);
-            }
-        for (String s : this.fileFragments){
-            Log.d("LIST",s);
-        }
-        Log.d("CURRENT",Integer.toString(currentFile));
-        return this.fileFragments.get(currentFile);
-
-    }
-
-    public String getCurrentFile() {
-        Log.d("HERE","get current File");
-        Log.d("currentFile",Integer.toString(currentFile));
-        Log.d("currentRecording",Integer.toString(currentRecording));
-        if (currentFile == currentRecording) {
-            Log.d("HERE","calling stop");
-            this.stopRecording();
-            this.startRecord(null);
-        }
-        return this.fileFragments.get(currentFile);
-    }
-
-
-
-
 }
