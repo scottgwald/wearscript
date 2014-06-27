@@ -139,9 +139,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mp.setOnPreparedListener(this);
         mp.setLooping(looping);
         try {
+            hud.hidePresent();
             mp.prepare();
             mp.start();
-            seekBarHandler.postDelayed(updateSeekBar,1000);
+            seekBarHandler.post(updateSeekBar);
 
         } catch(IOException e){}
     }
@@ -156,6 +157,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     public void onEvent(MediaRecordEvent e) {
+        hud.showPresent();
         hud.showRecording();
         String path = rs.startRecord(e.getFilePath());
         Utils.eventBusPost(new MediaRecordPathEvent(path));
@@ -541,7 +543,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         surfaceView.setVisibility(View.VISIBLE);
         mediaPlayer.start();
-        seekBarHandler.postDelayed(updateSeekBar,1000);
+        seekBarHandler.post(updateSeekBar);
         Utils.eventBusPost(new MediaPlayerReadyEvent());
     }
 

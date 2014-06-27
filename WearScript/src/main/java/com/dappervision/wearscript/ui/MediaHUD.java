@@ -30,6 +30,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private boolean isSkippingForward = false;
     private boolean isSkippingBack = false;
     private boolean wasPaused = false;
+    private boolean isPresent = true;
 
     public MediaHUD(Context context) {
         super(context);
@@ -52,6 +53,9 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        if (isPresent) {
+            canvas.drawColor(Color.BLACK, PorterDuff.Mode.ADD);
+        }
         if(isPaused) {
             canvas.drawBitmap(pause, 500, 30, null);
         }
@@ -59,7 +63,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             canvas.drawBitmap(stop, 500, 30, null);
         }
         if (isRecording) {
-            canvas.drawBitmap(record,30,30,null);
+            canvas.drawBitmap(record,10,30,null);
         }
         if (isSkippingBack) {
             canvas.drawBitmap(skipBack,500,30,null);
@@ -67,6 +71,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         if (isSkippingForward) {
             canvas.drawBitmap(skipForward,500,30,null);
         }
+
 
 
     }
@@ -211,6 +216,33 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    public void showPresent() {
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                isPresent = true;
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
+
+    public void hidePresent() {
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                isPresent = false;
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
 
     public void clear() {
         try {
