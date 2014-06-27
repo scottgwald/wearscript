@@ -69,6 +69,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private MediaController controller;
     private Handler handler = new Handler();
     private SeekBar seekBar;
+    private long currentTime;
+    private long recording;
+    
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -146,6 +149,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void onEvent(MediaRecordEvent e) {
         hud.showRecording();
+        this.recording = System.currentTimeMillis();
     }
     public void onEvent(MediaPauseEvent e) {
         hud.stopRecording();
