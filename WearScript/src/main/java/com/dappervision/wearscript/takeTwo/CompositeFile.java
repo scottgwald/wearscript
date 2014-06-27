@@ -188,7 +188,7 @@ public class CompositeFile {
     }
 
     public FileTimeTuple endOfFile(FileEntry file) {
-        return new FileTimeTuple(file.getFilePath(), file.getFileDuration());
+        return new FileTimeTuple(file.getFilePath(), file.getFileDuration()); //fix me
     }
 
     /**

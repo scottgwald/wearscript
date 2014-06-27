@@ -414,9 +414,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
         barBackground = new RelativeLayout(this.getActivity());
         RelativeLayout.LayoutParams bParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                100);
-        bParams.addRule(RelativeLayout.ALIGN_BOTTOM);
-        barBackground.setBackgroundColor(R.color.black);
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        //bParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        barBackground.setBackgroundColor(R.color.black); //ignore error for cool effect
+        bParams.topMargin = 315;
+
+        barBackground.setLayoutParams(bParams);
+
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
