@@ -42,7 +42,7 @@ function main()
 {
     if (WS.scriptVersion(1)) return;
     ctx = document.getElementById('canvas').getContext("2d");
-    WS.serverConnect('{{WSUrl}}', server);
+    server();
 }
 window.onload = main;
 </script>
