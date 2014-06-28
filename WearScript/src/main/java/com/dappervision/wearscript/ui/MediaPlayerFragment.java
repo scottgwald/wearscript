@@ -3,6 +3,7 @@ package com.dappervision.wearscript.ui;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -11,11 +12,11 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.MediaRecordingService;
 import com.dappervision.wearscript.R;
@@ -26,9 +27,6 @@ import com.dappervision.wearscript.events.MediaOnFingerCountChangedEvent;
 import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaPauseEvent;
-import com.dappervision.wearscript.events.MediaRecordEvent;
-import com.dappervision.wearscript.events.MediaShutDownEvent;
-import com.dappervision.wearscript.events.MediaSourceEvent;
 import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
 import com.dappervision.wearscript.events.MediaRecordEvent;
 import com.dappervision.wearscript.events.MediaRecordPathEvent;
@@ -38,6 +36,7 @@ import com.dappervision.wearscript.takeTwo.CompositeFile;
 import com.dappervision.wearscript.takeTwo.FileEntry;
 import com.dappervision.wearscript.takeTwo.FileTimeTuple;
 import com.google.android.glass.touchpad.Gesture;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -284,17 +283,17 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
         videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
         videos.addFile(newFilePath, -1);
-        new Thread() {
-            public void run() {
-                synchronized (MediaPlayerFragment.this) {
-                    videos.flattenFile();
-                    FileEntry newCurrentFile = videos.getLastRecordedFile();
-                    setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
-                    mp.seekTo((int)(currentFile.getStartTime() + mp.getCurrentPosition()));
-                    currentFile = newCurrentFile;
-                }
+        new AsyncTask<Void, Void, Long>() {
+            @Override
+            public Long doInBackground(Void... args) {
+                videos.flattenFile();
+                FileEntry newCurrentFile = videos.getLastRecordedFile();
+                setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
+                mp.seekTo((int)(currentFile.getStartTime() + mp.getCurrentPosition()));
+                currentFile = newCurrentFile;
+                return currentFile.getFileDuration();
             }
-        }.start();
+        }.execute();
     }
 
     private void seekToFileTime(FileTimeTuple fileTime) {
