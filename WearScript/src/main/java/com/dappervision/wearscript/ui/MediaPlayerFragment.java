@@ -74,6 +74,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private CompositeFile videos;
     private FileEntry currentFile = null;
     private Handler seekBarHandler = new Handler();
+    private Handler mergeHandler = new Handler();
     private Runnable updateSeekBar;
     private RelativeLayout barBackground;
 
@@ -265,7 +266,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
         videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
         videos.addFile(newFilePath, -1);
-        new Thread() {
+
+        mergeHandler.post(new Runnable() {
+            @Override
             public void run() {
                 synchronized (MediaPlayerFragment.this) {
                     videos.flattenFile();
@@ -275,7 +278,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     currentFile = newCurrentFile;
                 }
             }
-        }.start();
+        });
     }
 
     private void seekToFileTime(FileTimeTuple fileTime) {
