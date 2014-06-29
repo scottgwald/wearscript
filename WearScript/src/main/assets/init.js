@@ -750,6 +750,9 @@ function WearScript() {
         this.takeTwoRewind = function(speed) {
             WSRAW.mediaTakeTwoRewind(speed);
         }.bind(this);
+        this.jumpToPresent = function() {
+            WSRAW.mediaJumpToPresent();
+        }.bind(this);
 
         this.seekToEnd = function() {
             this.seekBackwards(0);

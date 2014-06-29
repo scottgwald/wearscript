@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -23,7 +24,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private Bitmap record;
     private Bitmap skipForward;
     private Bitmap skipBack;
-
+    private Bitmap error;
     private boolean isPaused=false;
     private boolean isStopped = false;
     private boolean isRecording = false;
@@ -31,6 +32,8 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private boolean isSkippingBack = false;
     private boolean wasPaused = false;
     private boolean isPresent = true;
+    private boolean waitingForTap = false;
+    private boolean validJump = true;
 
     public MediaHUD(Context context) {
         super(context);
@@ -46,6 +49,8 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 R.drawable.skipforward);
         skipBack = BitmapFactory.decodeResource(getResources(),
                 R.drawable.skipbackward);
+        error = BitmapFactory.decodeResource(getResources(),
+                R.drawable.error);
 
     }
 
@@ -54,7 +59,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         super.onDraw(canvas);
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         if (isPresent) {
-            canvas.drawColor(Color.BLACK, PorterDuff.Mode.ADD);
+            c.drawColor(Color.BLACK);
         }
         if(isPaused) {
             canvas.drawBitmap(pause, 500, 30, null);
@@ -70,8 +75,17 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         }
         if (isSkippingForward) {
             canvas.drawBitmap(skipForward,500,30,null);
+            if (!validJump) {
+                canvas.drawBitmap(error,550,60,null);
+            }
         }
-
+        if (waitingForTap) {
+            Paint paint = new Paint();
+            paint.setColor(Color.WHITE);
+            canvas.drawColor(Color.BLACK, PorterDuff.Mode.OVERLAY);
+            paint.setTextSize(42);
+            canvas.drawText("Tap to Continue", 155, 300, paint);
+        }
 
 
     }
@@ -86,6 +100,20 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         //drawingThread.start();
     }
 
+    public void tapToContinue() {
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                waitingForTap = true ;
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
+
     public void showPause() {
 
         this.clearSkip();
@@ -95,6 +123,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             synchronized (this.getHolder()) {
                 isPaused= true;
                 isStopped = false;
+                validJump = true;
                 this.onDraw(c);
             }
         } finally {
@@ -125,6 +154,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             synchronized (this.getHolder()) {
                 this.isSkippingBack = false;
                 this.isSkippingForward = false;
+                this.isStopped = false;
                 if(wasPaused)
                     isPaused = true;
                 this.onDraw(c);
@@ -161,7 +191,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         }, 600);
     }
 
-    public void showSkipForward() {
+    public void showSkipForward(boolean valid) {
         wasPaused = isPaused;
         this.clear();
         try {
@@ -169,6 +199,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             synchronized (this.getHolder()) {
                 this.isSkippingBack = false;
                 this.isSkippingForward = true;
+                this.validJump = valid;
                 this.onDraw(c);
             }
         } finally {
@@ -252,6 +283,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 isStopped = false;
                 isSkippingForward = false;
                 isSkippingBack = false;
+                waitingForTap = false;
                 this.onDraw(c);
             }
         } finally {

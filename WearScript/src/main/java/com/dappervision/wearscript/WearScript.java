@@ -171,6 +171,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void mediaJumpToPresent() {
+        Utils.eventBusPost(new MediaActionEvent("jumpToPresent"));
+    }
+
+    @JavascriptInterface
     public void mediaCreate() {
         Utils.eventBusPost(new MediaEvent());
     }
