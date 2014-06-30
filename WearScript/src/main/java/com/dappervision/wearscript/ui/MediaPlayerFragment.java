@@ -130,9 +130,12 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         try {
             mp.reset();
-            Log.d("TRY",mediaUri.toString());
+            Log.d("TRY", mediaUri.toString());
             String tail = videos.getTail().getFilePath();
             Log.d("TRY",tail);
+            if(tail.equals(mediaUri.toString())) {
+                throw new IllegalStateException("Cannot play tail");
+            }
             mp.setDataSource(getActivity(), mediaUri);
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,6 +168,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         Log.d(TAG, "rs: " + rs);
         Log.d(TAG, "e: " + e);
         Log.d(TAG, "e.getFilePath(): " + e.getFilePath());
+        if(rs == null) {
+            Log.d("TAG","rs is null");
+        }
         String path = rs.startRecord(e.getFilePath());
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
@@ -267,9 +273,19 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         //mediaUri.getPath());
                 long start = rs.getCurrentRecordingStartTimeMillis();
                 long now = System.currentTimeMillis();
+                Log.d(TAG,videos.getTail().getFilePath());
+                Log.d(TAG,fileTimeToSeek.getFilePath());
                 if (videos.getTail().getFilePath().equals(fileTimeToSeek.getFilePath())) {
+                    Log.d(TAG,"Cutting tail");
                     cutTail();
-                    fileTimeToSeek = videos.getFileFromTime(videos.getTime(fileTimeToSeek));
+                    fileTimeToSeek = videos.getFileFromTime(videos.getTime(fileTimeToSeek)); //this is returning the tail
+                    Log.d(TAG,"new FileTimeToSeek: "+fileTimeToSeek.getFilePath().toString());
+                    Log.d(TAG,"tail: "+videos.getTail().getFilePath());
+                    if ( fileTimeToSeek.getFilePath().equals(videos.getTail().getFilePath())) {
+                        fileTimeToSeek = new FileTimeTuple(videos.getLastRecordedFile().getFilePath(),0);
+                    }
+
+
                     if (fileTimeToSeek.getTimeInFile() > now - start - 5000) {
                         // trying to fast forward to < 5 seconds behind the present
                         // make user be at least 5 seconds behind
@@ -315,8 +331,12 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String filePathToSeek = fileTime.getFilePath();
         Uri newUri = Uri.fromFile(new File(filePathToSeek));
         if (!newUri.equals(mediaUri)) {
+            Log.d(TAG,"new URI: "+newUri.toString());
+            if(mediaUri != null)
+            Log.d(TAG,"old URI: "+mediaUri.toString());
             currentFile = videos.getFileEntry(filePathToSeek); //fix
             setMediaSource(newUri, false);
+
             int timeToSeek = (int)fileTime.getTimeInFile();
             mp.seekTo(timeToSeek);
             if (timeToSeek > mp.getDuration()) {

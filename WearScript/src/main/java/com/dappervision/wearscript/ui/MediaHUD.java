@@ -95,8 +95,8 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
 
         Paint tickMarkPaint = new Paint();
         tickMarkPaint.setARGB(127, 255, 255, 0);
-        for (Float time : timeMarkers) {
-            canvas.drawRect(time*620, 280, time*620 + 5, 320, tickMarkPaint);
+        for (Float time : timeMarkers) {  //concurrent modification exception
+            canvas.drawRect(time*620, 300, time*620 + 5, 320, tickMarkPaint);
         }
 
         Paint timePaint = new Paint();
