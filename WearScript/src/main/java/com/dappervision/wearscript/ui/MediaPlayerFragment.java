@@ -276,6 +276,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         this.currentFile = null;
         mp.stop();
         seekBar.setProgress(seekBar.getMax());
+        hud.clear();
         hud.showPresent();
     }
 
