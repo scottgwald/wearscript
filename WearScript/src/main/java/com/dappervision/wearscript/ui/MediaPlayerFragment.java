@@ -161,6 +161,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public void onEvent(MediaRecordEvent e) {
         hud.showPresent();
         hud.showRecording();
+        Log.d(TAG, "in onEvent(MediaRecordEvent e)");
+        Log.d(TAG, "rs: " + rs);
+        Log.d(TAG, "e: " + e);
+        Log.d(TAG, "e.getFilePath(): " + e.getFilePath());
         String path = rs.startRecord(e.getFilePath());
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
