@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CompositeFile {
-    private ArrayList<FileEntry> files;
+    public ArrayList<FileEntry> files;
     private boolean isVideo;
     private boolean tailFinished = true;
 

@@ -471,6 +471,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
                 }
 
+                hud.clearTimeMarkers();
+                for (FileEntry file : videos.files) {
+                    hud.addTimeMarker((float)(file.getStartTime()) / totalTime);
+                }
             }
         };
 

@@ -12,6 +12,7 @@ import android.view.SurfaceView;
 
 import com.dappervision.wearscript.R;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,6 +35,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private boolean isPresent = true;
     private boolean waitingForTap = false;
     private boolean validJump = true;
+    private ArrayList<Float> timeMarkers;
 
     public MediaHUD(Context context) {
         super(context);
@@ -51,7 +53,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 R.drawable.skipbackward);
         error = BitmapFactory.decodeResource(getResources(),
                 R.drawable.error);
-
+        timeMarkers = new ArrayList<Float>();
     }
 
     @Override
@@ -87,7 +89,11 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             canvas.drawText("Tap to Continue", 155, 300, paint);
         }
 
-
+        Paint tickMarkPaint = new Paint();
+        tickMarkPaint.setARGB(127, 255, 255, 0);
+        for (Float time : timeMarkers) {
+            canvas.drawRect(time*640, 300, time*640 + 2, 320, tickMarkPaint);
+        }
     }
 
     public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
@@ -307,6 +313,15 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
     }
+
+    public void clearTimeMarkers() {
+        timeMarkers.clear();
+    }
+
+    public void addTimeMarker(float time) {
+        timeMarkers.add(time);
+    }
+
     class DrawingThread extends Thread {
         private SurfaceHolder _surfaceHolder;
         private MediaHUD _panel;
@@ -339,5 +354,4 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
     }
-
 }
