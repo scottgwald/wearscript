@@ -265,9 +265,16 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         mp.getCurrentPosition(),
                         currentFile.getFilePath());
                         //mediaUri.getPath());
+                long start = rs.getCurrentRecordingStartTimeMillis();
+                long now = System.currentTimeMillis();
                 if (videos.getTail().getFilePath().equals(fileTimeToSeek.getFilePath())) {
                     cutTail();
                     fileTimeToSeek = videos.getFileFromTime(videos.getTime(fileTimeToSeek));
+                    if (fileTimeToSeek.getTimeInFile() > now - start - 5000) {
+                        // trying to fast forward to < 5 seconds behind the present
+                        // make user be at least 5 seconds behind
+                        fileTimeToSeek = new FileTimeTuple(fileTimeToSeek.getFilePath(), now - start - 5000);
+                    }
                 }
             }
         }
