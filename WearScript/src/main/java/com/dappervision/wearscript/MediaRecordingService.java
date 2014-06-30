@@ -77,7 +77,7 @@ public class MediaRecordingService extends Service {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-        int profileInt = CamcorderProfile.QUALITY_480P;
+        int profileInt = CamcorderProfile.QUALITY_LOW;
         android.util.Log.v(TAG, "Checking for profile: " + CamcorderProfile.hasProfile(profileInt));
         CamcorderProfile profile = CamcorderProfile.get(profileInt);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
