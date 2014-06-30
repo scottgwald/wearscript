@@ -283,17 +283,21 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
         videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
         videos.addFile(newFilePath, -1);
-        new AsyncTask<Void, Void, Long>() {
+        /*new AsyncTask<Void, Void, Long>() {
             @Override
             public Long doInBackground(Void... args) {
                 videos.flattenFile();
                 FileEntry newCurrentFile = videos.getLastRecordedFile();
                 setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
-                mp.seekTo((int)(currentFile.getStartTime() + mp.getCurrentPosition()));
+                mp.seekTo((int) getCurrentPosition());
                 currentFile = newCurrentFile;
                 return currentFile.getFileDuration();
             }
-        }.execute();
+        }.execute();*/
+    }
+
+    public long getCurrentPosition() {
+        return currentFile.getStartTime() + mp.getCurrentPosition();
     }
 
     private void seekToFileTime(FileTimeTuple fileTime) {
@@ -450,6 +454,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         seekBar.setProgress(100);
         barBackground.addView(seekBar);
 
+        final ArrayList<Float> timeMarkers = new ArrayList<Float>();
 
         updateSeekBar = new Runnable() {
             @Override
@@ -461,19 +466,22 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
                 seekBar.setMax((int)totalTime/1000);
 
+                timeMarkers.clear();
+                for (FileEntry file : videos.files) {
+                    timeMarkers.add((float)(file.getStartTime()) / totalTime);
+                }
+                hud.updateTimeMarkers(timeMarkers);
+                hud.updateCurrentPosition(getCurrentPosition());
+                hud.updateTotalTime(totalTime);
+
                 if (mp != null && currentFile != null) {
 
-                    long mCurrentPosition = (currentFile.getStartTime() + mp.getCurrentPosition())/1000;
+                    long mCurrentPosition = getCurrentPosition()/1000;
                     if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath()))
                     seekBar.setProgress((int) mCurrentPosition);
                     seekBarHandler.postDelayed(updateSeekBar, 1000);
 
 
-                }
-
-                hud.clearTimeMarkers();
-                for (FileEntry file : videos.files) {
-                    hud.addTimeMarker((float)(file.getStartTime()) / totalTime);
                 }
             }
         };

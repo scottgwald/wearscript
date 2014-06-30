@@ -12,7 +12,9 @@ import android.view.SurfaceView;
 
 import com.dappervision.wearscript.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,6 +38,8 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private boolean waitingForTap = false;
     private boolean validJump = true;
     private ArrayList<Float> timeMarkers;
+    private String currentPosition = "00:00";
+    private String totalTime = "00:00";
 
     public MediaHUD(Context context) {
         super(context);
@@ -92,8 +96,14 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         Paint tickMarkPaint = new Paint();
         tickMarkPaint.setARGB(127, 255, 255, 0);
         for (Float time : timeMarkers) {
-            canvas.drawRect(time*640, 300, time*640 + 2, 320, tickMarkPaint);
+            canvas.drawRect(time*620, 280, time*620 + 5, 320, tickMarkPaint);
         }
+
+        Paint timePaint = new Paint();
+        timePaint.setColor(Color.WHITE);
+        timePaint.setTextSize(24);
+        canvas.drawText(currentPosition, 5, 300, timePaint);
+        canvas.drawText(totalTime, 600, 300, timePaint);
     }
 
     public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
@@ -281,6 +291,52 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    public void updateTimeMarkers(ArrayList<Float> timeMarkers) {
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                this.timeMarkers = timeMarkers;
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
+
+    public void updateCurrentPosition(long currentPosition) {
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                this.currentPosition = millisToMinuteSecond(currentPosition);
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
+
+    public void updateTotalTime(long totalTime) {
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                this.totalTime = millisToMinuteSecond(totalTime);
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
+
+    private String millisToMinuteSecond(long millis) {
+        return new SimpleDateFormat("mm:ss").format(new Date(millis));
+    }
+
     public void clear() {
         try {
             c = this.getHolder().lockCanvas(null);
@@ -312,14 +368,6 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             } catch (InterruptedException e) {
             }
         }
-    }
-
-    public void clearTimeMarkers() {
-        timeMarkers.clear();
-    }
-
-    public void addTimeMarker(float time) {
-        timeMarkers.add(time);
     }
 
     class DrawingThread extends Thread {
