@@ -47,7 +47,8 @@ public class CompositeFile {
     }
 
     public boolean flattenFile(){
-        if (files.size() <=1 && !isTailFinished()) {
+        if (files.size() <=2 && !isTailFinished()) {  //change to two
+            Log.d("No Merge","Not enough files for merge");
             return false;
         } else {
             ArrayList<FileEntry> toMerge = new ArrayList<FileEntry>();
