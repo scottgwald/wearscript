@@ -128,6 +128,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             return;
         }
         if (mp.isPlaying()) {
+
             mp.stop();
         }
         try {
@@ -146,6 +147,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mp.setOnPreparedListener(this);
         mp.setLooping(looping);
         try {
+            hud.clear();
             hud.hidePresent();
             mp.prepare();
             mp.start();
@@ -318,6 +320,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void jumpToPresent() {
+        if (updateSeekBar != null) {
+            seekBarHandler.removeCallbacks(updateSeekBar);
+        }
         this.currentFile = null;
         mp.stop();
         seekBar.setProgress(seekBar.getMax());
@@ -523,7 +528,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 }
 
 
-                if (mp != null && currentFile != null) {
+                if (mp != null && currentFile != null ) {
 
                     hud.updateTimeMarkers(timeMarkers);
                     hud.updateCurrentPosition(getCurrentPosition());
