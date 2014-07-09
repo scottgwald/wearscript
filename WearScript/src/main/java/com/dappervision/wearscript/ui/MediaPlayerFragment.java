@@ -501,6 +501,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         //bParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         barBackground.setBackgroundColor(R.color.black); //ignore error for cool effect
         bParams.topMargin = 315;
+
         barBackground.setLayoutParams(bParams);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -537,6 +538,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     long mCurrentPosition = getCurrentPosition()/1000;
                     if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath()))
                     seekBar.setProgress((int) mCurrentPosition);
+                    if (currentFile != null) //concur
                     seekBarHandler.postDelayed(updateSeekBar, 1000);
 
 
@@ -556,16 +558,29 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         seekBar = new SeekBar(this.getActivity());
         this.setUpSeekBar();
         surfaceView = (SurfaceView) v.findViewById(R.id.media_surface);
+        ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
+
+
+
+        layoutParams.height = 480;
+        layoutParams.width = 640;
+
+        surfaceView.setLayoutParams(layoutParams);
+
         relative = (RelativeLayout) v.findViewById(R.id.relative);
         relative.addView(new View(this.getActivity()));
         relative.addView(hud);
         relative.addView(barBackground);
         holder = surfaceView.getHolder();
 
+
+        //holder.setSizeFromLayout();
+
         holder.addCallback(new SurfaceHolder.Callback() {
 
             public void surfaceCreated(SurfaceHolder holder) {
                 if (mp != null) {
+                    //holder.setFixedSize(176, 144);
                     mp.setDisplay(holder);
                 }
             }
@@ -659,7 +674,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     public void onCompletion(MediaPlayer mp) {
-        Log.d("HERE","on Completion called");
+        Log.d("HERE", "on Completion called");
         hud.showStop();
         this.isWaitingTap = true;
         hud.tapToContinue();

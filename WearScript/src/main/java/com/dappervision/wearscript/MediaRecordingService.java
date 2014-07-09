@@ -77,7 +77,7 @@ public class MediaRecordingService extends Service {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-        int profileInt = CamcorderProfile.QUALITY_LOW;
+        int profileInt = CamcorderProfile.QUALITY_480P;
         android.util.Log.v(TAG, "Checking for profile: " + CamcorderProfile.hasProfile(profileInt));
         CamcorderProfile profile = CamcorderProfile.get(profileInt);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
@@ -197,7 +197,7 @@ public class MediaRecordingService extends Service {
             }
             params.setPreviewFpsRange(10000, 10000);
             camera.setParameters(params);
-            dummy.getHolder().setFixedSize(640, 360);
+            dummy.getHolder().setFixedSize(640, 480); //was 360
         } catch (IOException e) {
             android.util.Log.d(TAG, "Error setting camera preview: " + e.getMessage());
         } catch (Throwable tr) {
