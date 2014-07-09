@@ -63,47 +63,49 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        if (isPresent) {
-            c.drawColor(Color.BLACK);
-        }
-        if(isPaused) {
-            canvas.drawBitmap(pause, 500, 30, null);
-        }
-        if (isStopped) {
-            canvas.drawBitmap(stop, 500, 30, null);
-        }
-        if (isRecording) {
-            canvas.drawBitmap(record,10,30,null);
-        }
-        if (isSkippingBack) {
-            canvas.drawBitmap(skipBack,500,30,null);
-        }
-        if (isSkippingForward) {
-            canvas.drawBitmap(skipForward,500,30,null);
-            if (!validJump) {
-                canvas.drawBitmap(error,550,60,null);
+        if (canvas != null) {
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+            if (isPresent) {
+                c.drawColor(Color.BLACK);
             }
-        }
-        if (waitingForTap) {
-            Paint paint = new Paint();
-            paint.setColor(Color.WHITE);
-            canvas.drawColor(Color.BLACK, PorterDuff.Mode.OVERLAY);
-            paint.setTextSize(42);
-            canvas.drawText("Tap to Continue", 155, 300, paint);
-        }
+            if (isPaused) {
+                canvas.drawBitmap(pause, 500, 30, null);
+            }
+            if (isStopped) {
+                canvas.drawBitmap(stop, 500, 30, null);
+            }
+            if (isRecording) {
+                canvas.drawBitmap(record, 10, 30, null);
+            }
+            if (isSkippingBack) {
+                canvas.drawBitmap(skipBack, 500, 30, null);
+            }
+            if (isSkippingForward) {
+                canvas.drawBitmap(skipForward, 500, 30, null);
+                if (!validJump) {
+                    canvas.drawBitmap(error, 550, 60, null);
+                }
+            }
+            if (waitingForTap) {
+                Paint paint = new Paint();
+                paint.setColor(Color.WHITE);
+                canvas.drawColor(Color.BLACK, PorterDuff.Mode.OVERLAY);
+                paint.setTextSize(42);
+                canvas.drawText("Tap to Continue", 155, 300, paint);
+            }
 
-        Paint tickMarkPaint = new Paint();
-        tickMarkPaint.setARGB(127, 255, 255, 0);
-        for (Float time : timeMarkers) {  //concurrent modification exception
-            canvas.drawRect(time*620, 300, time*620 + 5, 320, tickMarkPaint);
-        }
+            Paint tickMarkPaint = new Paint();
+            tickMarkPaint.setARGB(127, 255, 255, 0);
+            for (Float time : timeMarkers) {  //concurrent modification exception
+                canvas.drawRect(time * 620, 300, time * 620 + 5, 320, tickMarkPaint);
+            }
 
-        Paint timePaint = new Paint();
-        timePaint.setColor(Color.WHITE);
-        timePaint.setTextSize(24);
-        canvas.drawText(currentPosition, 5, 300, timePaint);
-        canvas.drawText(totalTime, 600, 300, timePaint);
+            Paint timePaint = new Paint();
+            timePaint.setColor(Color.WHITE);
+            timePaint.setTextSize(24);
+            canvas.drawText(currentPosition, 5, 300, timePaint);
+            canvas.drawText(totalTime, 600, 300, timePaint);
+        }
     }
 
     public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {

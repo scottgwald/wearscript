@@ -50,7 +50,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public static final String ARG_URL = "ARG_URL";
     public static final String ARG_LOOP = "ARG_LOOP";
     private static final String TAG = "MediaPlayerFragment";
-    private MediaPlayer mp;
+    private  MediaPlayer mp;
     private Uri mediaUri;
     private SurfaceHolder holder;
     private ProgressBar progressBar;
@@ -76,6 +76,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private Runnable updateSeekBar;
     private RelativeLayout barBackground;
     private boolean isWaitingTap = false;
+    private Handler mergeHandler;
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -94,6 +95,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mediaUri = getArguments().getParcelable(ARG_URL);
         createMediaPlayer();
         videos = new CompositeFile(true);
+        mergeHandler = new Handler();
     }
 
     private void createMediaPlayer() {
@@ -296,6 +298,23 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
 
         seekToFileTime(fileTimeToSeek);
+
+//        Runnable cutInBackground = new Runnable() {
+//            @Override
+//            public void run() {
+//                videos.flattenFile();
+//                FileEntry newCurrentFile = videos.getLastRecordedFile();
+//                setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
+//                mp.seekTo((int) getCurrentPosition());
+//                currentFile = newCurrentFile;
+//            }
+//        };
+//
+//
+//        if (videos.numBreaksAfter(currentFile) > 0) {
+//            Log.d(TAG,"merging");
+//            mergeHandler.post(cutInBackground);
+//        }
     }
 
     private void jumpToPresent() {
@@ -303,6 +322,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mp.stop();
         seekBar.setProgress(seekBar.getMax());
         hud.showPresent();
+        videos.flattenFile();
     }
 
     private void cutTail() {
@@ -501,11 +521,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 for (FileEntry file : videos.files) {
                     timeMarkers.add((float)(file.getStartTime()) / totalTime);
                 }
-                hud.updateTimeMarkers(timeMarkers);
-                hud.updateCurrentPosition(getCurrentPosition());
-                hud.updateTotalTime(totalTime);
+
 
                 if (mp != null && currentFile != null) {
+
+                    hud.updateTimeMarkers(timeMarkers);
+                    hud.updateCurrentPosition(getCurrentPosition());
+                    hud.updateTotalTime(totalTime);
 
                     long mCurrentPosition = getCurrentPosition()/1000;
                     if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath()))
