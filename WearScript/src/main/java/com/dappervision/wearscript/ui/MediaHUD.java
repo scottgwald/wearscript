@@ -28,18 +28,31 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private Bitmap skipForward;
     private Bitmap skipBack;
     private Bitmap error;
+    private Bitmap play;
     private boolean isPaused=false;
     private boolean isStopped = false;
     private boolean isRecording = false;
     private boolean isSkippingForward = false;
     private boolean isSkippingBack = false;
     private boolean wasPaused = false;
-    private boolean isPresent = true;
+    private boolean isPresent = false;
     private boolean waitingForTap = false;
     private boolean validJump = true;
     private ArrayList<Float> timeMarkers;
     private String currentPosition = "00:00";
     private String totalTime = "00:00";
+    private int actionIconX;
+    private int actionIconY;
+    private int recIconX;
+    private int recIconY;
+    private int tapTextSize;
+    private int currentTimeX;
+    private int currentTimeY;
+    private int totalTimeX;
+    private int totalTimeY;
+    private int timeTextSize;
+    private int tapTextX;
+    private int tapTextY;
 
     public MediaHUD(Context context) {
         super(context);
@@ -57,7 +70,23 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 R.drawable.skipbackward);
         error = BitmapFactory.decodeResource(getResources(),
                 R.drawable.error);
+        play = BitmapFactory.decodeResource(getResources(),R.drawable.play);
+
         timeMarkers = new ArrayList<Float>();
+
+        actionIconX = getResources().getInteger(R.integer.action_icon_x);
+        actionIconY = getResources().getInteger(R.integer.action_icon_y);
+        recIconX = getResources().getInteger(R.integer.rec_icon_x);
+        recIconY = getResources().getInteger(R.integer.rec_icon_y);
+        tapTextSize = getResources().getInteger(R.integer.tap_text_size);
+        timeTextSize = getResources().getInteger(R.integer.time_text_size);
+        currentTimeX = getResources().getInteger(R.integer.current_time_x);
+        currentTimeY = getResources().getInteger(R.integer.current_time_y);
+        totalTimeX = getResources().getInteger(R.integer.total_time_x);
+        totalTimeY = getResources().getInteger(R.integer.total_time_y);
+        tapTextX = getResources().getInteger(R.integer.tap_text_x);
+        tapTextY = getResources().getInteger(R.integer.tap_text_y);
+
     }
 
     @Override
@@ -68,20 +97,22 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             if (isPresent) {
                 c.drawColor(Color.BLACK);
             }
-            if (isPaused) {
-                canvas.drawBitmap(pause, 500, 30, null);
+            if (isPaused && !isPresent) {
+                canvas.drawBitmap(pause, actionIconX, actionIconY, null);
+            } else if (!isPresent && !isSkippingBack && !waitingForTap && !isSkippingForward) {
+                canvas.drawBitmap(play, actionIconX, actionIconY, null);
             }
             if (isStopped) {
-                canvas.drawBitmap(stop, 500, 30, null);
+                canvas.drawBitmap(stop, actionIconX ,actionIconY, null);
             }
             if (isRecording) {
-                canvas.drawBitmap(record, 10, 30, null);
+                canvas.drawBitmap(record, recIconX, recIconY, null);
             }
             if (isSkippingBack) {
-                canvas.drawBitmap(skipBack, 500, 30, null);
+                canvas.drawBitmap(skipBack, actionIconX, actionIconY, null);
             }
             if (isSkippingForward) {
-                canvas.drawBitmap(skipForward, 500, 30, null);
+                canvas.drawBitmap(skipForward, actionIconX, actionIconY, null);
                 if (!validJump) {
                     canvas.drawBitmap(error, 550, 60, null);
                 }
@@ -90,8 +121,8 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 Paint paint = new Paint();
                 paint.setColor(Color.WHITE);
                 canvas.drawColor(Color.BLACK, PorterDuff.Mode.OVERLAY);
-                paint.setTextSize(42);
-                canvas.drawText("Tap to Continue", 155, 300, paint);
+                paint.setTextSize(tapTextSize);
+                canvas.drawText("Tap to Continue", tapTextX, tapTextY, paint);
             }
 
             Paint tickMarkPaint = new Paint();
@@ -102,9 +133,9 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
 
             Paint timePaint = new Paint();
             timePaint.setColor(Color.WHITE);
-            timePaint.setTextSize(24);
-            canvas.drawText(currentPosition, 5, 300, timePaint);
-            canvas.drawText(totalTime, 525, 300, timePaint); //more to the left
+            timePaint.setTextSize(timeTextSize);
+            canvas.drawText(currentPosition, currentTimeX,currentTimeY, timePaint);
+            canvas.drawText(totalTime, totalTimeX, totalTimeY, timePaint); //more to the left
         }
     }
 
