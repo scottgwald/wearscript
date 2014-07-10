@@ -77,6 +77,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private RelativeLayout barBackground;
     private boolean isWaitingTap = false;
     private Handler mergeHandler;
+    private boolean inPresent = false;
+
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
         Bundle args = new Bundle();
@@ -123,6 +125,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void setMediaSource(Uri uri, boolean looping) {
+
         mediaUri = uri;
         if (mp == null) {
             return;
@@ -167,6 +170,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void onEvent(MediaRecordEvent e) {
         hud.showPresent();
+        inPresent = true;
         hud.showRecording();
         Log.d(TAG, "in onEvent(MediaRecordEvent e)");
         Log.d(TAG, "rs: " + rs);
@@ -207,6 +211,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         } else if (action.equals("jump")) {
             interrupt = true;
             jump(e.getMsecs());
+            inPresent = false;
         } else if (action.equals("playFastForward")) {
             playFastForwardFromBeginning(e.getMsecs());
         } else if (action.equals("rewind")) {
@@ -329,6 +334,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         mp.stop();
         seekBar.setProgress(seekBar.getMax());
         hud.showPresent();
+        inPresent = true;
         videos.flattenFile();
     }
 
@@ -362,10 +368,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             if(mediaUri != null)
             Log.d(TAG,"old URI: "+mediaUri.toString());
             currentFile = videos.getFileEntry(filePathToSeek); //fix
+            if(updateSeekBar != null) {
+                seekBarHandler.removeCallbacks(updateSeekBar);
+            }
             setMediaSource(newUri, false);
-
             int timeToSeek = (int)fileTime.getTimeInFile();
             mp.seekTo(timeToSeek);
+                seekBarHandler.post(updateSeekBar);
             if (timeToSeek > mp.getDuration()) {
                 //TODO: show icon saying this operation is not allowed
                 hud.showSkipForward(false);
@@ -528,8 +537,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 else
                     seekBar.setMax((int)totalTime/1000);
 
-                if(currentFile == null) {
-
+                if(currentFile == null && inPresent) {
                     seekBar.setProgress(seekBar.getMax());
                 }
 
@@ -537,7 +545,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 for (FileEntry file : videos.files) {
                     timeMarkers.add((float)(file.getStartTime()) / totalTime);
                 }
-                Log.d("UPDATE","updating time");
                 hud.updateTotalTime(totalTime);
                 if (currentFile == null)
                     hud.updateCurrentPosition(totalTime);
@@ -550,8 +557,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     hud.updateCurrentPosition(getCurrentPosition());
 
                     long mCurrentPosition = getCurrentPosition()/1000;
-                    if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath()))
-                    seekBar.setProgress((int) mCurrentPosition);
+                    if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath())) {
+                                Log.d("UPDATE","updating to progress: "+ (int) mCurrentPosition);
+                                seekBar.setProgress((int) mCurrentPosition);
+                    }
                     //if (currentFile != null) //concur
 
                 }
