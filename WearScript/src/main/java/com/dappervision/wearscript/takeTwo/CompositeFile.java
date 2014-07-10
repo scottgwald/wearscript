@@ -192,7 +192,7 @@ public class CompositeFile {
     }
 
     public FileTimeTuple endOfFile(FileEntry file) {
-        return new FileTimeTuple(file.getFilePath(), file.getFileDuration()); //fix me
+        return new FileTimeTuple(file.getFilePath(), file.getFileDuration()); //fix me throwing null
     }
 
     /**

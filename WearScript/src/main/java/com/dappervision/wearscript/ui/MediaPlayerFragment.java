@@ -125,7 +125,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private void setMediaSource(Uri uri, boolean looping) {
-
+        if(updateSeekBar != null) {
+            seekBarHandler.removeCallbacks(updateSeekBar);
+        }
         mediaUri = uri;
         if (mp == null) {
             return;
@@ -546,7 +548,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     timeMarkers.add((float)(file.getStartTime()) / totalTime);
                 }
                 hud.updateTotalTime(totalTime);
-                if (currentFile == null)
+                if (currentFile == null && inPresent)
                     hud.updateCurrentPosition(totalTime);
 
 
