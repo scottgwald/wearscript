@@ -151,7 +151,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             hud.hidePresent();
             mp.prepare();
             mp.start();
-            seekBarHandler.post(updateSeekBar);
+            //seekBarHandler.post(updateSeekBar); before
 
         } catch(IOException e){}
     }
@@ -176,6 +176,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             Log.d("TAG","rs is null");
         }
         String path = rs.startRecord(e.getFilePath());
+        seekBarHandler.post(updateSeekBar);
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
     }
@@ -324,6 +325,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             seekBarHandler.removeCallbacks(updateSeekBar);
         }
         this.currentFile = null;
+        seekBarHandler.post(updateSeekBar);
         mp.stop();
         seekBar.setProgress(seekBar.getMax());
         hud.showPresent();
@@ -521,28 +523,41 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
                 long totalTime = videos.getDuration() + (now - start);
 
-                seekBar.setMax((int)totalTime/1000);
+                if ((int)totalTime/1000 <= 0)
+                    seekBar.setMax(1000);
+                else
+                    seekBar.setMax((int)totalTime/1000);
+
+                if(currentFile == null) {
+
+                    seekBar.setProgress(seekBar.getMax());
+                }
 
                 timeMarkers.clear();
                 for (FileEntry file : videos.files) {
                     timeMarkers.add((float)(file.getStartTime()) / totalTime);
                 }
+                Log.d("UPDATE","updating time");
+                hud.updateTotalTime(totalTime);
+                if (currentFile == null)
+                    hud.updateCurrentPosition(totalTime);
+
 
 
                 if (mp != null && currentFile != null ) {
 
                     hud.updateTimeMarkers(timeMarkers);
                     hud.updateCurrentPosition(getCurrentPosition());
-                    hud.updateTotalTime(totalTime);
 
                     long mCurrentPosition = getCurrentPosition()/1000;
                     if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath()))
                     seekBar.setProgress((int) mCurrentPosition);
-                    if (currentFile != null) //concur
-                    seekBarHandler.postDelayed(updateSeekBar, 1000);
-
+                    //if (currentFile != null) //concur
 
                 }
+
+                seekBarHandler.postDelayed(updateSeekBar, 1000);
+
             }
         };
 
@@ -649,7 +664,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         }
         surfaceView.setVisibility(View.VISIBLE);
         mediaPlayer.start();
-        seekBarHandler.post(updateSeekBar);
         Utils.eventBusPost(new MediaPlayerReadyEvent());
     }
 
@@ -675,7 +689,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public void onCompletion(MediaPlayer mp) {
         Log.d("HERE", "on Completion called");
-        hud.showStop();
         this.isWaitingTap = true;
         hud.tapToContinue();
     }

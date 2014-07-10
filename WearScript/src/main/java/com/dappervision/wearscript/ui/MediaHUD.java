@@ -104,7 +104,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             timePaint.setColor(Color.WHITE);
             timePaint.setTextSize(24);
             canvas.drawText(currentPosition, 5, 300, timePaint);
-            canvas.drawText(totalTime, 600, 300, timePaint);
+            canvas.drawText(totalTime, 525, 300, timePaint); //more to the left
         }
     }
 
