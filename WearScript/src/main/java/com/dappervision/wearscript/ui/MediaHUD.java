@@ -345,6 +345,8 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             synchronized (this.getHolder()) {
                 isPaused = false;
                 isStopped = false;
+                if (isSkippingBack || isSkippingForward)
+                        wasPaused = false;
                 isSkippingForward = false;
                 isSkippingBack = false;
                 waitingForTap = false;
