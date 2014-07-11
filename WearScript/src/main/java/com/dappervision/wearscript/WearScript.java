@@ -191,6 +191,13 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public boolean mediaToggle(String callback) {
+        Utils.eventBusPost(new CallbackRegistration(MediaManager.class,callback).setEvent("toggle"));
+        Utils.eventBusPost(new MediaActionEvent("toggle"));
+        return false;
+    }
+
+    @JavascriptInterface
     public void mediaStop(){
         Utils.eventBusPost(new MediaActionEvent("stop"));
     }

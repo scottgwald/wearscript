@@ -53,6 +53,8 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private int timeTextSize;
     private int tapTextX;
     private int tapTextY;
+    private boolean isMerging;
+    private ArrayList<Float> tempMarkers;
 
     public MediaHUD(Context context) {
         super(context);
@@ -89,6 +91,19 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
+    public void displayMerging(boolean merging){
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                isMerging = merging;
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -124,11 +139,25 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 paint.setTextSize(tapTextSize);
                 canvas.drawText("Tap to Continue", tapTextX, tapTextY, paint);
             }
+            if (isMerging) {
+                Paint timePaint = new Paint();
+                timePaint.setColor(Color.WHITE);
+                timePaint.setTextSize(timeTextSize);
+                canvas.drawText("Merging...", actionIconX-15, actionIconY+30, timePaint);
+            }
 
             Paint tickMarkPaint = new Paint();
             tickMarkPaint.setARGB(127, 255, 255, 0);
-            for (Float time : timeMarkers) {  //concurrent modification exception
-                canvas.drawRect(time * 620, 300, time * 620 + 5, 320, tickMarkPaint);
+            synchronized (timeMarkers) {
+                if (tempMarkers != null) {
+                    timeMarkers.clear();
+                    for (Float f : tempMarkers) {
+                        timeMarkers.add(f);
+                    }
+                }
+                for (Float time : timeMarkers) {
+                    canvas.drawRect(time * 620, 300, time * 620 + 5, 320, tickMarkPaint);
+                }
             }
 
             Paint timePaint = new Paint();
@@ -328,7 +357,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         try {
             c = this.getHolder().lockCanvas(null);
             synchronized (this.getHolder()) {
-                this.timeMarkers = timeMarkers;
+                this.tempMarkers = timeMarkers;
                 this.onDraw(c);
             }
         } finally {

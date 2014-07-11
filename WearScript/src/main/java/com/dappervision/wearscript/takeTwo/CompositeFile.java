@@ -10,6 +10,7 @@ import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -102,6 +103,16 @@ public class CompositeFile {
         result+=finalFirst;
         return result;
     }
+
+    public FileEntry getFileAfter(FileEntry f) {
+        int index = files.indexOf(f);
+        if (index == files.size() - 2) {
+            return null;
+        } else {
+            return files.get(index + 1);
+        }
+    }
+
     private boolean flattenVideo (List<FileEntry> toMerge, String fileName) {
         ArrayList<Movie> movies = new ArrayList<Movie>();
         try {
@@ -123,7 +134,6 @@ public class CompositeFile {
                     }
                 }
             }
-
             Movie result = new Movie();
             if (audioTracks.size() > 0) {
                 result.addTrack(new AppendTrack(audioTracks.

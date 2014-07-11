@@ -10,6 +10,7 @@ import com.dappervision.wearscript.events.MediaOnScrollEvent;
 import com.dappervision.wearscript.events.MediaOnTwoFingerScrollEvent;
 import com.dappervision.wearscript.events.MediaRecordPathEvent;
 import com.dappervision.wearscript.events.MediaPlayerReadyEvent;
+import com.dappervision.wearscript.events.MediaStateEvent;
 
 public class MediaManager extends Manager {
     public static final String TAG = "MediaManager";
@@ -42,6 +43,10 @@ public class MediaManager extends Manager {
     public void onEvent(MediaOnTwoFingerScrollEvent e) {
         this.makeCall("onTwoFingerScroll",
                 String.format("%f, %f, %f", e.getDisplacement(), e.getDelta(), e.getVelocity()));
+    }
+
+    public void onEvent(MediaStateEvent e) {
+        this.makeCall("toggle", String.format("%b",e.getPlayStatus()));
     }
 
     public void onEvent(MediaRecordPathEvent e) {

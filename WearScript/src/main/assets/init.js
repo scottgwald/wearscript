@@ -692,6 +692,11 @@ function WearScript() {
         this.pause = function () {
             WSRAW.mediaPause();
         }.bind(this);
+        this.toggle = function(callback) {
+            callback=WS._funcfix(callback);
+            return WSRAW.mediaToggle(WS._funcwrap(callback));
+
+        }
         this.stop = function () {
             WSRAW.mediaStop();
         }.bind(this);
