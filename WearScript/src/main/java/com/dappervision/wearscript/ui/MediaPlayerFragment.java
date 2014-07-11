@@ -81,6 +81,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private boolean inPresent = false;
     private boolean isMerging = false;
     private Object lock = new Object();
+    private Timer timeoutTimer = new Timer();
+    private static final int timeout = 5000;
 
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
@@ -201,9 +203,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             if (action.equals("play")) {
                 interrupt = true;
                 hud.clear();
-                if (isWaitingTap) {
-                    jump(600);
-                }
                 mp.start();
 
             } else if (action.equals("stop")) {
@@ -233,8 +232,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             } else if (action.equals("seekBackwards")) {
                 seekBackwards(e.getMsecs());
             } else if (action.equals("jumpToPresent")) {
+                interrupt = true;
                 this.jumpToPresent();
             } else if (action.equals("toggle")) {
+                interrupt = true;
                 this.toggle();
             }
         }
@@ -248,9 +249,24 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             if (isPlaying) {
                 mp.pause();
                 hud.showPause();
+                timeoutTimer.cancel();
+                timeoutTimer.purge();
+                timeoutTimer = new Timer();
+                interrupt = false;
+                timeoutTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (!interrupt) {
+                                jumpToPresent();
+                            }
+                        }
+                    }, timeout);
+
             } else {
-                mp.start();
-                hud.clear();
+                if(!inPresent) {
+                    mp.start();
+                    hud.clear();
+                }
             }
             isPlaying = !isPlaying;
             Utils.eventBusPost(new MediaStateEvent(isPlaying));
