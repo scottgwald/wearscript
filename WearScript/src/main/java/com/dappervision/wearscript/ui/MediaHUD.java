@@ -55,6 +55,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private int tapTextY;
     private boolean isMerging;
     private ArrayList<Float> tempMarkers;
+    private Object lock = new Object();
 
     public MediaHUD(Context context) {
         super(context);
@@ -148,7 +149,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
 
             Paint tickMarkPaint = new Paint();
             tickMarkPaint.setARGB(127, 255, 255, 0);
-            synchronized (timeMarkers) {
+            synchronized (lock) {
                 if (tempMarkers != null) {
                     timeMarkers.clear();
                     for (Float f : tempMarkers) {
@@ -357,7 +358,9 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         try {
             c = this.getHolder().lockCanvas(null);
             synchronized (this.getHolder()) {
-                this.tempMarkers = timeMarkers;
+                synchronized (lock) { //remove
+                    this.tempMarkers = timeMarkers;
+                }
                 this.onDraw(c);
             }
         } finally {

@@ -81,6 +81,55 @@ public class CompositeFile {
 
     }
 
+
+//    public boolean flattenFile(){
+//        boolean merged = false;
+//
+//        if (files.size() <=2 && !isTailFinished()) {  //change to two
+//            Log.d("No Merge","Not enough files for merge");
+//            return false;
+//        } else {
+//            ArrayList<FileEntry> toMerge = new ArrayList<FileEntry>();
+//            ArrayList<FileEntry> mergedFiles = new ArrayList<FileEntry>();
+//            for (int i = 0 ; i<this.files.size()-1 ; i++ ) {
+//                if (this.files.get(i).getFileDuration() < 30000) {
+//                    toMerge.add(this.files.get(i));
+//                    mergedFiles.add(this.files.get(i));
+//                } else {
+//                    if (toMerge.size()>0) {
+//                        String mergedFileName = generateMergedFileName(toMerge.get(0).getFilePath(),
+//                                toMerge.get(toMerge.size() - 1).getFilePath());
+//                        merged |= flattenVideo(toMerge, mergedFileName);
+//
+//                        int insert = this.files.indexOf(toMerge.get(0));
+//                        this.files.add(insert, new FileEntry(mergedFileName,toMerge.get(0).getStartTime(), toMerge.get(toMerge.size() - 1)
+//                                .getStartTime() + toMerge.get(toMerge.size() - 1).getFileDuration()));
+//                    }
+//                    toMerge.clear();
+//                }
+//
+//            }
+//            String mergedFileName = generateMergedFileName(toMerge.get(0).getFilePath(),
+//                    toMerge.get(toMerge.size() - 1).getFilePath());
+//
+//            if (isVideo) {
+//                merged |= this.flattenVideo(toMerge,mergedFileName);
+//            } else {
+//
+//            }
+//
+//            synchronized (this) {
+//                FileEntry lastFile = this.files.get(this.files.size()-2);
+//                if (merged) {
+//                    for (int i=0;i< mergedFiles.size();i++) {
+//                        this.files.remove(mergedFiles.get(i));
+//                    }
+//                }
+//                return true;
+//            }
+//        }
+//
+//    }
     public synchronized FileEntry getTail() {
         return files.get(files.size() - 1);
     }
