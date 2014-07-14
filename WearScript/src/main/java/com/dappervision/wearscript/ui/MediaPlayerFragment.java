@@ -315,6 +315,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 long now = System.currentTimeMillis();
                 if (now + jumpVectorMSecs < start) {
                     // jump to previous recorded file, let recording continue
+                    if (videos.getLastRecordedFile() == null){
+                        cutTail();  //test
+                    }
                     fileTimeToSeek = videos.getFileFromJump(
                             videos.endOfFile(videos.getLastRecordedFile()),
                             jumpVectorMSecs + (now - start));
@@ -787,7 +790,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public synchronized  void onCompletion(MediaPlayer mp) {
         interrupt = false;
         synchronized (lock) {
-            if (interrupt) {
+            if (interrupt || inPresent) {
                 return;
             }
             FileEntry file = videos.getFileAfter(currentFile);
