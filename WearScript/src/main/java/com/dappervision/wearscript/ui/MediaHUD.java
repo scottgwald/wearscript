@@ -109,7 +109,12 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (canvas != null) {
+
+
+
             canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+
+
             if (isPresent) {
                 c.drawColor(Color.BLACK);
             }
@@ -156,8 +161,10 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                         timeMarkers.add(f);
                     }
                 }
+
+
                 for (Float time : timeMarkers) {
-                    canvas.drawRect(time * 620, 300, time * 620 + 5, 320, tickMarkPaint);
+                    canvas.drawRect(time * 570, 300, time * 570 + 5, 320, tickMarkPaint);
                 }
             }
 
