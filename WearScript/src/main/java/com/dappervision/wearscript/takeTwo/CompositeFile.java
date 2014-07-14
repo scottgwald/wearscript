@@ -20,6 +20,7 @@ public class CompositeFile {
     public ArrayList<FileEntry> files;
     private boolean isVideo;
     private boolean tailFinished = true;
+    private static final long MIN_FILE_TIME = 30000;
 
     public CompositeFile(boolean isVideo) {
         files = new ArrayList<FileEntry>();
@@ -82,54 +83,86 @@ public class CompositeFile {
     }
 
 
-//    public boolean flattenFile(){
-//        boolean merged = false;
-//
-//        if (files.size() <=2 && !isTailFinished()) {  //change to two
-//            Log.d("No Merge","Not enough files for merge");
-//            return false;
-//        } else {
-//            ArrayList<FileEntry> toMerge = new ArrayList<FileEntry>();
-//            ArrayList<FileEntry> mergedFiles = new ArrayList<FileEntry>();
-//            for (int i = 0 ; i<this.files.size()-1 ; i++ ) {
-//                if (this.files.get(i).getFileDuration() < 30000) {
-//                    toMerge.add(this.files.get(i));
-//                    mergedFiles.add(this.files.get(i));
-//                } else {
-//                    if (toMerge.size()>0) {
-//                        String mergedFileName = generateMergedFileName(toMerge.get(0).getFilePath(),
-//                                toMerge.get(toMerge.size() - 1).getFilePath());
-//                        merged |= flattenVideo(toMerge, mergedFileName);
-//
-//                        int insert = this.files.indexOf(toMerge.get(0));
-//                        this.files.add(insert, new FileEntry(mergedFileName,toMerge.get(0).getStartTime(), toMerge.get(toMerge.size() - 1)
-//                                .getStartTime() + toMerge.get(toMerge.size() - 1).getFileDuration()));
-//                    }
-//                    toMerge.clear();
-//                }
-//
-//            }
-//            String mergedFileName = generateMergedFileName(toMerge.get(0).getFilePath(),
-//                    toMerge.get(toMerge.size() - 1).getFilePath());
-//
-//            if (isVideo) {
-//                merged |= this.flattenVideo(toMerge,mergedFileName);
-//            } else {
-//
-//            }
-//
-//            synchronized (this) {
-//                FileEntry lastFile = this.files.get(this.files.size()-2);
-//                if (merged) {
-//                    for (int i=0;i< mergedFiles.size();i++) {
-//                        this.files.remove(mergedFiles.get(i));
-//                    }
-//                }
-//                return true;
-//            }
-//        }
-//
-//    }
+    public boolean flattenSmallFiles(){
+        boolean merged = false;
+        if (files.size() <=2 && !isTailFinished()) {  //change to two
+            return false;
+        } else {
+            ArrayList<FileEntry> toMerge = new ArrayList<FileEntry>();
+            ArrayList<FileEntry> ordered = new ArrayList<FileEntry>();
+
+            for (int i = 0 ; i < this.files.size()-1 ; i++ ) {
+                if (this.files.get(i).getFileDuration() < MIN_FILE_TIME) {
+                    toMerge.add(this.files.get(i));
+                } else {
+                    if (toMerge.size()>1) {
+                        String mergedFileName = generateMergedFileName(toMerge.get(0).getFilePath(),
+                                toMerge.get(toMerge.size() - 1).getFilePath());
+                        boolean localMerge =false;
+                        localMerge = flattenVideo(toMerge, mergedFileName);
+                        long duration = 0;
+                        if (localMerge) {
+                            for (FileEntry f : toMerge) {
+                                duration += f.getFileDuration();
+                            }
+                            merged = merged || localMerge;
+                            ordered.add(new FileEntry(mergedFileName,toMerge.get(0).getStartTime(),duration));
+                            ordered.add(this.files.get(i));
+                        } else {
+                            for (FileEntry f: toMerge) {
+                                ordered.add(f);
+                            }
+                            ordered.add(this.files.get(i));
+                        }
+                    } else {
+                        for (FileEntry f: toMerge) {
+                            ordered.add(f);
+                        }
+                        ordered.add(this.files.get(i));
+                    }
+                    toMerge.clear();
+                }
+            }
+
+            if(toMerge.size()>1) {
+                String mergedFileName = generateMergedFileName(toMerge.get(0).getFilePath(),
+                        toMerge.get(toMerge.size() - 1).getFilePath());
+                if (isVideo) {
+                    boolean localMerge = false;
+                    localMerge = this.flattenVideo(toMerge, mergedFileName);
+
+                    if (localMerge) {
+                        long duration = 0;
+                        for (FileEntry f :toMerge) {
+                            duration += f.getFileDuration();
+                        }
+                        merged = localMerge || merged;
+                        ordered.add(new FileEntry(mergedFileName,toMerge.get(0).getStartTime(),duration));
+                    } else {
+                        for (FileEntry f: toMerge) {
+                            ordered.add(f);
+                        }
+                    }
+                } else {
+
+                }
+            } else {
+                for (FileEntry f: toMerge) {
+                    ordered.add(f);
+                }
+            }
+
+            synchronized (this) {
+                FileEntry tail = this.getTail();
+                this.files.clear();
+                for (FileEntry f: ordered){
+                    files.add(f);
+                }
+                files.add(tail);
+                return true;
+            }
+        }
+    }
     public synchronized FileEntry getTail() {
         return files.get(files.size() - 1);
     }

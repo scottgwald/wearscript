@@ -398,7 +398,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         //hud.displayMergeStatus();
         isMerging = true;
         hud.displayMerging(true);
-        videos.flattenFile();
+        videos.flattenSmallFiles();
         isMerging = false;
         hud.displayMerging(false);
         getActivity().runOnUiThread(new Runnable() {
