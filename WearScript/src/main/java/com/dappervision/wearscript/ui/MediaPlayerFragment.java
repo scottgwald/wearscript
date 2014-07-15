@@ -227,11 +227,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     if (e.getMStartTime() -  lastJump > jumpLimit){
                         boolean jumpValid = jump(e.getMsecs());
                         lastJump = System.currentTimeMillis();
-                        if(e.getMsecs() < 0) {
-                            hud.showSkipBack();
-                        } else {
-                            hud.showSkipForward(jumpValid);
-                        }
+
                     }
                 }
             } else if (action.equals("playFastForward")) {
@@ -293,6 +289,12 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
         if (jumpVectorMSecs == 0) return false;
 
+        if(jumpVectorMSecs < 0) {
+            hud.showSkipBack();
+        } else {
+            hud.showSkipForward(true);
+        }
+
         this.isWaitingTap = false;
 
         FileTimeTuple fileTimeToSeek;
@@ -312,6 +314,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             if (currentFile == null) {
                 if (jumpVectorMSecs > 0) {
                     //TODO: show icon saying this operation is not allowed
+                    hud.showSkipForward(false);
                     return false;
                 }
                 long start = rs.getCurrentRecordingStartTimeMillis();
@@ -347,6 +350,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         // trying to fast forward to < 5 seconds behind the present
                         // make user be at least 5 seconds behind
                         Log.d("WARNING","Trying to jump to the future");
+                        hud.showSkipForward(false);
                         return false;
                     } else {
                         cutTail();
