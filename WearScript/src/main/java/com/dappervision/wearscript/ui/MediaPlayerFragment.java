@@ -225,8 +225,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 synchronized (lock) {
                     interrupt = true;
                     if (e.getMStartTime() -  lastJump > jumpLimit){
-                        jump(e.getMsecs());
+                        boolean jumpValid = jump(e.getMsecs());
                         lastJump = System.currentTimeMillis();
+                        if(e.getMsecs() < 0) {
+                            hud.showSkipBack();
+                        } else {
+                            hud.showSkipForward(jumpValid);
+                        }
                     }
                 }
             } else if (action.equals("playFastForward")) {
@@ -284,17 +289,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             Utils.eventBusPost(new MediaStateEvent(isPlaying));
         }
     }
-    private synchronized void jump(int jumpVectorMSecs) {
+    private synchronized boolean jump(int jumpVectorMSecs) {
         //positive jumpVector jumps forward / negative vector jumps backwards total milliseconds
-        if (jumpVectorMSecs == 0) return;
+        if (jumpVectorMSecs == 0) return false;
 
         this.isWaitingTap = false;
-
-        if(jumpVectorMSecs < 0) {
-            hud.showSkipBack();
-        } else {
-            hud.showSkipForward(true);
-        }
 
         FileTimeTuple fileTimeToSeek;
         if (videos.isTailFinished()) {
@@ -313,8 +312,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             if (currentFile == null) {
                 if (jumpVectorMSecs > 0) {
                     //TODO: show icon saying this operation is not allowed
-                    hud.showSkipForward(false);
-                    return;
+                    return false;
                 }
                 long start = rs.getCurrentRecordingStartTimeMillis();
                 long now = System.currentTimeMillis();
@@ -345,42 +343,25 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 Log.d(TAG,fileTimeToSeek.getFilePath());
                 if (videos.getTail().getFilePath().equals(fileTimeToSeek.getFilePath())) {
                     Log.d(TAG,"Cutting tail");
-                    cutTail();
-                    fileTimeToSeek = videos.getFileFromTime(videos.getTime(fileTimeToSeek)); //this is returning the tail
-                    Log.d(TAG,"new FileTimeToSeek: "+fileTimeToSeek.getFilePath().toString());
-                    Log.d(TAG,"tail: "+videos.getTail().getFilePath());
-                    if ( fileTimeToSeek.getFilePath().equals(videos.getTail().getFilePath())) {
-                        fileTimeToSeek = new FileTimeTuple(videos.getLastRecordedFile().getFilePath(),0);
-                    }
-
-
                     if (fileTimeToSeek.getTimeInFile() > now - start - 5000) {
                         // trying to fast forward to < 5 seconds behind the present
                         // make user be at least 5 seconds behind
-                        fileTimeToSeek = new FileTimeTuple(fileTimeToSeek.getFilePath(), now - start - 5000);
+                        Log.d("WARNING","Trying to jump to the future");
+                        return false;
+                    } else {
+                        cutTail();
+                        fileTimeToSeek = videos.getFileFromTime(videos.getTime(fileTimeToSeek)); //this is returning the tail
+                        if (fileTimeToSeek.getFilePath().equals(videos.getTail().getFilePath())) {
+                            fileTimeToSeek = new FileTimeTuple(videos.getLastRecordedFile().getFilePath(), 0);
+                            Log.d("WARNING","danger zone");
+                        }
                     }
                 }
             }
         }
 
         seekToFileTime(fileTimeToSeek);
-
-//        Runnable cutInBackground = new Runnable() {
-//            @Override
-//            public void run() {
-//                videos.flattenFile();
-//                FileEntry newCurrentFile = videos.getLastRecordedFile();
-//                setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
-//                mp.seekTo((int) getCurrentPosition());
-//                currentFile = newCurrentFile;
-//            }
-//        };
-//
-//
-//        if (videos.numBreaksAfter(currentFile) > 0) {
-//            Log.d(TAG,"merging");
-//            mergeHandler.post(cutInBackground);
-//        }
+        return true;
     }
 
     private void jumpToPresent() {
@@ -799,6 +780,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             if (interrupt || inPresent) {
                 return;
             }
+            Log.d("COMPLETE","currently in file: ");
             FileEntry file = videos.getFileAfter(currentFile);
             Log.d("COMPLETE", "calling on completion");
             if (file == null) {

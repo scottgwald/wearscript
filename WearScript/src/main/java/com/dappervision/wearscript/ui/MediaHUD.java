@@ -133,9 +133,11 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 canvas.drawBitmap(skipBack, actionIconX, actionIconY, null);
             }
             if (isSkippingForward) {
-                canvas.drawBitmap(skipForward, actionIconX, actionIconY, null);
                 if (!validJump) {
+                    canvas.drawBitmap(skipForward, actionIconX, actionIconY, null);
                     canvas.drawBitmap(error, 550, 60, null);
+                } else {
+                    canvas.drawBitmap(skipForward, actionIconX, actionIconY, null);
                 }
             }
             if (waitingForTap) {
