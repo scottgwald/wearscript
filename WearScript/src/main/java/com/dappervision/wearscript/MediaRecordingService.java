@@ -80,12 +80,15 @@ public class MediaRecordingService extends Service {
         int profileInt = CamcorderProfile.QUALITY_480P;
         android.util.Log.v(TAG, "Checking for profile: " + CamcorderProfile.hasProfile(profileInt));
         CamcorderProfile profile = CamcorderProfile.get(profileInt);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mediaRecorder.setOutputFormat(profile.fileFormat);
         mediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
-        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-        mediaRecorder.setAudioEncodingBitRate(96000);
+        mediaRecorder.setVideoEncoder(profile.videoCodec);
+        Log.d("AUDIO",Integer.toString(profile.audioBitRate));
+        Log.d("AUDIO",Integer.toString(profile.audioSampleRate));
+
+        mediaRecorder.setAudioEncodingBitRate(32000);
         mediaRecorder.setAudioChannels(profile.audioChannels);
-        mediaRecorder.setAudioSamplingRate(44100);
+        mediaRecorder.setAudioSamplingRate(16000);  //8000, 11025, 16000, 22050, 44100
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mediaRecorder.setOutputFile(filePath); //must get argument from somewhere, intent maybe?
         mediaRecorder.setPreviewDisplay(dummy.getHolder().getSurface());
