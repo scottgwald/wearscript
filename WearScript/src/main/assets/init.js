@@ -1061,6 +1061,9 @@ function WearScript() {
     this.sound = function (sound) {
         WSRAW.sound(sound);
     }
+    this.setVolume = function (volume) {
+        WSRAW.setVolume(volume);
+    }
     this.gestureCallback = function (event, callback) {
         callback = this._funcfix(callback);
         WSRAW.gestureCallback(event, this._funcwrap(callback));

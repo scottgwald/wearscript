@@ -789,6 +789,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     public synchronized  void onCompletion(MediaPlayer mp) {
         interrupt = false;
+
         synchronized (lock) {
             if (interrupt || inPresent) {
                 return;

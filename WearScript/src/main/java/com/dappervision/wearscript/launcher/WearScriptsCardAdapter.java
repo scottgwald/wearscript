@@ -2,11 +2,15 @@ package com.dappervision.wearscript.launcher;
 
 import android.app.Activity;
 import android.graphics.Typeface;
+import android.nfc.Tag;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import com.dappervision.wearscript.Log;
+import com.dappervision.wearscript.Utils;
+import com.dappervision.wearscript.events.VolumeChangeEvent;
 import com.google.android.glass.app.Card;
 import com.google.android.glass.widget.CardScrollAdapter;
 
@@ -47,7 +51,6 @@ public class WearScriptsCardAdapter extends CardScrollAdapter {
             return convertView;
         }
     }
-
     @Override
     public int getPosition(Object o) {
         for (int i = 0; i < array.size(); i++) {
@@ -65,4 +68,5 @@ public class WearScriptsCardAdapter extends CardScrollAdapter {
         v.setId(info.getId());
         return v;
     }
+
 }

@@ -41,6 +41,7 @@ import com.dappervision.wearscript.events.ServerConnectEvent;
 import com.dappervision.wearscript.events.ShutdownEvent;
 import com.dappervision.wearscript.events.SoundEvent;
 import com.dappervision.wearscript.events.SpeechRecognizeEvent;
+import com.dappervision.wearscript.events.VolumeChangeEvent;
 import com.dappervision.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
@@ -463,10 +464,17 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void wake() {
+      public void wake() {
         Log.i(TAG, "wake");
         Utils.eventBusPost(new ScreenEvent(true));
     }
+
+    @JavascriptInterface
+    public void setVolume(double volume) {
+        Log.i(TAG, "set volume");
+        Utils.eventBusPost(new VolumeChangeEvent(volume));
+    }
+
 
     @JavascriptInterface
     public void qr(String cb) {

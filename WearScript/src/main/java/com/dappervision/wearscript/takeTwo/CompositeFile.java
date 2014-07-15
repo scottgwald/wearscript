@@ -188,7 +188,7 @@ public class CompositeFile {
 
     public FileEntry getFileAfter(FileEntry f) {
         int index = files.indexOf(f);
-        if (index == files.size() - 2) {
+        if (index >= files.size() - 2) {
             return null;
         } else {
             return files.get(index + 1);
