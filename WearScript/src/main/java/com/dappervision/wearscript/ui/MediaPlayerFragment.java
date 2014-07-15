@@ -85,6 +85,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private static final int timeout = 5000;
     private boolean jumping = false;
     private Object fileLock = new Object();
+    private long lastJump = 0;
+    public static final long jumpLimit = 750;
 
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
@@ -222,7 +224,10 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             } else if (action.equals("jump")) {
                 synchronized (lock) {
                     interrupt = true;
-                    jump(e.getMsecs());
+                    if (e.getMStartTime() -  lastJump > jumpLimit){
+                        jump(e.getMsecs());
+                        lastJump = System.currentTimeMillis();
+                    }
                 }
             } else if (action.equals("playFastForward")) {
                 playFastForwardFromBeginning(e.getMsecs());
@@ -445,8 +450,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             Log.d(TAG,"new URI: "+newUri.toString());
             if(mediaUri != null)
             Log.d(TAG,"old URI: "+mediaUri.toString());
-            synchronized (fileLock) {   //must check other onCompletion
-                    currentFile = videos.getFileEntry(filePathToSeek); //fix
+            synchronized (fileLock) {
+                    currentFile = videos.getFileEntry(filePathToSeek);
             }
             if(updateSeekBar != null) {
                 seekBarHandler.removeCallbacks(updateSeekBar);

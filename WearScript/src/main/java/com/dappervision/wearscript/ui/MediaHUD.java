@@ -274,7 +274,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             public void run() {
                MediaHUD.this.clearSkip();
             }
-        }, 600);
+        }, MediaPlayerFragment.jumpLimit);
     }
 
     public void showSkipForward(boolean valid) {
@@ -301,7 +301,7 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
             public void run() {
                 MediaHUD.this.clearSkip();
             }
-        }, 600);
+        },  MediaPlayerFragment.jumpLimit);
     }
 
     public void showRecording() {
