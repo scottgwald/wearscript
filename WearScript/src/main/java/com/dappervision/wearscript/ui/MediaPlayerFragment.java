@@ -627,7 +627,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                                 Log.d("UPDATE", "updating to progress: " + (int) mCurrentPosition);
                                 seekBar.setProgress((int) mCurrentPosition);
                             }
-                            //if (currentFile != null) //concur
 
                         }
 

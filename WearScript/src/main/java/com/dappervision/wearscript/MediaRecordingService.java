@@ -83,10 +83,10 @@ public class MediaRecordingService extends Service {
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-        mediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+        mediaRecorder.setAudioEncodingBitRate(96000);
         mediaRecorder.setAudioChannels(profile.audioChannels);
-        mediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
-        mediaRecorder.setAudioEncoder(profile.audioCodec);
+        mediaRecorder.setAudioSamplingRate(44100);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mediaRecorder.setOutputFile(filePath); //must get argument from somewhere, intent maybe?
         mediaRecorder.setPreviewDisplay(dummy.getHolder().getSurface());
 
