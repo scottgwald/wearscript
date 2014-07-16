@@ -21,6 +21,7 @@ public class CompositeFile {
     private boolean isVideo;
     private boolean tailFinished = true;
     private static final long MIN_FILE_TIME = 30000;
+    private ArrayList<Long> bookmarks = new ArrayList<Long>();
 
     public CompositeFile(boolean isVideo) {
         files = new ArrayList<FileEntry>();
@@ -46,6 +47,14 @@ public class CompositeFile {
     public synchronized void setTailDuration(long duration) {
         this.files.get(this.files.size()-1).setFileDuration(duration);
         this.setTailFinished(true);
+    }
+
+    public synchronized void placeBookmark(long time){
+        this.bookmarks.add(time);
+    }
+
+    public synchronized  ArrayList<Long> getBookmarks() {
+        return bookmarks;
     }
 
     public boolean flattenFile(){

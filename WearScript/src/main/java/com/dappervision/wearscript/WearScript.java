@@ -204,6 +204,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void mediaPlaceBookmark() {
+        Utils.eventBusPost(new MediaActionEvent("placeBookmark"));
+    }
+
+    @JavascriptInterface
     public void mediaStop(){
         Utils.eventBusPost(new MediaActionEvent("stop"));
     }

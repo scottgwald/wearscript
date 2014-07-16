@@ -761,6 +761,9 @@ function WearScript() {
         this.swipeMode = function() {
             WSRAW.mediaSwipeMode();
         }.bind(this);
+        this.placeBookmark = function() {
+            WSRAW.mediaPlaceBookmark();
+        }.bind();
         this.seekToEnd = function() {
             this.seekBackwards(0);
         }

@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.R;
 
 import java.text.SimpleDateFormat;
@@ -55,7 +56,10 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
     private int tapTextY;
     private boolean isMerging;
     private ArrayList<Float> tempMarkers;
+    private ArrayList<Float> tempBookmarks= new ArrayList<Float>();
     private Object lock = new Object();
+    private Object block = new Object();
+    private ArrayList<Float> bookmarks = new ArrayList<Float>();
 
     public MediaHUD(Context context) {
         super(context);
@@ -165,8 +169,26 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
 
+
                 for (Float time : timeMarkers) {
                     canvas.drawRect(time * 570, 300, time * 570 + 5, 320, tickMarkPaint);
+                }
+            }
+            Paint bookmarkPaint = new Paint();
+            bookmarkPaint.setARGB(127, 46, 199, 0);
+            synchronized (block) {
+                if (tempBookmarks != null) {
+                    bookmarks.clear();
+                    for (Float f : tempBookmarks) {
+                        bookmarks.add(f);
+                    }
+                }
+
+
+
+                for (Float time : bookmarks) {
+                    Log.d("PAINT","time:"+time);
+                    canvas.drawRect(time * 570, 300, time * 570 + 5, 320, bookmarkPaint);
                 }
             }
 
@@ -366,6 +388,21 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    public void updateBookmarks(ArrayList<Float> marks) {
+        try {
+            c = this.getHolder().lockCanvas(null);
+            synchronized (this.getHolder()) {
+                synchronized (block) { //remove
+                    this.tempBookmarks = marks;
+                }
+                this.onDraw(c);
+            }
+        } finally {
+            if (c != null) {
+                this.getHolder().unlockCanvasAndPost(c);
+            }
+        }
+    }
     public void updateTimeMarkers(ArrayList<Float> timeMarkers) {
         try {
             c = this.getHolder().lockCanvas(null);

@@ -89,6 +89,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public static final long jumpLimit = 750;
     private boolean swipeMode = false;
     private long beforeSwipe = 0;
+    private Object bookmarkLock = new Object();
+    private ArrayList<Float> tempBookmarks = new ArrayList<Float>();
+    private long START;
 
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
@@ -199,6 +202,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         seekBarHandler.post(updateSeekBar);
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
+        START = System.currentTimeMillis();
     }
 
     public void onEvent(MediaActionEvent e) {
@@ -263,6 +267,14 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 synchronized (lock) {
                     interrupt = true;
                     this.swipeMode();
+                }
+            } else if(action.equals("placeBookmark")) {
+                synchronized (fileLock) {
+                    Log.d("BOOKMARK","placing bookmark");
+                    long now = System.currentTimeMillis();
+                    long start = rs.getCurrentRecordingStartTimeMillis();
+
+                    videos.placeBookmark(videos.getDuration() + (now - start));
                 }
             }
         }
@@ -671,7 +683,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         long now = System.currentTimeMillis();
                         long start = rs.getCurrentRecordingStartTimeMillis();
 
-                        long totalTime = videos.getDuration() + (now - start);
+                        double totalTime = videos.getDuration() + (now - start);
 
                         if ((int) totalTime / 1000 <= 0)
                             seekBar.setMax(1000);
@@ -682,13 +694,23 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             seekBar.setProgress(seekBar.getMax());
                         }
 
+
+                        tempBookmarks.clear();
                         timeMarkers.clear();
-                        for (FileEntry file : videos.files) {
-                            timeMarkers.add((float) (file.getStartTime()) / totalTime);
+
+                        for (Long l: videos.getBookmarks()){
+                            Log.d("BOOKMARK","disp mark: "+ l);
+                            Log.d("BOOKMARK"," "+(float) ((l)/totalTime));
+                            tempBookmarks.add((float) ((l)/totalTime));
                         }
-                        hud.updateTotalTime(totalTime);
+                        hud.updateBookmarks(tempBookmarks);
+
+                        for (FileEntry file : videos.files) {
+                            timeMarkers.add((float) ((file.getStartTime()) / totalTime));
+                        }
+                        hud.updateTotalTime((long)totalTime);
                         if (currentFile == null && inPresent)
-                            hud.updateCurrentPosition(totalTime);
+                            hud.updateCurrentPosition((long)totalTime);
 
 
                         if (mp != null && currentFile != null) {
@@ -777,7 +799,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         super.onPause();
         Log.d(TAG, "onPause");
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if(updateSeekBar != null){
+            seekBarHandler.removeCallbacks(updateSeekBar);
+        }
         getActivity().finish();
+
     }
 
 
