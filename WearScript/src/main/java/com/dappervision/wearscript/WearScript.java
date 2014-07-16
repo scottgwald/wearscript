@@ -161,11 +161,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaLoad(String uri, boolean looping, String callback) {
+    public void mediaLoad(String uri, boolean looping, boolean recordVideo, String callback) {
         try {
             Utils.eventBusPost(new CallbackRegistration(MediaManager.class, callback)
                     .setEvent(MediaManager.MEDIA_PLAYER_PREPARED));
-            Utils.eventBusPost(new MediaEvent(new URI(uri), looping));
+            Utils.eventBusPost(new MediaEvent(new URI(uri), looping, recordVideo));
         } catch (URISyntaxException e) {
             // TODO(kurtisnelson): Handle
         }
@@ -177,8 +177,8 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaCreate() {
-        Utils.eventBusPost(new MediaEvent());
+    public void mediaCreate(boolean recordVideo) {
+        Utils.eventBusPost(new MediaEvent(recordVideo));
     }
 
     @JavascriptInterface

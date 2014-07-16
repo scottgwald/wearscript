@@ -50,6 +50,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public static final String ARG_URL = "ARG_URL";
     public static final String ARG_LOOP = "ARG_LOOP";
     private static final String TAG = "MediaPlayerFragment";
+    public static final String RECORD_VIDEO = "RECORD_VIDEO";
     private  MediaPlayer mp;
     private Uri mediaUri;
     private SurfaceHolder holder;
@@ -88,10 +89,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public static final long jumpLimit = 750;
 
 
-    public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
+    public static MediaPlayerFragment newInstance(Uri uri, boolean looping, boolean video) {
         Bundle args = new Bundle();
         args.putParcelable(ARG_URL, uri);
         args.putBoolean(ARG_LOOP, looping);
+        args.putBoolean(RECORD_VIDEO, video);
         MediaPlayerFragment f = new MediaPlayerFragment();
         f.setArguments(args);
         return f;

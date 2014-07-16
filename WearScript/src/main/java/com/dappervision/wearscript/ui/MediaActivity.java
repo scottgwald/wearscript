@@ -31,7 +31,9 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
 
     protected GestureFragment createFragment() {
         if (getIntent().getStringExtra(MODE_KEY).equals(MODE_MEDIA)) {
-            return new MediaPlayerFragment().newInstance((Uri) getIntent().getParcelableExtra(MediaPlayerFragment.ARG_URL), getIntent().getBooleanExtra(MediaPlayerFragment.ARG_LOOP, false));
+            return MediaPlayerFragment.newInstance((Uri) getIntent().getParcelableExtra(MediaPlayerFragment.ARG_URL),
+                            getIntent().getBooleanExtra(MediaPlayerFragment.ARG_LOOP, false),
+                            getIntent().getBooleanExtra(MediaPlayerFragment.RECORD_VIDEO, true));
         } else {
             return null;
         }

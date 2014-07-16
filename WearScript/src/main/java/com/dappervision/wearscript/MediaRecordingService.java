@@ -121,8 +121,9 @@ public class MediaRecordingService extends Service {
             prepareVideoRecorder();
             mediaRecorder.start();
         } else {
-            throw new UnsupportedOperationException("Audio recording not yet implemented");
+            //throw new UnsupportedOperationException("Audio recording not yet implemented");
             //TODO (Blake): implement audio recording
+
         }
 
         setCurrentRecordingStartTimeMillis(System.currentTimeMillis());

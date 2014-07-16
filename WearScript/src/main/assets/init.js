@@ -678,13 +678,13 @@ function WearScript() {
     this.callbacks = {};
     this.cbCount = 0;
     this.picarusModelCount = 0;
-    this.Media = function (url, loop, callback) {
+    this.Media = function (url, loop, callback, video) {
         if (!loop)
             loop = false;
         if (typeof url == 'undefined') {
-            WSRAW.mediaCreate();
+            WSRAW.mediaCreate(video);
         } else {
-            WSRAW.mediaLoad(url, loop, WS._funcwrap(callback));
+            WSRAW.mediaLoad(url, loop, video, WS._funcwrap(callback));
         }
         this.play = function () {
             WSRAW.mediaPlay();
