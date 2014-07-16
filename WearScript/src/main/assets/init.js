@@ -678,7 +678,13 @@ function WearScript() {
     this.callbacks = {};
     this.cbCount = 0;
     this.picarusModelCount = 0;
-    this.Media = function (url, loop, callback, video) {
+    this.Media = function (args) {
+        // args: url, loop, video, callback
+        var url = args['url'];
+        var loop = args['loop'];
+        var video = args['video'];
+        var callback = args['callback'];
+
         if (!loop)
             loop = false;
         if (typeof url == 'undefined') {
