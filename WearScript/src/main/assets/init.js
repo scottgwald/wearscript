@@ -729,23 +729,23 @@ function WearScript() {
         this.setSource = function(uri, looping) {
             WSRAW.mediaSetSource(uri,looping);
         }.bind(this);
-        this.startRecording = function(path,callback) {
+        this.startRecording = function(video,path,callback) {
             if (!path && !callback) {
-                WSRAW.mediaStartRecording(null,null);
+                WSRAW.mediaStartRecording(video, null,null);
             } else if (path && callback) {
                 callback = WS._funcfix(callback);
-                WSRAW.mediaStartRecording(path,WS._funcwrap(callback));
+                WSRAW.mediaStartRecording(video, path,WS._funcwrap(callback));
             } else {
                 if(!callback) {
                       if(typeof path == 'function') {
                              path = WS._funcfix(path);
-                             WSRAW.mediaStartRecording(null,WS._funcwrap(path));
+                             WSRAW.mediaStartRecording(video, null,WS._funcwrap(path));
                        } else {
-                             WSRAW.mediaStartRecording(path,null);
+                             WSRAW.mediaStartRecording(video, path,null);
                        }
                 } else if (!path) {
                      callback = WS._funcfix(callback);
-                     WSRAW.mediaStartRecording(null,WS._funcwrap(callback));
+                     WSRAW.mediaStartRecording(video, null,WS._funcwrap(callback));
                 }
             }
         }.bind(this);

@@ -28,6 +28,7 @@ public class MediaRecordingService extends Service {
     private SurfaceView dummy;
     private String filePath;
     private long currentRecordingStartTimeMillis;
+    private boolean recordingVideo;
 
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -46,13 +47,14 @@ public class MediaRecordingService extends Service {
         return super.onStartCommand(i, z, y);
     }
 
-    public String startRecord(String path) {
+    public String startRecord(boolean video, String path) {
         if (path == null) {
-            this.generateOutputMediaFile();
+            this.generateOutputMediaFile(video);
         } else {
             filePath = path;
         }
-        this.startRecording();
+        recordingVideo = video;
+        this.startRecording(video);
         return filePath;
     }
 
@@ -107,24 +109,35 @@ public class MediaRecordingService extends Service {
         return true;
     }
 
-    private void startRecording() {
+    private void startRecording(boolean video) {
 
         Log.d(TAG, "startRecording()");
 
         if (mediaRecorder != null) {
             this.releaseMediaRecorder();
         }
-        prepareVideoRecorder();
-        mediaRecorder.start();
+
+        if (video) {
+            prepareVideoRecorder();
+            mediaRecorder.start();
+        } else {
+            throw new UnsupportedOperationException("Audio recording not yet implemented");
+            //TODO (Blake): implement audio recording
+        }
+
         setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
     }
 
     public void stopRecording() {
         Log.v(TAG, "Stopping recording.");
-        if (mediaRecorder != null)
-            mediaRecorder.stop();
-        releaseMediaRecorder();
-        releaseCamera();
+        if (recordingVideo) {
+            if (mediaRecorder != null)
+                mediaRecorder.stop();
+            releaseMediaRecorder();
+            releaseCamera();
+        } else {
+            throw new UnsupportedOperationException("Audio recording not yet implemented");
+        }
     }
 
 
@@ -212,7 +225,7 @@ public class MediaRecordingService extends Service {
     /**
      * Create a File for saving an image or video
      */
-    private void generateOutputMediaFile() {
+    private void generateOutputMediaFile(boolean video) {
         File mediaStorageDir = new File("/sdcard/", "wearscript_video");
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
@@ -220,11 +233,15 @@ public class MediaRecordingService extends Service {
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + ".mp4";
+        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + (video ? ".mp4" : ".wav");
         Log.v(TAG, "Output file: " + filePath);
     }
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public boolean getRecordingVideo() {
+        return recordingVideo;
     }
 }

@@ -209,11 +209,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void mediaStartRecording(String path, String callback) {
+    public void mediaStartRecording(boolean video, String path, String callback) {
         if (callback != null) {
             Utils.eventBusPost(new CallbackRegistration(MediaManager.class,callback).setEvent("startRecording"));
         }
-        Utils.eventBusPost(new MediaRecordEvent(path));
+        Utils.eventBusPost(new MediaRecordEvent(video, path));
     }
 
     @JavascriptInterface

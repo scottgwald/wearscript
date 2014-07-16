@@ -3,7 +3,6 @@ package com.dappervision.wearscript.ui;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -193,7 +192,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             Log.d("TAG","rs is null");
         }
         while (rs == null){}
-        String path = rs.startRecord(e.getFilePath());
+        String path = rs.startRecord(e.recordVideo(), e.getFilePath());
         seekBarHandler.post(updateSeekBar);
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
@@ -404,7 +403,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     private synchronized void cutTail() {
         rs.stopRecording();
-        String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
+        String newFilePath = rs.startRecord(rs.getRecordingVideo(), null); // start recording with an automatically generated file name
         if(updateSeekBar != null){
             seekBarHandler.removeCallbacks(updateSeekBar);
         }
