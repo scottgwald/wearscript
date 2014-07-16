@@ -106,10 +106,11 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         Log.d("CREATED", "Surface made");
-        MediaActivity.this.startService(new Intent(MediaActivity.this,
-                MediaRecordingService.class));
-        MediaActivity.this.bindService(new Intent(MediaActivity.this,
-                MediaRecordingService.class), mConnection, Context.BIND_AUTO_CREATE);
+        Intent mediaRecordingIntent = new Intent(MediaActivity.this, MediaRecordingService.class)
+                .putExtra(MediaPlayerFragment.RECORD_VIDEO,
+                        getIntent().getBooleanExtra(MediaPlayerFragment.RECORD_VIDEO, true));
+        MediaActivity.this.startService(mediaRecordingIntent);
+        MediaActivity.this.bindService(mediaRecordingIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override

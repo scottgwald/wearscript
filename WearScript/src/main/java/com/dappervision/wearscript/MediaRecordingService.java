@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.SurfaceView;
 
 import com.dappervision.wearscript.events.MediaPauseEvent;
+import com.dappervision.wearscript.ui.MediaPlayerFragment;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,13 @@ public class MediaRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent i, int z, int y) {
-        camera = getCameraInstanceRetry();
+        recordingVideo = i.getBooleanExtra(MediaPlayerFragment.RECORD_VIDEO, true);
+        if (recordingVideo) {
+            camera = getCameraInstanceRetry();
+        } else {
+            throw new UnsupportedOperationException("Audio recording not yet implemented");
+        }
+
         return super.onStartCommand(i, z, y);
     }
 
@@ -121,7 +128,7 @@ public class MediaRecordingService extends Service {
             prepareVideoRecorder();
             mediaRecorder.start();
         } else {
-            //throw new UnsupportedOperationException("Audio recording not yet implemented");
+            throw new UnsupportedOperationException("Audio recording not yet implemented");
             //TODO (Blake): implement audio recording
 
         }
