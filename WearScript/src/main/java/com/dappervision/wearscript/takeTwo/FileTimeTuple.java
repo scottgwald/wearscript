@@ -3,7 +3,7 @@ package com.dappervision.wearscript.takeTwo;
 
 public class FileTimeTuple {
     private final String filePath;
-    private final long timeInFile;
+    private long timeInFile;
 
     public FileTimeTuple(String path, long time) {
         filePath = path;
@@ -16,6 +16,10 @@ public class FileTimeTuple {
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public void setTimeInFile(long time) {
+        timeInFile = time;
     }
 
 }

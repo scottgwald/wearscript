@@ -199,6 +199,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void mediaSwipeMode() {
+        Utils.eventBusPost(new MediaActionEvent("swipeMode"));
+    }
+
+    @JavascriptInterface
     public void mediaStop(){
         Utils.eventBusPost(new MediaActionEvent("stop"));
     }

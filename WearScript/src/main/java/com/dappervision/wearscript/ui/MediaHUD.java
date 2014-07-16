@@ -279,6 +279,9 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
         }, MediaPlayerFragment.jumpLimit);
     }
 
+    public void showSwipeMode(){
+
+    }
     public void showSkipForward(boolean valid) {
         wasPaused = isPaused;
         this.clear();

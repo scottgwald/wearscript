@@ -758,7 +758,9 @@ function WearScript() {
         this.jumpToPresent = function() {
             WSRAW.mediaJumpToPresent();
         }.bind(this);
-
+        this.swipeMode = function() {
+            WSRAW.mediaSwipeMode();
+        }.bind(this);
         this.seekToEnd = function() {
             this.seekBackwards(0);
         }

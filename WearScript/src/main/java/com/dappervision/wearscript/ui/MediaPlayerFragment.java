@@ -87,6 +87,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private Object fileLock = new Object();
     private long lastJump = 0;
     public static final long jumpLimit = 750;
+    private boolean swipeMode = false;
+    private long beforeSwipe = 0;
 
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
@@ -222,12 +224,13 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             } else if (action.equals("playReverse")) {
                 playReverseFromEnd(e.getMsecs());
             } else if (action.equals("jump")) {
-                synchronized (lock) {
-                    interrupt = true;
-                    if (e.getMStartTime() -  lastJump > jumpLimit){
-                        boolean jumpValid = jump(e.getMsecs());
-                        lastJump = System.currentTimeMillis();
-
+                if (!swipeMode) {
+                    synchronized (lock) {
+                        interrupt = true;
+                        if (e.getMStartTime() - lastJump > jumpLimit) {
+                            boolean jumpValid = jump(e.getMsecs());
+                            lastJump = System.currentTimeMillis();
+                        }
                     }
                 }
             } else if (action.equals("playFastForward")) {
@@ -243,15 +246,97 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             } else if (action.equals("seekBackwards")) {
                 seekBackwards(e.getMsecs());
             } else if (action.equals("jumpToPresent")) {
-                synchronized (lock) {
-                    interrupt = true;
-                    this.jumpToPresent();
+                if (!swipeMode) {
+                    synchronized (lock) {
+                        interrupt = true;
+                        this.jumpToPresent();
+                    }
                 }
             } else if (action.equals("toggle")) {
                 interrupt = true;
                 this.toggle();
+                if (swipeMode){
+                    deploy();
+                }
+                swipeMode = false;
+            } else if (action.equals("swipeMode")) {
+                synchronized (lock) {
+                    interrupt = true;
+                    this.swipeMode();
+                }
             }
         }
+    }
+
+    private void deploy() {
+        int position = seekBar.getProgress();
+        Log.d("DEPLOY"," "+position);
+        FileTimeTuple jumpHere =videos.getFileFromTime(position*1000);
+        Log.d("DEPLOY"," "+ seekBar.getMax());
+
+        if (jumpHere.getFilePath().equals(videos.getTail().getFilePath())) {
+
+            cutTail();
+            if (jumpHere.getTimeInFile() + videos.getFileEntry(jumpHere.getFilePath()).getStartTime() >= videos.getDuration() - 5000) {
+                jumpHere.setTimeInFile(videos.getDuration() - 5000);
+            }
+        }
+
+            if (currentFile == null || !currentFile.getFilePath().equals(jumpHere.getFilePath())) {
+                Uri newUri = Uri.fromFile(new File(jumpHere.getFilePath()));
+                this.setMediaSource(newUri, false);
+                currentFile = videos.getFileEntry(jumpHere.getFilePath());
+                mp.seekTo((int) jumpHere.getTimeInFile());
+                seekBarHandler.post(updateSeekBar);
+            } else {
+                mp.seekTo((int) jumpHere.getTimeInFile());
+            }
+
+    }
+    private void swipeMode() {
+        swipeMode = true;
+        hud.showPause();
+        mp.pause();
+        hud.showSwipeMode();
+        beforeSwipe = mp.getCurrentPosition();
+    }
+
+    @Override
+    public boolean onScroll(float displacement, float delta, float velocity) {
+        //Utils.eventBusPost(new MediaOnScrollEvent(displacement, delta, velocity));
+        if (swipeMode) {
+            Log.d("SWIPE_MODE","d: "+displacement/1300 +" delta: "+ delta+" v: "+velocity);
+            float d = displacement/1300;
+            int dif = 0;
+            if (displacement > 0) {
+                dif = seekBar.getMax() - seekBar.getProgress();
+            } else {
+                dif = seekBar.getProgress();
+            }
+            if(Math.abs(velocity) >= .1) {
+                seekBar.setProgress((int) (seekBar.getProgress() + d * dif));
+                FileTimeTuple jumpHere = videos.getFileFromTime((long)((seekBar.getProgress() + d* dif)* 1000));
+                if (!jumpHere.getFilePath().equals(videos.getTail())){
+                    if (currentFile!= null && jumpHere.getFilePath().equals(currentFile.getFilePath())){
+                        mp.seekTo((int)jumpHere.getTimeInFile());
+                    } else {
+                        if(currentFile != null) {
+                            Uri newUri = Uri.fromFile(new File(jumpHere.getFilePath()));
+                            this.setMediaSource(newUri, false);
+                            mp.pause();
+                            currentFile = videos.getFileEntry(jumpHere.getFilePath());
+                            mp.seekTo((int) jumpHere.getTimeInFile());
+                            seekBarHandler.post(updateSeekBar);
+                        }
+                    }
+                } else {
+
+                }
+
+            }
+
+        }
+        return false;
     }
 
     private void toggle() {
@@ -411,17 +496,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
             seekBarHandler.post(updateSeekBar);
         videos.addFile(newFilePath, -1);
-        /*new AsyncTask<Void, Void, Long>() {
-            @Override
-            public Long doInBackground(Void... args) {
-                videos.flattenFile();
-                FileEntry newCurrentFile = videos.getLastRecordedFile();
-                setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
-                mp.seekTo((int) getCurrentPosition());
-                currentFile = newCurrentFile;
-                return currentFile.getFileDuration();
-            }
-        }.execute();*/
     }
 
     public long getCurrentPosition() {
@@ -486,11 +560,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
 
-    @Override
-    public boolean onScroll(float v, float v2, float v3) {
-        Utils.eventBusPost(new MediaOnScrollEvent(v, v2, v3));
-        return false;
-    }
+
 
     private void modifiedSpeedPlayback(final int speed, boolean forward, boolean fromEndpoint) {
         if (speed <= 0) return;
@@ -608,7 +678,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         else
                             seekBar.setMax((int) totalTime / 1000);
 
-                        if (currentFile == null && inPresent) {
+                        if (currentFile == null && inPresent && !swipeMode) {
                             seekBar.setProgress(seekBar.getMax());
                         }
 
@@ -627,7 +697,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             hud.updateCurrentPosition(getCurrentPosition());
 
                             long mCurrentPosition = getCurrentPosition() / 1000;
-                            if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath())) {
+
+                            if (currentFile.getStartTime() + currentFile.getFileDuration() >= mCurrentPosition && !currentFile.equals(videos.getTail().getFilePath()) && !swipeMode) {
                                 Log.d("UPDATE", "updating to progress: " + (int) mCurrentPosition);
                                 seekBar.setProgress((int) mCurrentPosition);
                             }
