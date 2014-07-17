@@ -300,6 +300,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
         FileTimeTuple fileTimeToSeek;
         if (videos.isTailFinished()) {
+            Log.d(TAG, "in if (videos.isTailFinished())");
             if (currentFile == null) {
                 // at the tail!
                 //TODO: implement this logic
@@ -312,7 +313,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         mediaUri.getPath());
             }
         } else {
+            Log.d(TAG, "in else (!videos.isTailFinished())");
             if (currentFile == null) {
+                Log.d(TAG, "in if (currentFile == null)");
                 if (jumpVectorMSecs > 0) {
                     //TODO: show icon saying this operation is not allowed
                     hud.showSkipForward(false);
@@ -321,6 +324,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 long start = rs.getCurrentRecordingStartTimeMillis();
                 long now = System.currentTimeMillis();
                 if (now + jumpVectorMSecs < start) {
+                    Log.d(TAG, "jumping to a previous file");
                     // jump to previous recorded file, let recording continue
                     if (videos.getLastRecordedFile() == null){
                         cutTail();  //test
@@ -329,6 +333,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             videos.endOfFile(videos.getLastRecordedFile()),
                             jumpVectorMSecs + (now - start));
                 } else {
+                    Log.d(TAG, "jumping to current file - have to cut tail");
                     cutTail();
                     // seek to desired location in new file
                     fileTimeToSeek = videos.getFileFromJump(
@@ -336,6 +341,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             jumpVectorMSecs);
                 }
             } else {
+                Log.d(TAG, "in else (currentFile != null)");
                 fileTimeToSeek = videos.getFileFromJump(
                         jumpVectorMSecs,
                         mp.getCurrentPosition(),

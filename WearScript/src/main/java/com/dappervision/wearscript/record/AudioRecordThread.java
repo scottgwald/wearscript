@@ -205,6 +205,19 @@ public class AudioRecordThread extends Thread {
     public void writeAudioDataToFile(String nextFilePath) {
         mergeBuffers();
 
+        int totalDataLen = totalBuffer.length;
+        int totalAudioLen = totalDataLen - 36;
+
+        totalBuffer[4] = (byte) (totalDataLen & 0xff);
+        totalBuffer[5] = (byte) ((totalDataLen >> 8) & 0xff);
+        totalBuffer[6] = (byte) ((totalDataLen >> 16) & 0xff);
+        totalBuffer[7] = (byte) ((totalDataLen >> 24) & 0xff);
+
+        totalBuffer[40] = (byte) (totalAudioLen & 0xff);
+        totalBuffer[41] = (byte) ((totalAudioLen >> 8) & 0xff);
+        totalBuffer[42] = (byte) ((totalAudioLen >> 16) & 0xff);
+        totalBuffer[43] = (byte) ((totalAudioLen >> 24) & 0xff);
+
         try {
             os.write(totalBuffer, 0, totalBuffer.length);
         } catch (IOException e) {

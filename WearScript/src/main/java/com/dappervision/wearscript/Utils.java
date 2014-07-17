@@ -143,7 +143,26 @@ public class Utils {
                 return false;
             }
 
-            byte[] buffer = new byte[1024];
+            int totalAudioLen = 0;
+            byte[] buffer = new byte[AudioRecordThread.WAV_HEADER_LENGTH];
+            for (int i = 0; i < toMerge.size(); ++i) {
+                Log.d(TAG, "getting file size " + i);
+
+                try {
+                    FileInputStream inputStream = new FileInputStream(toMerge.get(i));
+                    inputStream.read(buffer);
+                    totalAudioLen += (buffer[40])
+                            + (buffer[41] << 8)
+                            + (buffer[42] << 16)
+                            + (buffer[43] << 24);
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+
+            buffer = new byte[1024];
             for (int i = 0; i < toMerge.size(); ++i) {
                 Log.d(TAG, "merging file " + i);
                 int len;
