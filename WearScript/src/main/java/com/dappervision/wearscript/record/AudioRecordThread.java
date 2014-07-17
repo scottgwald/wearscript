@@ -48,7 +48,7 @@ public class AudioRecordThread extends Thread {
 
     public AudioRecordThread(Context context, String filePath) {
         this.context = context;
-        writeWavHeader(filePath);
+        startNewFile(filePath);
     }
 
     @Override
@@ -117,20 +117,43 @@ public class AudioRecordThread extends Thread {
         return directoryAudio + File.separator + fileName + ".wav";
     }
 
-    private void writeWavHeader(String filePath) {
-        byte header[] = new byte[WAV_HEADER_LENGTH];
-
+    private void startNewFile(String filePath) {
         try {
             os = new FileOutputStream(filePath);
             Log.d(LOG_TAG, "file path: " + filePath);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public void stopRecording() {
+        Log.d(LOG_TAG, "in stopRecording()");
+        writeAudioDataToFile();
+
+        try {
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        interrupt();
+    }
+
+    public void writeAudioDataToFile() {
+        String nextFilePath = directoryAudio + File.separator + System.currentTimeMillis() + ".wav";
+        writeAudioDataToFile(nextFilePath);
+    }
+
+    public void writeAudioDataToFile(String nextFilePath) {
+        mergeBuffers();
 
         /* Test whether Android media player will play back a WAV file whose header indicates the
          * wrong length file! */
-        int totalAudioLen = Integer.MAX_VALUE - 36;
-        int totalDataLen = Integer.MAX_VALUE;
+
+        int totalDataLen = totalBuffer.length + WAV_HEADER_LENGTH;
+        int totalAudioLen = totalDataLen - 36;
+
+        byte[] header = new byte[WAV_HEADER_LENGTH];
 
         header[0] = 'R';  // RIFF/WAVE header
         header[1] = 'I';
@@ -182,41 +205,6 @@ public class AudioRecordThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void stopRecording() {
-        Log.d(LOG_TAG, "in stopRecording()");
-        writeAudioDataToFile();
-
-        try {
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        interrupt();
-    }
-
-    public void writeAudioDataToFile() {
-        String nextFilePath = directoryAudio + File.separator + System.currentTimeMillis() + ".wav";
-        writeAudioDataToFile(nextFilePath);
-    }
-
-    public void writeAudioDataToFile(String nextFilePath) {
-        mergeBuffers();
-
-        int totalDataLen = totalBuffer.length;
-        int totalAudioLen = totalDataLen - 36;
-
-        totalBuffer[4] = (byte) (totalDataLen & 0xff);
-        totalBuffer[5] = (byte) ((totalDataLen >> 8) & 0xff);
-        totalBuffer[6] = (byte) ((totalDataLen >> 16) & 0xff);
-        totalBuffer[7] = (byte) ((totalDataLen >> 24) & 0xff);
-
-        totalBuffer[40] = (byte) (totalAudioLen & 0xff);
-        totalBuffer[41] = (byte) ((totalAudioLen >> 8) & 0xff);
-        totalBuffer[42] = (byte) ((totalAudioLen >> 16) & 0xff);
-        totalBuffer[43] = (byte) ((totalAudioLen >> 24) & 0xff);
 
         try {
             os.write(totalBuffer, 0, totalBuffer.length);
@@ -234,7 +222,7 @@ public class AudioRecordThread extends Thread {
             e.printStackTrace();
         }
 
-        writeWavHeader(nextFilePath);
+        startNewFile(nextFilePath);
     }
 }
 

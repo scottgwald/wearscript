@@ -416,8 +416,8 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
         } else {
             rs.generateOutputMediaFile();
-            rs.setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
             rs.audioRecorder.saveAndStartNewFile(rs.getFilePath());
+            rs.setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
         }
 
         if (updateSeekBar != null) {
