@@ -209,6 +209,16 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void mediaJumpToNextBookmark() {
+        Utils.eventBusPost(new MediaActionEvent("nextBookmark"));
+    }
+
+    @JavascriptInterface
+    public void mediaJumpToPreviousBookmark() {
+        Utils.eventBusPost(new MediaActionEvent("prevBookmark"));
+    }
+
+    @JavascriptInterface
     public void mediaStop(){
         Utils.eventBusPost(new MediaActionEvent("stop"));
     }

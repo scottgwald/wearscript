@@ -273,13 +273,71 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                     Log.d("BOOKMARK","placing bookmark");
                     long now = System.currentTimeMillis();
                     long start = rs.getCurrentRecordingStartTimeMillis();
-
+                    Log.d("BOOKMARKJ",""+videos.getDuration() + (now - start));
                     videos.placeBookmark(videos.getDuration() + (now - start));
+                }
+            } else if (action.equals("prevBookmark")){
+                synchronized (lock) {
+                    hud.showSkipBack();
+                    this.jumpToBookmark(false);
+                }
+            } else if (action.equals("nextBookmark")) {
+                synchronized (lock) {
+                    if(!inPresent) {
+                        hud.showSkipForward(true);
+                        this.jumpToBookmark(true);
+                    } else {
+                        hud.showSkipForward(false);
+                    }
                 }
             }
         }
     }
 
+    private void jumpToBookmark(boolean next) {
+        Log.d("BOOKMARKJ","jumping to previous");
+
+        FileTimeTuple jumpHere = null;
+        if (currentFile == null) {
+            long start = rs.getCurrentRecordingStartTimeMillis();
+            long now = System.currentTimeMillis();
+            if (next){
+                jumpHere = videos.getNextBookmarkFromTuple(new FileTimeTuple(videos.getTail().getFilePath(), videos.getDuration() + (now - start)));
+            } else {
+                jumpHere = videos.getPrevBookmarkFromTuple(new FileTimeTuple(videos.getTail().getFilePath(), videos.getDuration() + (now - start)));
+            }
+        } else {
+            if (next){
+                jumpHere = videos.getNextBookmarkFromTuple(new FileTimeTuple
+                        (currentFile.getFilePath(), mp.getCurrentPosition()));
+            } else {
+                jumpHere = videos.getPrevBookmarkFromTuple(new FileTimeTuple
+                        (currentFile.getFilePath(), mp.getCurrentPosition()));
+            }
+        }
+
+        if (jumpHere == null) {
+            Log.d("BOOKMARKJ","getting null");
+            return;
+        }
+        if (jumpHere.getFilePath().equals(videos.getTail().getFilePath())) {
+            cutTail();
+        }
+        if (currentFile == null || !currentFile.getFilePath().equals(jumpHere.getFilePath())) {
+            Uri newUri = Uri.fromFile(new File(jumpHere.getFilePath()));
+            this.setMediaSource(newUri, false);
+            currentFile = videos.getFileEntry(jumpHere.getFilePath());
+            mp.seekTo((int) jumpHere.getTimeInFile());
+            seekBarHandler.post(updateSeekBar);
+            Log.d("BOOKMARKJ","changing uri");
+
+        } else {
+            Log.d("BOOKMARKJ","seeking");
+            mp.seekTo((int)jumpHere.getTimeInFile());
+        }
+
+
+    }
     private void deploy() {
         int position = seekBar.getProgress();
         Log.d("DEPLOY"," "+position);
@@ -699,8 +757,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         timeMarkers.clear();
 
                         for (Long l: videos.getBookmarks()){
-                            Log.d("BOOKMARK","disp mark: "+ l);
-                            Log.d("BOOKMARK"," "+(float) ((l)/totalTime));
                             tempBookmarks.add((float) ((l)/totalTime));
                         }
                         hud.updateBookmarks(tempBookmarks);

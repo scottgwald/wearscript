@@ -53,6 +53,44 @@ public class CompositeFile {
         this.bookmarks.add(time);
     }
 
+    public FileTimeTuple getPrevBookmarkFromTuple(FileTimeTuple location) {
+        long target = -1;
+        Log.d("BOOKMARKJ","location:"+ location.getTimeInFile());
+        FileEntry entry =  this.getFileEntry(location.getFilePath());
+        for (Long l :bookmarks) {
+            Log.d("BOOKMARKJ",""+ l);
+
+            if (l < location.getTimeInFile()+ entry.getStartTime()) {
+                target = l;
+            }
+        }
+        if (target == -1) {
+            return null;
+        } else {
+            Log.d("BOOKMARKJ","Target: " + target);
+            FileTimeTuple file = this.getFileFromTime(target);
+            Log.d("BOOKMARKJ",""+ file.getTimeInFile());
+            return file;
+        }
+    }
+
+    public FileTimeTuple getNextBookmarkFromTuple(FileTimeTuple location) {
+        long target = -1;
+        FileEntry entry =  this.getFileEntry(location.getFilePath());
+        for (Long l: bookmarks){
+            if (l>location.getTimeInFile()+entry.getStartTime()) {
+                target = l;
+            }
+        }
+
+        if (target == -1){
+            return null;
+        } else {
+            FileTimeTuple file = this.getFileFromTime(target);
+            return file;
+        }
+    }
+
     public synchronized  ArrayList<Long> getBookmarks() {
         return bookmarks;
     }
@@ -264,6 +302,7 @@ public class CompositeFile {
         }
 
         if (target == null) {
+            Log.d("BOOKMARKJ","tag from time is null");
             target = new FileTimeTuple(this.files.get(this.files.size()-1).getFilePath(),
                     mSecsFromBeginning -this.files.get(this.files.size()-1).getStartTime());
         }

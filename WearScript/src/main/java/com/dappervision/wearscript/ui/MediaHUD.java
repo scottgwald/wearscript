@@ -187,7 +187,6 @@ public class MediaHUD extends SurfaceView implements SurfaceHolder.Callback {
 
 
                 for (Float time : bookmarks) {
-                    Log.d("PAINT","time:"+time);
                     canvas.drawRect(time * 570, 300, time * 570 + 5, 320, bookmarkPaint);
                 }
             }

@@ -764,6 +764,12 @@ function WearScript() {
         this.placeBookmark = function() {
             WSRAW.mediaPlaceBookmark();
         }.bind();
+        this.jumpToNextBookmark = function() {
+            WSRAW.mediaJumpToNextBookmark();
+        }.bind();
+        this.jumpToPreviousBookmark = function() {
+            WSRAW.mediaJumpToPreviousBookmark();
+        }.bind();
         this.seekToEnd = function() {
             this.seekBackwards(0);
         }
