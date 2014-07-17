@@ -389,24 +389,29 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         hud.showPresent();
         inPresent = true;
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-        });
-        //hud.displayMergeStatus();
-        isMerging = true;
-        hud.displayMerging(true);
-        videos.flattenSmallFiles();
-        isMerging = false;
-        hud.displayMerging(false);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.GONE);
-            }
-        });
+
+
+        if (rs.getRecordingVideo()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+            });
+
+            //hud.displayMergeStatus();
+            isMerging = true;
+            hud.displayMerging(true);
+            videos.flattenSmallFiles();
+            isMerging = false;
+            hud.displayMerging(false);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
+        }
     }
 
     private synchronized void cutTail() {
