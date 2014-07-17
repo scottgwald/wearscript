@@ -1,7 +1,10 @@
 package com.dappervision.wearscript;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
@@ -12,6 +15,7 @@ import android.util.Log;
 import android.view.SurfaceView;
 
 import com.dappervision.wearscript.events.MediaPauseEvent;
+import com.dappervision.wearscript.record.AudioRecorder;
 import com.dappervision.wearscript.ui.MediaPlayerFragment;
 
 import java.io.File;
@@ -30,10 +34,26 @@ public class MediaRecordingService extends Service {
     private String filePath;
     private long currentRecordingStartTimeMillis;
     private boolean recordingVideo;
+    public AudioRecorder audioRecorder;
+    private boolean audioServiceBound = false;
 
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            AudioRecorder.LocalBinder binder = (AudioRecorder.LocalBinder) service;
+            audioRecorder = binder.getService();
+            audioServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            audioServiceBound = false;
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -48,19 +68,22 @@ public class MediaRecordingService extends Service {
         if (recordingVideo) {
             camera = getCameraInstanceRetry();
         } else {
-            throw new UnsupportedOperationException("Audio recording not yet implemented");
+            Intent audioRecordIntent = new Intent(this, AudioRecorder.class);
+            startService(audioRecordIntent);
+            bindService(audioRecordIntent, mConnection, Context.BIND_AUTO_CREATE);
         }
 
         return super.onStartCommand(i, z, y);
     }
 
     public String startRecord(boolean video, String path) {
+        recordingVideo = video;
         if (path == null) {
-            this.generateOutputMediaFile(video);
+            this.generateOutputMediaFile();
         } else {
             filePath = path;
         }
-        recordingVideo = video;
+
         this.startRecording(video);
         return filePath;
     }
@@ -124,16 +147,14 @@ public class MediaRecordingService extends Service {
             this.releaseMediaRecorder();
         }
 
+        setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
+        generateOutputMediaFile();
         if (video) {
             prepareVideoRecorder();
             mediaRecorder.start();
         } else {
-            throw new UnsupportedOperationException("Audio recording not yet implemented");
-            //TODO (Blake): implement audio recording
-
+            audioRecorder.startRecording(filePath);
         }
-
-        setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
     }
 
     public void stopRecording() {
@@ -144,7 +165,7 @@ public class MediaRecordingService extends Service {
             releaseMediaRecorder();
             releaseCamera();
         } else {
-            throw new UnsupportedOperationException("Audio recording not yet implemented");
+            audioRecorder.stopRecording();
         }
     }
 
@@ -187,6 +208,7 @@ public class MediaRecordingService extends Service {
             }
             timePassed += 200;
         }
+
         return c;
     }
 
@@ -233,7 +255,7 @@ public class MediaRecordingService extends Service {
     /**
      * Create a File for saving an image or video
      */
-    private void generateOutputMediaFile(boolean video) {
+    public void generateOutputMediaFile() {
         File mediaStorageDir = new File("/sdcard/", "wearscript_video");
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
@@ -241,7 +263,7 @@ public class MediaRecordingService extends Service {
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + (video ? ".mp4" : ".wav");
+        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + (recordingVideo ? ".mp4" : ".wav");
         Log.v(TAG, "Output file: " + filePath);
     }
 

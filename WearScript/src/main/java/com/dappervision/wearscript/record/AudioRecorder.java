@@ -76,7 +76,7 @@ public class AudioRecorder extends Service {
     }
 
     public class LocalBinder extends Binder {
-        AudioRecorder getService() {
+        public AudioRecorder getService() {
             // Return this instance of AudioRecorder so clients can call public methods
             return AudioRecorder.this;
         }

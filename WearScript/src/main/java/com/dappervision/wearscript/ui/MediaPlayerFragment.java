@@ -404,25 +404,22 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     }
 
     private synchronized void cutTail() {
-        rs.stopRecording();
-        String newFilePath = rs.startRecord(rs.getRecordingVideo(), null); // start recording with an automatically generated file name
-        if(updateSeekBar != null){
+        if (rs.getRecordingVideo()) {
+            rs.stopRecording();
+            rs.startRecord(rs.getRecordingVideo(), null); // start recording with an automatically generated file name
+
+        } else {
+            rs.generateOutputMediaFile();
+            rs.setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
+            rs.audioRecorder.saveAndStartNewFile(rs.getFilePath());
+        }
+
+        if (updateSeekBar != null) {
             seekBarHandler.removeCallbacks(updateSeekBar);
         }
         videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
-            seekBarHandler.post(updateSeekBar);
-        videos.addFile(newFilePath, -1);
-        /*new AsyncTask<Void, Void, Long>() {
-            @Override
-            public Long doInBackground(Void... args) {
-                videos.flattenFile();
-                FileEntry newCurrentFile = videos.getLastRecordedFile();
-                setMediaSource(Uri.fromFile(new File(newCurrentFile.getFilePath())), false);
-                mp.seekTo((int) getCurrentPosition());
-                currentFile = newCurrentFile;
-                return currentFile.getFileDuration();
-            }
-        }.execute();*/
+        seekBarHandler.post(updateSeekBar);
+        videos.addFile(rs.getFilePath(), -1);
     }
 
     public long getCurrentPosition() {
