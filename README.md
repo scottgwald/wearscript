@@ -4,6 +4,8 @@ WearScript combines the power of Android development on Glass with the learning 
 
 [![intro video](http://img.youtube.com/vi/tOUgybfQp4A/0.jpg)](http://www.youtube.com/watch?v=tOUgybfQp4A)
 
+[![Build Status](https://travis-ci.org/kurtisnelson/wearscript-android.svg?branch=upstream-dev)](https://travis-ci.org/kurtisnelson/wearscript-android)
+
 ```HTML
 // Sample WearScript
 <html style="width:100%; height:100%; overflow:hidden">
