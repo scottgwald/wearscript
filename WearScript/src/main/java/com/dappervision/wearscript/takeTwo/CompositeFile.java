@@ -80,6 +80,7 @@ public class CompositeFile {
         for (Long l: bookmarks){
             if (l>location.getTimeInFile()+entry.getStartTime()) {
                 target = l;
+                break;
             }
         }
 
