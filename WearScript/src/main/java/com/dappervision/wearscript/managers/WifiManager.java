@@ -3,6 +3,7 @@ package com.dappervision.wearscript.managers;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
+import android.util.Pair;
 
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.events.WifiEvent;
@@ -27,6 +28,8 @@ public class WifiManager extends Manager {
         WifiInfo info = manager.getConnectionInfo();
         return info.getMacAddress();
     }
+
+
 
     public String getScanResults() {
         Double timestamp = System.currentTimeMillis() / 1000.;
