@@ -64,18 +64,18 @@ public class EyeManager extends Manager {
     }
 
     private void initial() {
-        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.WINK))
-            detectorState.add(EyeGesture.WINK.getId());
-        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DOUBLE_WINK))
-            detectorState.add(EyeGesture.DOUBLE_WINK.getId());
-        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DOUBLE_BLINK))
-            detectorState.add(EyeGesture.DOUBLE_BLINK.getId());
-        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DOFF))
-            detectorState.add(EyeGesture.DOFF.getId());
-        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DON))
-            detectorState.add(EyeGesture.DON.getId());
-        for (Integer id : detectorState)
-            Log.d(TAG, "State: " + id);
+//        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.WINK))
+//            detectorState.add(EyeGesture.WINK.getId());
+//        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DOUBLE_WINK))
+//            detectorState.add(EyeGesture.DOUBLE_WINK.getId());
+//        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DOUBLE_BLINK))
+//            detectorState.add(EyeGesture.DOUBLE_BLINK.getId());
+//        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DOFF))
+//            detectorState.add(EyeGesture.DOFF.getId());
+//        if (eyeGestureManager.isDetectorPersistentlyEnabled(EyeGesture.DON))
+//            detectorState.add(EyeGesture.DON.getId());
+//        for (Integer id : detectorState)
+//            Log.d(TAG, "State: " + id);
     }
 
     private void setup(boolean systemWide) {

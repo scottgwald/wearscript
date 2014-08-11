@@ -47,6 +47,7 @@ import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
 import com.dappervision.wearscript.events.WifiEvent;
 import com.dappervision.wearscript.events.WifiScanEvent;
+import com.dappervision.wearscript.events.WifiStrengthEvent;
 import com.dappervision.wearscript.managers.BarcodeManager;
 import com.dappervision.wearscript.managers.BluetoothManager;
 import com.dappervision.wearscript.managers.CameraManager;
@@ -466,6 +467,16 @@ public class WearScript {
     @JavascriptInterface
     public void wifiScan() {
         Utils.eventBusPost(new WifiScanEvent());
+    }
+
+    @JavascriptInterface
+    public void wifiStrength(String callback) {
+
+        CallbackRegistration cr = new CallbackRegistration(WifiManager.class, callback);
+        cr.setEvent(WifiManager.WIFI_STRENGTH);
+        Utils.eventBusPost(cr);
+        Utils.eventBusPost(new WifiStrengthEvent());
+
     }
 
     @JavascriptInterface

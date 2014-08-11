@@ -1062,6 +1062,10 @@ function WearScript() {
     this.wifiScan = function () {
         WSRAW.wifiScan();
     }
+    this.wifiStrength = function(callback) {
+        callback = this._funcfix(callback);
+        WSRAW.wifiStrength(this._funcwrap(callback));
+    }
     this.serverConnect = function (server, callback) {
         callback = this._funcfix(callback);
         WSRAW.serverConnect(server, this._funcwrap(callback));
