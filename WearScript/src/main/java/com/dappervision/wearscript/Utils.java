@@ -5,9 +5,13 @@ import android.content.Intent;
 import android.os.Environment;
 import android.speech.tts.TextToSpeech;
 
+import com.dappervision.wearscript.record.AudioRecordThread;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
@@ -126,6 +130,65 @@ public class Utils {
         } else {
             Log.e(TAG, "User Locale not available for TTS: " + result);
             return false;
+        }
+    }
+
+    public static class AudioMerger {
+        public static boolean merge(List<File> toMerge, String output) {
+            FileOutputStream outputStream;
+            try {
+                outputStream = new FileOutputStream(output, false);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            int totalAudioLen = 0;
+            byte[] buffer = new byte[AudioRecordThread.WAV_HEADER_LENGTH];
+            for (int i = 0; i < toMerge.size(); ++i) {
+                Log.d(TAG, "getting file size " + i);
+
+                try {
+                    FileInputStream inputStream = new FileInputStream(toMerge.get(i));
+                    inputStream.read(buffer);
+                    totalAudioLen += (buffer[40])
+                            + (buffer[41] << 8)
+                            + (buffer[42] << 16)
+                            + (buffer[43] << 24);
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+
+            buffer = new byte[1024];
+            for (int i = 0; i < toMerge.size(); ++i) {
+                Log.d(TAG, "merging file " + i);
+                int len;
+                boolean removeHeader = (i > 0);
+                try {
+                    FileInputStream inputStream = new FileInputStream(toMerge.get(i));
+                    while ((len = inputStream.read(buffer)) > 0) {
+                        int byteOffset = removeHeader ? AudioRecordThread.WAV_HEADER_LENGTH : 0;
+                        outputStream.write(buffer, byteOffset, len - byteOffset);
+                        removeHeader = false;
+                    }
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            Log.d(TAG, "finished merging into " + output);
+
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
         }
     }
 }

@@ -78,6 +78,8 @@ public class ScriptListFragment extends Fragment {
         intentFilter.addDataScheme("package");
         getActivity().registerReceiver(mPackageBroadcastReciever, intentFilter);
         mListAdapter = buildListAdapter();
+
+
     }
 
     @Override

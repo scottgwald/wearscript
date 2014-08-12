@@ -31,7 +31,9 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
 
     protected GestureFragment createFragment() {
         if (getIntent().getStringExtra(MODE_KEY).equals(MODE_MEDIA)) {
-            return new MediaPlayerFragment().newInstance((Uri) getIntent().getParcelableExtra(MediaPlayerFragment.ARG_URL), getIntent().getBooleanExtra(MediaPlayerFragment.ARG_LOOP, false));
+            return MediaPlayerFragment.newInstance((Uri) getIntent().getParcelableExtra(MediaPlayerFragment.ARG_URL),
+                            getIntent().getBooleanExtra(MediaPlayerFragment.ARG_LOOP, false),
+                            getIntent().getBooleanExtra(MediaPlayerFragment.RECORD_VIDEO, true));
         } else {
             return null;
         }
@@ -104,10 +106,11 @@ public class MediaActivity extends FragmentActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         Log.d("CREATED", "Surface made");
-        MediaActivity.this.startService(new Intent(MediaActivity.this,
-                MediaRecordingService.class));
-        MediaActivity.this.bindService(new Intent(MediaActivity.this,
-                MediaRecordingService.class), mConnection, Context.BIND_AUTO_CREATE);
+        Intent mediaRecordingIntent = new Intent(MediaActivity.this, MediaRecordingService.class)
+                .putExtra(MediaPlayerFragment.RECORD_VIDEO,
+                        getIntent().getBooleanExtra(MediaPlayerFragment.RECORD_VIDEO, true));
+        MediaActivity.this.startService(mediaRecordingIntent);
+        MediaActivity.this.bindService(mediaRecordingIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override

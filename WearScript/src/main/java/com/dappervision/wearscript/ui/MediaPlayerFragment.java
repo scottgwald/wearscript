@@ -3,7 +3,6 @@ package com.dappervision.wearscript.ui;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -51,6 +50,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     public static final String ARG_URL = "ARG_URL";
     public static final String ARG_LOOP = "ARG_LOOP";
     private static final String TAG = "MediaPlayerFragment";
+    public static final String RECORD_VIDEO = "RECORD_VIDEO";
     private  MediaPlayer mp;
     private Uri mediaUri;
     private SurfaceHolder holder;
@@ -94,10 +94,11 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private long START;
 
 
-    public static MediaPlayerFragment newInstance(Uri uri, boolean looping) {
+    public static MediaPlayerFragment newInstance(Uri uri, boolean looping, boolean video) {
         Bundle args = new Bundle();
         args.putParcelable(ARG_URL, uri);
         args.putBoolean(ARG_LOOP, looping);
+        args.putBoolean(RECORD_VIDEO, video);
         MediaPlayerFragment f = new MediaPlayerFragment();
         f.setArguments(args);
         return f;
@@ -198,7 +199,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
             Log.d("TAG","rs is null");
         }
         while (rs == null){}
-        String path = rs.startRecord(e.getFilePath());
+        String path = rs.startRecord(e.recordVideo(), e.getFilePath());
         seekBarHandler.post(updateSeekBar);
         Utils.eventBusPost(new MediaRecordPathEvent(path));
         videos.addFile(path, -1);
@@ -454,6 +455,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
         FileTimeTuple fileTimeToSeek;
         if (videos.isTailFinished()) {
+            Log.d(TAG, "in if (videos.isTailFinished())");
             if (currentFile == null) {
                 // at the tail!
                 //TODO: implement this logic
@@ -466,7 +468,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                         mediaUri.getPath());
             }
         } else {
+            Log.d(TAG, "in else (!videos.isTailFinished())");
             if (currentFile == null) {
+                Log.d(TAG, "in if (currentFile == null)");
                 if (jumpVectorMSecs > 0) {
                     //TODO: show icon saying this operation is not allowed
                     hud.showSkipForward(false);
@@ -475,6 +479,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                 long start = rs.getCurrentRecordingStartTimeMillis();
                 long now = System.currentTimeMillis();
                 if (now + jumpVectorMSecs < start) {
+                    Log.d(TAG, "jumping to a previous file");
                     // jump to previous recorded file, let recording continue
                     if (videos.getLastRecordedFile() == null){
                         cutTail();  //test
@@ -483,6 +488,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             videos.endOfFile(videos.getLastRecordedFile()),
                             jumpVectorMSecs + (now - start));
                 } else {
+                    Log.d(TAG, "jumping to current file - have to cut tail");
                     cutTail();
                     // seek to desired location in new file
                     fileTimeToSeek = videos.getFileFromJump(
@@ -490,6 +496,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
                             jumpVectorMSecs);
                 }
             } else {
+                Log.d(TAG, "in else (currentFile != null)");
                 fileTimeToSeek = videos.getFileFromJump(
                         jumpVectorMSecs,
                         mp.getCurrentPosition(),
@@ -537,35 +544,48 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         hud.showPresent();
         inPresent = true;
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-        });
-        //hud.displayMergeStatus();
-        isMerging = true;
-        hud.displayMerging(true);
-        videos.flattenSmallFiles();
-        isMerging = false;
-        hud.displayMerging(false);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.GONE);
-            }
-        });
+
+
+        if (rs.getRecordingVideo()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+            });
+
+            //hud.displayMergeStatus();
+            isMerging = true;
+            hud.displayMerging(true);
+            videos.flattenSmallFiles();
+            isMerging = false;
+            hud.displayMerging(false);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
+        }
     }
 
     private synchronized void cutTail() {
-        rs.stopRecording();
-        String newFilePath = rs.startRecord(null); // start recording with an automatically generated file name
-        if(updateSeekBar != null){
+        if (rs.getRecordingVideo()) {
+            rs.stopRecording();
+            rs.startRecord(rs.getRecordingVideo(), null); // start recording with an automatically generated file name
+
+        } else {
+            rs.generateOutputMediaFile();
+            rs.audioRecorder.saveAndStartNewFile(rs.getFilePath());
+            rs.setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
+        }
+
+        if (updateSeekBar != null) {
             seekBarHandler.removeCallbacks(updateSeekBar);
         }
         videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
-            seekBarHandler.post(updateSeekBar);
-        videos.addFile(newFilePath, -1);
+        seekBarHandler.post(updateSeekBar);
+        videos.addFile(rs.getFilePath(), -1);
     }
 
     public long getCurrentPosition() {

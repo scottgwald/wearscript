@@ -1,7 +1,10 @@
 package com.dappervision.wearscript;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
@@ -12,6 +15,8 @@ import android.util.Log;
 import android.view.SurfaceView;
 
 import com.dappervision.wearscript.events.MediaPauseEvent;
+import com.dappervision.wearscript.record.AudioRecorder;
+import com.dappervision.wearscript.ui.MediaPlayerFragment;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,10 +33,27 @@ public class MediaRecordingService extends Service {
     private SurfaceView dummy;
     private String filePath;
     private long currentRecordingStartTimeMillis;
+    private boolean recordingVideo;
+    public AudioRecorder audioRecorder;
+    private boolean audioServiceBound = false;
 
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            AudioRecorder.LocalBinder binder = (AudioRecorder.LocalBinder) service;
+            audioRecorder = binder.getService();
+            audioServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            audioServiceBound = false;
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -42,17 +64,27 @@ public class MediaRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent i, int z, int y) {
-        camera = getCameraInstanceRetry();
+        recordingVideo = i.getBooleanExtra(MediaPlayerFragment.RECORD_VIDEO, true);
+        if (recordingVideo) {
+            camera = getCameraInstanceRetry();
+        } else {
+            Intent audioRecordIntent = new Intent(this, AudioRecorder.class);
+            startService(audioRecordIntent);
+            bindService(audioRecordIntent, mConnection, Context.BIND_AUTO_CREATE);
+        }
+
         return super.onStartCommand(i, z, y);
     }
 
-    public String startRecord(String path) {
+    public String startRecord(boolean video, String path) {
+        recordingVideo = video;
         if (path == null) {
             this.generateOutputMediaFile();
         } else {
             filePath = path;
         }
-        this.startRecording();
+
+        this.startRecording(video);
         return filePath;
     }
 
@@ -107,24 +139,34 @@ public class MediaRecordingService extends Service {
         return true;
     }
 
-    private void startRecording() {
+    private void startRecording(boolean video) {
 
         Log.d(TAG, "startRecording()");
 
         if (mediaRecorder != null) {
             this.releaseMediaRecorder();
         }
-        prepareVideoRecorder();
-        mediaRecorder.start();
+
         setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
+        generateOutputMediaFile();
+        if (video) {
+            prepareVideoRecorder();
+            mediaRecorder.start();
+        } else {
+            audioRecorder.startRecording(filePath);
+        }
     }
 
     public void stopRecording() {
         Log.v(TAG, "Stopping recording.");
-        if (mediaRecorder != null)
-            mediaRecorder.stop();
-        releaseMediaRecorder();
-        releaseCamera();
+        if (recordingVideo) {
+            if (mediaRecorder != null)
+                mediaRecorder.stop();
+            releaseMediaRecorder();
+            releaseCamera();
+        } else {
+            audioRecorder.stopRecording();
+        }
     }
 
 
@@ -166,6 +208,7 @@ public class MediaRecordingService extends Service {
             }
             timePassed += 200;
         }
+
         return c;
     }
 
@@ -212,7 +255,7 @@ public class MediaRecordingService extends Service {
     /**
      * Create a File for saving an image or video
      */
-    private void generateOutputMediaFile() {
+    public void generateOutputMediaFile() {
         File mediaStorageDir = new File("/sdcard/", "wearscript_video");
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
@@ -220,11 +263,15 @@ public class MediaRecordingService extends Service {
             }
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + ".mp4";
+        filePath = mediaStorageDir.getPath() + File.separator + timeStamp + (recordingVideo ? ".mp4" : ".wav");
         Log.v(TAG, "Output file: " + filePath);
     }
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public boolean getRecordingVideo() {
+        return recordingVideo;
     }
 }
