@@ -1,7 +1,10 @@
 package com.dappervision.wearscript.launcher;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.nfc.Tag;
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -64,6 +67,16 @@ public class WearScriptsCardAdapter extends CardScrollAdapter {
     public View cardFactory(WearScriptInfo info) {
         Card card = new Card(this.activity);
         card.setText(info.getTitle().toString());
+        if (info.getTitle().toString().equals("Playground")) {
+            ConnectivityManager connectivityManager
+                    = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+                card.setFootnote("Connected");
+            } else {
+                card.setFootnote("Not Connected");
+            }
+        }
         View v = card.getView();
         v.setId(info.getId());
         return v;
