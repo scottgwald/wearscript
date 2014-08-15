@@ -65,6 +65,7 @@ public class MediaRecordingService extends Service {
     @Override
     public int onStartCommand(Intent i, int z, int y) {
         recordingVideo = i.getBooleanExtra(MediaPlayerFragment.RECORD_VIDEO, true);
+
         if (recordingVideo) {
             camera = getCameraInstanceRetry();
         } else {
@@ -96,12 +97,23 @@ public class MediaRecordingService extends Service {
         if( camera == null) {  //remove maybe?
             camera = getCameraInstanceRetry();
         }
-        try {
-            camera.stopPreview();
-            camera.setPreviewDisplay(null);
-        } catch (java.io.IOException ioe) {
-            android.util.Log.d(TAG, "IOException nullifying preview display: " + ioe.getMessage());
+           Camera.Parameters params =camera.getParameters();
+           params.setRecordingHint(true);
+        params.setPreviewFormat(ImageFormat.NV21);
+        params.setPreviewSize(640, 480);
+        List<String> FocusModes = params.getSupportedFocusModes();
+        if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         }
+        params.setPreviewFpsRange(10000, 10000);
+        params.setRecordingHint(true);
+        camera.setParameters(params);
+//        try {
+//            camera.stopPreview();
+//            camera.setPreviewDisplay(null);
+//        } catch (java.io.IOException ioe) {
+//            android.util.Log.d(TAG, "IOException nullifying preview display: " + ioe.getMessage());
+//        }
         camera.unlock();
 
         mediaRecorder = new MediaRecorder();
@@ -242,6 +254,7 @@ public class MediaRecordingService extends Service {
                 params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
             }
             params.setPreviewFpsRange(10000, 10000);
+            params.setRecordingHint(true);
             camera.setParameters(params);
             dummy.getHolder().setFixedSize(640, 480); //was 360
         } catch (IOException e) {
