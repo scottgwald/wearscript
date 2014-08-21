@@ -4,6 +4,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.thalmic</groupId>
   <artifactId>myosdk</artifactId>
-  <version>0.2.0</version>
+  <version>0.5.0</version>
   <packaging>aar</packaging>
 </project>
