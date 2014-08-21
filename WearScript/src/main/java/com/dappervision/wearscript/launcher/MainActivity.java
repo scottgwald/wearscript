@@ -7,6 +7,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
+import com.crittercism.app.Crittercism;
+import com.crittercism.app.CrittercismConfig;
+import com.dappervision.wearscript.BuildConfig;
 import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.Utils;
 
@@ -27,6 +30,12 @@ public class MainActivity extends FragmentActivity implements ScriptListFragment
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(!BuildConfig.DEBUG) {
+            CrittercismConfig config = new CrittercismConfig();
+            config.setLogcatReportingEnabled(true);
+            Crittercism.initialize(getApplicationContext(), "53cd76d9bb94751895000002", config);
+        }
         setContentView(getLayoutResId());
         String gist = Utils.getPackageGist(this);
         if (DBG) Log.d(TAG, "Gist id is " + gist);

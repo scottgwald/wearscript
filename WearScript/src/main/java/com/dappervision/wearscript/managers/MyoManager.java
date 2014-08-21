@@ -1,6 +1,5 @@
 package com.dappervision.wearscript.managers;
 
-import android.content.Intent;
 import android.util.Log;
 
 import com.dappervision.wearscript.BackgroundService;
@@ -10,7 +9,6 @@ import com.dappervision.wearscript.events.MyoAccelerometerDataEvent;
 import com.dappervision.wearscript.events.MyoGyroDataEvent;
 import com.dappervision.wearscript.events.MyoOrientationDataEvent;
 import com.dappervision.wearscript.events.MyoPairEvent;
-import com.dappervision.wearscript.events.MyoTrainEvent;
 import com.dappervision.wearscript.events.SendEvent;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.DeviceListener;
@@ -19,7 +17,6 @@ import com.thalmic.myo.Myo;
 import com.thalmic.myo.Pose;
 import com.thalmic.myo.Quaternion;
 import com.thalmic.myo.Vector3;
-import com.thalmic.myo.trainer.TrainActivity;
 
 public class MyoManager extends Manager {
     private static final String TAG = "MyoManager";
@@ -55,10 +52,6 @@ public class MyoManager extends Manager {
         hub.pairWithAdjacentMyo();
     }
 
-    public void onEventMainThread(MyoTrainEvent e) {
-        train();
-    }
-
     public void onEventMainThread(MyoPairEvent e) {
         pair();
     }
@@ -75,17 +68,6 @@ public class MyoManager extends Manager {
         Hub.getInstance().removeListener(mListener);
         // The Activity is finishing, so shutdown the Hub. This will disconnect from the Myo.
         Hub.getInstance().shutdown();
-    }
-
-    public void train() {
-        Log.d(TAG, "Called train");
-        if (myo != null) {
-            Intent intent = new Intent(service.getBaseContext(), TrainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Log.d(TAG, "Address:" + myo.getMacAddress());
-            intent.putExtra(TrainActivity.EXTRA_ADDRESS, myo.getMacAddress());
-            service.getApplication().startActivity(intent);
-        }
     }
 
     public void setup() {
