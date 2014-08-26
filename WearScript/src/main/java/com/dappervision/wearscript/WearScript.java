@@ -481,6 +481,11 @@ public class WearScript {
     }
 
     @JavascriptInterface
+    public void buzz() {
+        Utils.eventBusPost(new SoundEvent("BUZZ"));
+    }
+
+    @JavascriptInterface
     public void bluetoothList(String callback) {
         Utils.eventBusPost(new CallbackRegistration(BluetoothManager.class, callback).setEvent(BluetoothManager.LIST));
     }

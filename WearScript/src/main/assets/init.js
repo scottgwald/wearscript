@@ -752,6 +752,7 @@ function WearScript() {
             }).bind(this));
         }
     }
+
     this.picarusARTagFactory = function (callback) {
         var model_ar = btoa(msgpack.pack([{'kw': {}, 'name': 'picarus.ARMarkerDetector'}]).map(function (x) {return String.fromCharCode(x)}).join(''));
         WS.picarusModelFactory(model_ar, (function (model) {
@@ -927,6 +928,9 @@ function WearScript() {
         } else {
             WSRAW.cameraOn(period, maxHeight, maxWidth, true);
         }
+    }
+    this.buzz = function(){
+        WSRAW.buzz();
     }
     this.cameraPhoto = function (callback) {
         if (callback) {
