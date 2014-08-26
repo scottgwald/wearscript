@@ -92,6 +92,7 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private Object bookmarkLock = new Object();
     private ArrayList<Float> tempBookmarks = new ArrayList<Float>();
     private long START;
+    private Thread stopThread;
 
 
     public static MediaPlayerFragment newInstance(Uri uri, boolean looping, boolean video) {
@@ -165,9 +166,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mp.setOnErrorListener(this);
-        mp.setOnPreparedListener(this);
-        mp.setLooping(looping);
+//        mp.setOnErrorListener(this);
+//        mp.setOnPreparedListener(this);
+//        mp.setLooping(looping);
         try {
             hud.clear();
             hud.hidePresent();
@@ -571,21 +572,34 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
 
     private synchronized void cutTail() {
         if (rs.getRecordingVideo()) {
+
+            if (stopThread != null) {
+                try {
+                    stopThread.join();
+                } catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
             rs.stopRecording();
+            seekBarHandler.removeCallbacks(updateSeekBar);
+            videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
+            seekBarHandler.post(updateSeekBar);
+            videos.addFile(rs.generateOutputFile(), -1);
+            stopThread = rs.recordAsync();
             rs.startRecord(rs.getRecordingVideo(), null); // start recording with an automatically generated file name
 
         } else {
             rs.generateOutputMediaFile();
             rs.audioRecorder.saveAndStartNewFile(rs.getFilePath());
             rs.setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
+            seekBarHandler.removeCallbacks(updateSeekBar);
+            videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
+            seekBarHandler.post(updateSeekBar);
+            videos.addFile(rs.getFilePath(), -1);
+
         }
 
-        if (updateSeekBar != null) {
-            seekBarHandler.removeCallbacks(updateSeekBar);
-        }
-        videos.setTailDuration(getDuration(videos.getTail().getFilePath()));
-        seekBarHandler.post(updateSeekBar);
-        videos.addFile(rs.getFilePath(), -1);
+
     }
 
     public long getCurrentPosition() {

@@ -79,14 +79,19 @@ public class MediaRecordingService extends Service {
 
     public String startRecord(boolean video, String path) {
         recordingVideo = video;
-        if (path == null) {
-            this.generateOutputMediaFile();
-        } else {
-            filePath = path;
-        }
+        if (!recordingVideo) {
+            if (path == null) {
+                this.generateOutputMediaFile();
+            } else {
+                filePath = path;
+            }
 
-        this.startRecording(video);
-        return filePath;
+            this.startRecording(video);
+            return filePath;
+        } else {
+            startRecording(video);
+            return null;
+        }
     }
 
     public void onEvent(MediaPauseEvent e) {
@@ -159,12 +164,13 @@ public class MediaRecordingService extends Service {
             this.releaseMediaRecorder();
         }
 
-        setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
-        generateOutputMediaFile();
         if (video) {
             prepareVideoRecorder();
             mediaRecorder.start();
+            setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
         } else {
+            setCurrentRecordingStartTimeMillis(System.currentTimeMillis());
+            generateOutputMediaFile();
             audioRecorder.startRecording(filePath);
         }
     }
@@ -174,8 +180,6 @@ public class MediaRecordingService extends Service {
         if (recordingVideo) {
             if (mediaRecorder != null)
                 mediaRecorder.stop();
-            releaseMediaRecorder();
-            releaseCamera();
         } else {
             audioRecorder.stopRecording();
         }
@@ -280,11 +284,34 @@ public class MediaRecordingService extends Service {
         Log.v(TAG, "Output file: " + filePath);
     }
 
+    public Thread recordAsync(){
+        currentRecordingStartTimeMillis = System.currentTimeMillis();
+        Thread worker = new Thread( new Runnable() {
+            @Override
+            public void run() {
+                releaseRecorder();
+                startRecord(true,null);
+            }
+        });
+        worker.start();
+        return worker;
+    }
+
+    public void releaseRecorder() {
+        releaseMediaRecorder();
+        releaseCamera();
+    }
+
     public String getFilePath() {
         return filePath;
     }
 
     public boolean getRecordingVideo() {
         return recordingVideo;
+    }
+
+    public String generateOutputFile() {
+        this.generateOutputMediaFile();
+        return filePath;
     }
 }
