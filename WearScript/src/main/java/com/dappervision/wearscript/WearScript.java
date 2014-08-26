@@ -39,6 +39,7 @@ import com.dappervision.wearscript.events.SpeechRecognizeEvent;
 import com.dappervision.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
+import com.dappervision.wearscript.events.WearNotificationEvent;
 import com.dappervision.wearscript.events.WifiEvent;
 import com.dappervision.wearscript.events.WifiScanEvent;
 import com.dappervision.wearscript.managers.BarcodeManager;
@@ -629,6 +630,12 @@ public class WearScript {
         Utils.eventBusPost(new SendSubEvent("log", "Script requires glass"));
         Utils.eventBusPost(new SayEvent("This script requires Glass"));
         throw new RuntimeException("GDK not available");
+    }
+
+    @JavascriptInterface
+    public void wearNotification(String title, String text) {
+        Log.i(TAG, "wearNotification " + title + " " + text);
+        Utils.eventBusPost(new WearNotificationEvent(title, text));
     }
 
     public static enum SENSOR {

@@ -45,6 +45,7 @@ import com.dappervision.wearscript.managers.ManagerManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.PicarusManager;
 import com.dappervision.wearscript.managers.WarpManager;
+import com.dappervision.wearscript.managers.WearManager;
 import com.dappervision.wearscript.managers.WifiManager;
 import com.dappervision.wearscript.ui.ScriptActivity;
 import com.getpebble.android.kit.PebbleKit;
@@ -281,6 +282,13 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
                 // TODO(brandyn): Verify that if we create a new activity that the gestures still work
                 if (HardwareDetector.isGlass && ManagerManager.get().get(GestureManager.class) == null) {
                         ManagerManager.get().add(new GestureManager(a, this));
+                }
+
+                // TODO: check if connected to watch
+                // Can still just post notificatons to phone
+
+                if(!HardwareDetector.isGlass) {
+                    ManagerManager.get().add(new WearManager(a, this));
                 }
 
                 if (PebbleKit.isWatchConnected(getApplicationContext()) && ManagerManager.get().get(PebbleManager.class) == null) {
