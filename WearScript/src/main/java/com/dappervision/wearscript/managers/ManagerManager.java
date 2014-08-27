@@ -29,25 +29,32 @@ public class ManagerManager {
     }
 
     public void newManagers(BackgroundService bs) {
-        add(new OpenCVManager(bs));
-        add(new DataManager(bs));
-        add(new CameraManager(bs));
-        add(new BarcodeManager(bs));
         add(new WifiManager(bs));
-        add(new AudioManager(bs));
-        add(new BluetoothManager(bs));
         add(new SpeechManager(bs));
         add(new MyoManager(bs));
         add(new ConnectionManager(bs));
-        add(new WarpManager(bs));
-        add(new LiveCardManager(bs));
         add(new PicarusManager(bs));
-        if (HardwareDetector.hasGDK) {
-            add(new CardTreeManager(bs));
-            add(new EyeManager(bs));
+        add(new OpenCVManager(bs));
+        add(new DataManager(bs));
+        add(new AudioManager(bs));
+
+        if(bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            add(new CameraManager(bs));
+            add(new BarcodeManager(bs));
         }
+
+        if(bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
+            add(new BluetoothManager(bs));
+        }
+
         if (bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)){
             add(new BluetoothLEManager(bs));
+        }
+        if (HardwareDetector.hasGDK) {
+            add(new WarpManager(bs));
+            add(new LiveCardManager(bs));
+            add(new CardTreeManager(bs));
+            add(new EyeManager(bs));
         }
     }
 
