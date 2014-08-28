@@ -26,18 +26,15 @@ android {
         versionCode 2
         versionName "0.3.0"
     }
-
-    dexOptions {
-        preDexLibraries = false
-    }
 }
 
 dependencies {
+    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v13:20.0.+'
     compile 'com.crittercism:crittercism-android-agent:+'
     compile 'de.greenrobot:eventbus:2.2.0'
     compile 'com.polysfactory.lib.glass.bluetooth:glass-bluetooth:0.1.2'
     compile 'com.radiusnetworks:AndroidIBeaconLibrary:0.7.6@aar'
-    compile 'com.android.support:support-v4:20.0.0'
     compile files('libs/android-websockets.jar')
     compile files('libs/commons-codec-1.6.jar')
     compile files('libs/gdk.jar')
@@ -50,7 +47,6 @@ dependencies {
     compile files('libs/CardTree.jar')
     compile project(':opencv-android')
     compile files('libs/PebbleKit.jar')
-    compile files('libs/android-support-v13.jar')
     repositories {
         maven {
             // this must point to the repository distributed with the sdk
