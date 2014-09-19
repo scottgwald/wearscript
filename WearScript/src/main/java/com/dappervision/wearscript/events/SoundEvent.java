@@ -2,6 +2,13 @@ package com.dappervision.wearscript.events;
 
 public class SoundEvent {
     private String type;
+    private int id;
+
+    public SoundEvent(String type,int id) {
+        this.type = type;
+        this.id = id;
+    }
+
 
     public SoundEvent(String type) {
         this.type = type;
@@ -9,5 +16,9 @@ public class SoundEvent {
 
     public String getType() {
         return type;
+    }
+
+    public int getId(){
+        return id;
     }
 }

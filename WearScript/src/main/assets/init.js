@@ -972,6 +972,19 @@ function WearScript() {
     this.wifiScan = function () {
         WSRAW.wifiScan();
     }
+    this.playSound = function(id) {
+        WSRAW.playSound(id);
+    }
+    this.stopSound = function(id) {
+        WSRAW.stopSound(id);
+    }
+    this.pauseSound = function(id) {
+        WSRAW.pauseSound(id);
+    }
+    this.saveAudioFile = function (path,filename,callback) {
+        callback = this._funcfix(callback);
+        WSRAW.saveAudioFile(path,filename,this._funcwrap(callback));
+    }
     this.serverConnect = function (server, callback) {
         callback = this._funcfix(callback);
         WSRAW.serverConnect(server, this._funcwrap(callback));
@@ -1040,8 +1053,6 @@ function WearScript() {
         callback = this._funcfix(callback);
         WSRAW.bluetoothDiscover(this._funcwrap(function (x) {callback(JSON.parse(x))}));
     }
-
-
     this.pebbleSetTitle = function(text, clear) {
         WSRAW.pebbleSetTitle(text, clear);
     }

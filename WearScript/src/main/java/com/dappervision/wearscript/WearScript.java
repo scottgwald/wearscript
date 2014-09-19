@@ -27,6 +27,7 @@ import com.dappervision.wearscript.events.PicarusModelCreateEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessStreamEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessWarpEvent;
+import com.dappervision.wearscript.events.SaveAudioEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
 import com.dappervision.wearscript.events.SendEvent;
@@ -41,6 +42,7 @@ import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
 import com.dappervision.wearscript.events.WifiEvent;
 import com.dappervision.wearscript.events.WifiScanEvent;
+import com.dappervision.wearscript.managers.AudioManager;
 import com.dappervision.wearscript.managers.BarcodeManager;
 import com.dappervision.wearscript.managers.BluetoothManager;
 import com.dappervision.wearscript.managers.CameraManager;
@@ -101,6 +103,25 @@ public class WearScript {
     @JavascriptInterface
     public int sensor(String name) {
         return this.sensors.get(name);
+    }
+
+    @JavascriptInterface
+    public void saveAudioFile(String path,String fileName, String callback) {
+        Utils.eventBusPost(new CallbackRegistration(AudioManager.class, callback).setEvent(AudioManager.SAVE_AUDIO+fileName));
+        Utils.eventBusPost(new SaveAudioEvent(path,fileName));
+    }
+
+    @JavascriptInterface
+    public void playSound(int id) {
+        Utils.eventBusPost(new SoundEvent(AudioManager.SOUND,id));
+    }
+    @JavascriptInterface
+    public void pauseSound(int id) {
+        Utils.eventBusPost(new SoundEvent(AudioManager.PAUSE,id));
+    }
+    @JavascriptInterface
+    public void stopSound(int id) {
+        Utils.eventBusPost(new SoundEvent(AudioManager.STOP,id));
     }
 
     @JavascriptInterface
