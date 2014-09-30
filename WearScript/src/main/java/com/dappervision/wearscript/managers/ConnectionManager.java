@@ -209,25 +209,18 @@ public class ConnectionManager extends Manager {
 
         @Override
         public void onConnect() {
-            super.onConnect();
             makeCall(ONCONNECT, "");
             // NOTE(brandyn): This ensures that we are only calling the function once
             unregisterCallback(ONCONNECT);
         }
 
+        @Override
+        protected void onDisconnect() {
 
-        private TreeMap toMap(Value map) {
-            TreeMap<String, Value> mapOut = new TreeMap<String, Value>();
-            Value[] kv = map.asMapValue().getKeyValueArray();
-            for (int i = 0; i < kv.length / 2; i++) {
-                mapOut.put(kv[i * 2].asRawValue().getString(), kv[i * 2 + 1]);
-            }
-            return mapOut;
         }
 
         @Override
         public void onReceive(String channel, byte[] dataRaw, List<Value> data) {
-            super.onReceive(channel, dataRaw, data);
             // BUG(brandyn): If the channel should go to a subchannel now it won't make it,
             // we should modify channel name before this call
             makeCall(channel, "'" + Base64.encodeToString(dataRaw, Base64.NO_WRAP) + "'");
@@ -344,5 +337,14 @@ public class ConnectionManager extends Manager {
                 Utils.eventBusPost(new WarpHEvent(h));
             }
         }
+    }
+
+    private static TreeMap toMap(Value map) {
+        TreeMap<String, Value> mapOut = new TreeMap<String, Value>();
+        Value[] kv = map.asMapValue().getKeyValueArray();
+        for (int i = 0; i < kv.length / 2; i++) {
+            mapOut.put(kv[i * 2].asRawValue().getString(), kv[i * 2 + 1]);
+        }
+        return mapOut;
     }
 }

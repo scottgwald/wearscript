@@ -19,7 +19,7 @@ import java.util.TreeSet;
 import static org.msgpack.template.Templates.TValue;
 import static org.msgpack.template.Templates.tList;
 
-public abstract class WearScriptConnection implements SocketController.Listener {
+public abstract class WearScriptConnection {
     private static final String TAG = "WearScriptConnection";
     private static final String LISTEN_CHAN = "subscriptions";
 
@@ -58,26 +58,11 @@ public abstract class WearScriptConnection implements SocketController.Listener 
         return ValueFactory.createMapValue(mapArray.toArray(new Value[mapArray.size()]));
     }
 
-    public void onConnect() {
-        publishChannels();
-    }
+    protected abstract void onReceive(String channel, byte[] dataRaw, List<Value> data);
 
-    public void onReceive(String channel, byte[] dataRaw, List<Value> data) {
+    protected abstract void onConnect();
 
-    }
-
-    public void onDisconnect() {
-
-    }
-
-    public void onMessage(String channel, byte[] message, List<Value> input) {
-        if (channel.equals(LISTEN_CHAN)) {
-            String d = input.get(1).asRawValue().getString();
-            Value[] channels = input.get(2).asArrayValue().getElementArray();
-            setDeviceChannels(d, channels);
-        }
-        onReceiveDispatch(channel, message, input);
-    }
+    protected abstract void onDisconnect();
 
     private void onReceiveDispatch(String channel, byte[] dataRaw, List<Value> data) {
         String channelPart = existsInternal(channel);
@@ -213,7 +198,7 @@ public abstract class WearScriptConnection implements SocketController.Listener 
             this.uri = uri;
             Log.i(TAG, "Lifecycle: Socket connecting");
             mSocket = new SocketController(uri);
-            mSocket.setListener(this);
+            mSocket.setListener(mSocketListener);
         }
     }
 
@@ -295,10 +280,11 @@ public abstract class WearScriptConnection implements SocketController.Listener 
         new Thread(new Runnable() {
             public void run() {
                 while (true) {
-                    if (mSocket == null)
-                        return;
-                    Log.w(TAG, "Lifecycle: Pinger...");
-                    publish(LISTEN_CHAN, WearScriptConnection.this.groupDevice, channelsValue());
+                    if (mSocket == null) return;
+                    Log.i(TAG, "Lifecycle: Pinger...");
+                    if(mSocket.isConnected()) {
+                        publish(LISTEN_CHAN, WearScriptConnection.this.groupDevice, channelsValue());
+                    }
                     try {
                         Thread.sleep(60000);
                     } catch (InterruptedException e) {
@@ -321,4 +307,27 @@ public abstract class WearScriptConnection implements SocketController.Listener 
             }
         }).start();
     }
+
+    private SocketController.Listener mSocketListener = new SocketController.Listener() {
+        @Override
+        public void onConnect() {
+            publishChannels();
+            WearScriptConnection.this.onConnect();
+        }
+
+        @Override
+        public void onDisconnect() {
+            WearScriptConnection.this.onDisconnect();
+        }
+
+        @Override
+        public void onMessage(String channel, byte[] message, List<Value> input) {
+            if (channel.equals(LISTEN_CHAN)) {
+                String d = input.get(1).asRawValue().getString();
+                Value[] channels = input.get(2).asArrayValue().getElementArray();
+                setDeviceChannels(d, channels);
+            }
+            onReceiveDispatch(channel, message, input);
+        }
+    };
 }
