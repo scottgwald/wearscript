@@ -6,7 +6,7 @@ import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.HardwareDetector;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.Utils;
-import com.dappervision.wearscript.WearScriptConnection;
+import com.dappervision.wearscript.network.WearScriptConnection;
 import com.dappervision.wearscript.events.ChannelSubscribeEvent;
 import com.dappervision.wearscript.events.ChannelUnsubscribeEvent;
 import com.dappervision.wearscript.events.GistSyncEvent;
@@ -23,7 +23,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
-import org.msgpack.util.json.JSON;
 
 import java.util.List;
 import java.util.TreeMap;
@@ -210,6 +209,7 @@ public class ConnectionManager extends Manager {
 
         @Override
         public void onConnect() {
+            super.onConnect();
             makeCall(ONCONNECT, "");
             // NOTE(brandyn): This ensures that we are only calling the function once
             unregisterCallback(ONCONNECT);
@@ -227,6 +227,7 @@ public class ConnectionManager extends Manager {
 
         @Override
         public void onReceive(String channel, byte[] dataRaw, List<Value> data) {
+            super.onReceive(channel, dataRaw, data);
             // BUG(brandyn): If the channel should go to a subchannel now it won't make it,
             // we should modify channel name before this call
             makeCall(channel, "'" + Base64.encodeToString(dataRaw, Base64.NO_WRAP) + "'");
@@ -342,11 +343,6 @@ public class ConnectionManager extends Manager {
                 }
                 Utils.eventBusPost(new WarpHEvent(h));
             }
-        }
-
-        @Override
-        public void onDisconnect() {
-
         }
     }
 }

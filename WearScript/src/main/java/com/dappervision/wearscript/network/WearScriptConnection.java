@@ -1,11 +1,8 @@
-package com.dappervision.wearscript;
+package com.dappervision.wearscript.network;
 
 import android.util.Base64;
 import android.util.Log;
 
-import com.codebutler.android_websockets.WebSocketClient;
-
-import org.apache.http.message.BasicNameValuePair;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
@@ -13,7 +10,7 @@ import org.msgpack.type.ValueFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,59 +19,27 @@ import java.util.TreeSet;
 import static org.msgpack.template.Templates.TValue;
 import static org.msgpack.template.Templates.tList;
 
-public abstract class WearScriptConnection {
+public abstract class WearScriptConnection implements SocketController.Listener {
     private static final String TAG = "WearScriptConnection";
     private static final String LISTEN_CHAN = "subscriptions";
-    private final int sleepTimeMax = 6000;
-    static MessagePack msgpack = new MessagePack();
+
+    private static MessagePack mMsgpack = new MessagePack();
+
     protected String device, group, groupDevice;
-    private WebSocketClient client;
-    private LocalListener listener;
-    private boolean shutdown;
     private URI uri;
-    private boolean connected;
-    private boolean callOnConnect;
     // deviceToChannels is always updated, then externalChannels is rebuilt
     private TreeMap<String, ArrayList<String>> deviceToChannels;
     private TreeSet<String> externalChannels;
     private TreeSet<String> scriptChannels;
-    private boolean reconnecting;
+    private SocketController mSocket;
 
     public WearScriptConnection(String group, String device) {
-        shutdown = false;
-        callOnConnect = false;
-        reconnecting = false;
         this.group = group;
         this.device = device;
         groupDevice = channel(group, device);
         scriptChannels = new TreeSet<String>();
         resetExternalChannels();
         pinger();
-    }
-
-    public static byte[] encode(Object... data) {
-        List<Value> out = new ArrayList<Value>();
-        for (Object i : data) {
-            Class c = i.getClass();
-            if (c.equals(String.class))
-                out.add(ValueFactory.createRawValue((String) i));
-            else if (c.equals(Double.class))
-                out.add(ValueFactory.createFloatValue((Double) i));
-            else if (Value.class.isAssignableFrom(c))
-                out.add((Value) i);
-            else if (c.equals(Boolean.class))
-                out.add(ValueFactory.createBooleanValue((Boolean) i));
-            else {
-                Log.e(TAG, "Unhandled class: " + c);
-                return null;
-            }
-        }
-        try {
-            return msgpack.write(out);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not encode msgpack");
-        }
-        return null;
     }
 
     public static Value listValue(Iterable<String> channels) {
@@ -93,11 +58,26 @@ public abstract class WearScriptConnection {
         return ValueFactory.createMapValue(mapArray.toArray(new Value[mapArray.size()]));
     }
 
-    public abstract void onConnect();
+    public void onConnect() {
+        publishChannels();
+    }
 
-    public abstract void onReceive(String channel, byte[] dataRaw, List<Value> data);
+    public void onReceive(String channel, byte[] dataRaw, List<Value> data) {
 
-    public abstract void onDisconnect();
+    }
+
+    public void onDisconnect() {
+
+    }
+
+    public void onMessage(String channel, byte[] message, List<Value> input) {
+        if (channel.equals(LISTEN_CHAN)) {
+            String d = input.get(1).asRawValue().getString();
+            Value[] channels = input.get(2).asArrayValue().getElementArray();
+            setDeviceChannels(d, channels);
+        }
+        onReceiveDispatch(channel, message, input);
+    }
 
     private void onReceiveDispatch(String channel, byte[] dataRaw, List<Value> data) {
         String channelPart = existsInternal(channel);
@@ -105,7 +85,7 @@ public abstract class WearScriptConnection {
             Log.i(TAG, "ScriptChannel: " + channelPart);
             if (dataRaw != null && data == null) {
                 try {
-                    data = msgpack.read(dataRaw, tList(TValue));
+                    data = mMsgpack.read(dataRaw, tList(TValue));
                 } catch (IOException e) {
                     Log.e(TAG, "Could not decode msgpack");
                     return;
@@ -126,27 +106,21 @@ public abstract class WearScriptConnection {
             return;
         Log.d(TAG, "Publishing...: " + channel);
         if (channel.equals(LISTEN_CHAN)) {
-            Log.d(TAG, "Channels: " + Base64.encodeToString(encode(data), Base64.NO_WRAP));
+            Log.d(TAG, "Channels: " + Base64.encodeToString(SocketController.encode(data), Base64.NO_WRAP));
         }
-        publish(channel, encode(data));
+        publish(channel, SocketController.encode(data));
     }
 
     public void publish(String channel, byte[] outBytes) {
         if (!exists(channel)) {
-            Log.d(TAG, String.format("Not publishing[%s] Client: %s outBytes: %s", channel, client != null, outBytes != null));
+            Log.d(TAG, String.format("Not publishing[%s] Client: %s outBytes: %s", channel, mSocket != null, outBytes != null));
             return;
         }
         if (outBytes != null) {
             onReceiveDispatch(channel, outBytes, null);
-            if (client != null && existsExternal(channel))
-                client.send(outBytes);
+            if (mSocket != null && existsExternal(channel))
+                mSocket.send(outBytes);
         }
-    }
-
-    private Value oneStringArray(String channel) {
-        Value[] array = new Value[1];
-        array[0] = ValueFactory.createRawValue(channel);
-        return ValueFactory.createArrayValue(array);
     }
 
     private Value channelsValue() {
@@ -231,22 +205,15 @@ public abstract class WearScriptConnection {
     public void connect(URI uri) {
         Log.d(TAG, "Lifecycle: Connect called");
         synchronized (this) {
-            if (shutdown) {
-                Log.w(TAG, "Trying to connect while shutdown");
-                return;
-            }
             Log.i(TAG, uri.toString());
-            if (uri.equals(this.uri) && connected) {
+            if (uri.equals(this.uri) && mSocket != null && mSocket.isConnected()) {
                 onConnect();
                 return;
             }
             this.uri = uri;
-            List<BasicNameValuePair> extraHeaders = Arrays.asList();
             Log.i(TAG, "Lifecycle: Socket connecting");
-            if (client != null)
-                client.disconnect();
-            client = new WebSocketClient(uri, new LocalListener(), extraHeaders);
-            reconnect();
+            mSocket = new SocketController(uri);
+            mSocket.setListener(this);
         }
     }
 
@@ -316,24 +283,19 @@ public abstract class WearScriptConnection {
     }
 
     public void disconnect() {
-        if (client != null)
-            client.disconnect();
+        mSocket.disconnect();
     }
 
     public void shutdown() {
-        synchronized (this) {
-            this.shutdown = true;
-            disconnect();
-            if (client != null)
-                client.getHandlerThread().getLooper().quit();
-        }
+        disconnect();
+        mSocket = null;
     }
 
     private void pinger() {
         new Thread(new Runnable() {
             public void run() {
                 while (true) {
-                    if (shutdown)
+                    if (mSocket == null)
                         return;
                     Log.w(TAG, "Lifecycle: Pinger...");
                     publish(LISTEN_CHAN, WearScriptConnection.this.groupDevice, channelsValue());
@@ -346,7 +308,7 @@ public abstract class WearScriptConnection {
         }).start();
     }
 
-    private void publishChannels(int delay) {
+    private void publishChannels() {
         new Thread(new Runnable() {
             public void run() {
                 Log.w(TAG, "Lifecycle: Pinger...");
@@ -359,131 +321,4 @@ public abstract class WearScriptConnection {
             }
         }).start();
     }
-
-    private void reconnect() {
-        synchronized (this) {
-            if (shutdown)
-                return;
-            if (reconnecting)
-                return;
-            reconnecting = true;
-        }
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    int sleepTime = 1000;
-                    while (true) {
-                        Log.w(TAG, "Lifecycle: Trying to reconnect...");
-                        synchronized (WearScriptConnection.this) {
-                            if (connected || shutdown) {
-                                reconnecting = false;
-                                break;
-                            }
-                            Log.w(TAG, "Lifecycle: Reconnecting...");
-                            // NOTE(brandyn): Reset channelToDevices, server will refresh on connect
-                            resetExternalChannels();
-                            client.connect();
-                        }
-                        try {
-                            Thread.sleep(sleepTime);
-                        } catch (InterruptedException e) {
-                        }
-                        sleepTime *= 2;
-                        if (sleepTime > sleepTimeMax) {
-                            sleepTime = sleepTimeMax;
-                        }
-                    }
-                } finally {
-                    synchronized (WearScriptConnection.this) {
-                        reconnecting = false;
-                        // NOTE(brandyn): This ensures that we at least leave this thread with one of...
-                        // 1.) socket connected (disconnect after this would trigger a reconnect)
-                        // 2.) another thread that will try again
-                        if (!connected && !shutdown)
-                            reconnect();
-                    }
-                }
-            }
-        }).start();
-    }
-
-    private class LocalListener implements WebSocketClient.Listener {
-
-        LocalListener() {
-
-        }
-
-        @Override
-        public void onConnect() {
-            if (shutdown)
-                return;
-            connected = true;
-            callOnConnect = true;
-        }
-
-        @Override
-        public void onMessage(String s) {
-            // Unused
-        }
-
-        @Override
-        public void onDisconnect(int i, String s) {
-            Log.w(TAG, "Lifecycle: Underlying socket disconnected: i: " + i + " s: " + s);
-            synchronized (this) {
-                connected = false;
-                callOnConnect = false;
-                if (shutdown)
-                    return;
-            }
-            WearScriptConnection.this.onDisconnect();
-            reconnect();
-        }
-
-        @Override
-        public void onError(Exception e) {
-            Log.w(TAG, "Lifecycle: Underlying socket errored: " + e.getLocalizedMessage());
-            synchronized (this) {
-                connected = false;
-                callOnConnect = false;
-                if (shutdown)
-                    return;
-            }
-            WearScriptConnection.this.onDisconnect();
-            reconnect();
-        }
-
-        @Override
-        public void onMessage(byte[] message) {
-            if (shutdown)
-                return;
-            synchronized (this) {
-                try {
-                    handleMessage(message);
-                } catch (Exception e) {
-                    Log.e(TAG, String.format("onMessage: %s", e.toString()));
-                }
-            }
-        }
-
-        private void handleMessage(byte[] message) throws IOException {
-            String channel = "";
-            List<Value> input = msgpack.read(message, tList(TValue));
-            channel = input.get(0).asRawValue().getString();
-            Log.d(TAG, String.format("Got %s", channel));
-            if (channel.equals(LISTEN_CHAN)) {
-                String d = input.get(1).asRawValue().getString();
-                Value[] channels = input.get(2).asArrayValue().getElementArray();
-                setDeviceChannels(d, channels);
-                if (callOnConnect) {
-                    callOnConnect = false;
-                    Log.i(TAG, "Lifecycle: Calling server callback");
-                    //publish(LISTEN_CHAN, groupDevice, channelsValue());
-                    WearScriptConnection.this.onConnect();
-                    publishChannels(500);
-                }
-            }
-            WearScriptConnection.this.onReceiveDispatch(channel, message, input);
-        }
-    }
-
 }
