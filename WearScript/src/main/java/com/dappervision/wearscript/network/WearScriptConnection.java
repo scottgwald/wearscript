@@ -23,8 +23,6 @@ public abstract class WearScriptConnection {
     private static final String TAG = "WearScriptConnection";
     private static final String LISTEN_CHAN = "subscriptions";
 
-    private static MessagePack mMsgpack = new MessagePack();
-
     protected String device, group, groupDevice;
     private URI uri;
     // deviceToChannels is always updated, then externalChannels is rebuilt
@@ -67,15 +65,6 @@ public abstract class WearScriptConnection {
     private void onReceiveDispatch(String channel, byte[] dataRaw, List<Value> data) {
         String channelPart = existsInternal(channel);
         if (channelPart != null) {
-            Log.i(TAG, "ScriptChannel: " + channelPart);
-            if (dataRaw != null && data == null) {
-                try {
-                    data = mMsgpack.read(dataRaw, tList(TValue));
-                } catch (IOException e) {
-                    Log.e(TAG, "Could not decode msgpack");
-                    return;
-                }
-            }
             onReceive(channelPart, dataRaw, data);
         }
     }
