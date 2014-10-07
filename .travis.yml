@@ -1,4 +1,6 @@
 language: android
+script: ./gradlew build check
 android:
     components:
+      - build-tools-20.0.0
       - build-tools-19.1.0
