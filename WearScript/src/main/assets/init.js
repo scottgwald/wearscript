@@ -1082,8 +1082,8 @@ function WearScript() {
         callback = this._funcfix(callback);
         WSRAW.picarusStream(model, this._funcwrap(function (x) {callback(atob(x))}));
     }
-    this.wearNotification = function(title, text) {
-        WSRAW.wearNotification(title, text);
+    this.notify = function(id, title, text) {
+        WSRAW.notify(id, title, text);
     }
 }
 WS = new WearScript();

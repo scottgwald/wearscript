@@ -633,9 +633,9 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void wearNotification(String title, String text) {
+    public void notify(int id, String title, String text) {
         Log.i(TAG, "wearNotification " + title + " " + text);
-        Utils.eventBusPost(new WearNotificationEvent(title, text));
+        Utils.eventBusPost(new WearNotificationEvent(id, title, text));
     }
 
     public static enum SENSOR {

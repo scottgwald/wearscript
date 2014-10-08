@@ -29,9 +29,9 @@ public class WearManager extends Manager{
     }
 
     public void onEvent(WearNotificationEvent event) {
-        int notificationId = 001;
+        int notificationId = event.getId();
 
-        NotificationCompat.Builder mBuilder =
+        NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_interpunc)
                         .setContentTitle(event.getTitle())
@@ -42,6 +42,6 @@ public class WearManager extends Manager{
         mNotificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mNotificationManager.notify(notificationId, mBuilder.build());
+        mNotificationManager.notify(notificationId, builder.build());
     }
 }
