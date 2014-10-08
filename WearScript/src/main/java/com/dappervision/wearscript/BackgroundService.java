@@ -140,7 +140,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
 
     public void handleSensor(DataPoint dp, String url) {
         synchronized (lock) {
-            Log.d(TAG, "MYODEBUG: handleSensor");
             if (webview != null && url != null) {
                 //webview.loadUrl(url);
                 Utils.eventBusPost(new JsCall(url));

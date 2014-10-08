@@ -97,7 +97,7 @@ public class Utils {
     public static void eventBusPost(Object event) {
         long startTime = System.nanoTime();
         getEventBus().post(event);
-        Log.d(TAG, "Event: " + event.getClass().getName() + " Time: " + (System.nanoTime() - startTime) / 1000000000.);
+//        Log.d(TAG, "Event: " + event.getClass().getName() + " Time: " + (System.nanoTime() - startTime) / 1000000000.);
     }
 
     public static boolean setupTTS(Context context, TextToSpeech tts) {

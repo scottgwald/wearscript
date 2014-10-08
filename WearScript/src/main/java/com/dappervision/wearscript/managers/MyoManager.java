@@ -11,12 +11,14 @@ import com.dappervision.wearscript.events.MyoOrientationDataEvent;
 import com.dappervision.wearscript.events.MyoPairEvent;
 import com.dappervision.wearscript.events.SendEvent;
 import com.thalmic.myo.AbstractDeviceListener;
+import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 import com.thalmic.myo.Pose;
 import com.thalmic.myo.Quaternion;
 import com.thalmic.myo.Vector3;
+import com.thalmic.myo.XDirection;
 
 public class MyoManager extends Manager {
     private static final String TAG = "MyoManager";
@@ -27,13 +29,13 @@ public class MyoManager extends Manager {
 
     public MyoManager(BackgroundService bs) {
         super(bs);
-        // TODO(brandyn): Make myo pair happen somewhere more sensible
         reset();
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    public void shutdown() {
+        super.shutdown();
+        Hub.getInstance().shutdown();
     }
 
     public void pair() {
@@ -41,15 +43,20 @@ public class MyoManager extends Manager {
         // First, we initialize the Hub singleton.
         Hub hub = Hub.getInstance();
         if (!hub.init(this.service)) {
+            Log.e(TAG, "Could not init Myo hub");
             return;
         }
         if (mListener == null) {
             setup();
-            hub.addListener(mListener);
         }
         // Next, register for DeviceListener callbacks.
         // Finally, scan for Myo devices and connect to the first one found.
-        hub.pairWithAdjacentMyo();
+        hub.addListener(mListener);
+
+        if (hub.getConnectedDevices().isEmpty()) {
+            hub.pairWithAnyMyo();
+            Log.d(TAG, "Pairing with a Myo");
+        }
     }
 
     public void onEventMainThread(MyoPairEvent e) {
@@ -87,7 +94,18 @@ public class MyoManager extends Manager {
             }
 
             @Override
+            public void onArmLost(Myo myo, long timestamp) {
+                makeCall(ONMYO, "'ARM_LOST'");
+            }
+
+            @Override
+            public void onArmRecognized(Myo myo, long timestamp, Arm arm, XDirection xDirection) {
+                makeCall(ONMYO, "'ARM_RECOGNIZED'");
+            }
+
+            @Override
             public void onDisconnect(Myo myo, long timestamp) {
+                Log.d(TAG, "Myo disconnected");
             }
 
             // onOrientationData() is called whenever the Myo device provides its current orientation,
