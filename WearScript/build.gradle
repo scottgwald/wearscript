@@ -17,7 +17,7 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "com.dappervision.wearscript"
@@ -26,12 +26,15 @@ android {
         versionCode 2
         versionName "0.3.0"
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     compile 'com.android.support:support-v4:20.0.0'
-    compile 'com.android.support:support-v13:20.0.+'
-    compile 'com.crittercism:crittercism-android-agent:+'
+    compile 'com.android.support:support-v13:20.0.0'
+    compile 'com.crittercism:crittercism-android-agent:4.5.3'
     compile 'de.greenrobot:eventbus:2.2.0'
     compile 'com.polysfactory.lib.glass.bluetooth:glass-bluetooth:0.1.2'
     compile 'com.radiusnetworks:AndroidIBeaconLibrary:0.7.6@aar'

@@ -6,7 +6,7 @@ import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.HardwareDetector;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.Utils;
-import com.dappervision.wearscript.WearScriptConnection;
+import com.dappervision.wearscript.network.WearScriptConnection;
 import com.dappervision.wearscript.events.ChannelSubscribeEvent;
 import com.dappervision.wearscript.events.ChannelUnsubscribeEvent;
 import com.dappervision.wearscript.events.GistSyncEvent;
@@ -23,7 +23,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
-import org.msgpack.util.json.JSON;
 
 import java.util.List;
 import java.util.TreeMap;
@@ -215,14 +214,9 @@ public class ConnectionManager extends Manager {
             unregisterCallback(ONCONNECT);
         }
 
+        @Override
+        protected void onDisconnect() {
 
-        private TreeMap toMap(Value map) {
-            TreeMap<String, Value> mapOut = new TreeMap<String, Value>();
-            Value[] kv = map.asMapValue().getKeyValueArray();
-            for (int i = 0; i < kv.length / 2; i++) {
-                mapOut.put(kv[i * 2].asRawValue().getString(), kv[i * 2 + 1]);
-            }
-            return mapOut;
         }
 
         @Override
@@ -343,10 +337,14 @@ public class ConnectionManager extends Manager {
                 Utils.eventBusPost(new WarpHEvent(h));
             }
         }
+    }
 
-        @Override
-        public void onDisconnect() {
-
+    private static TreeMap toMap(Value map) {
+        TreeMap<String, Value> mapOut = new TreeMap<String, Value>();
+        Value[] kv = map.asMapValue().getKeyValueArray();
+        for (int i = 0; i < kv.length / 2; i++) {
+            mapOut.put(kv[i * 2].asRawValue().getString(), kv[i * 2 + 1]);
         }
+        return mapOut;
     }
 }
