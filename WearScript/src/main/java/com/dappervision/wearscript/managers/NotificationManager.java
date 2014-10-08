@@ -1,18 +1,17 @@
 package com.dappervision.wearscript.managers;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.R;
-import com.dappervision.wearscript.events.WearNotificationEvent;
+import com.dappervision.wearscript.events.NotificationEvent;
 
-public class WearManager extends Manager{
+public class NotificationManager extends Manager{
     private Context context;
-    NotificationManager mNotificationManager;
+    android.app.NotificationManager mSystemNotificationManager;
 
-    public WearManager(Context context, BackgroundService bs) {
+    public NotificationManager(Context context, BackgroundService bs) {
         super(bs);
         this.context = context;
         reset();
@@ -28,7 +27,7 @@ public class WearManager extends Manager{
         super.shutdown();
     }
 
-    public void onEvent(WearNotificationEvent event) {
+    public void onEvent(NotificationEvent event) {
         int notificationId = event.getId();
 
         NotificationCompat.Builder builder =
@@ -39,9 +38,9 @@ public class WearManager extends Manager{
                                 .bigText(event.getText()))
                         .setContentText(event.getText());
 
-        mNotificationManager = (NotificationManager)
+        mSystemNotificationManager = (android.app.NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mNotificationManager.notify(notificationId, builder.build());
+        mSystemNotificationManager.notify(notificationId, builder.build());
     }
 }

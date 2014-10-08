@@ -1,11 +1,11 @@
 package com.dappervision.wearscript.events;
 
-public class WearNotificationEvent {
+public class NotificationEvent {
     private String mTitle;
     private String mText;
     private int mId;
 
-    public WearNotificationEvent(int id, String title, String text) {
+    public NotificationEvent(int id, String title, String text) {
         mId = id;
         mTitle = title;
         mText = text;

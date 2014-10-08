@@ -37,15 +37,14 @@ import com.dappervision.wearscript.managers.CameraManager;
 import com.dappervision.wearscript.managers.CardTreeManager;
 import com.dappervision.wearscript.managers.ConnectionManager;
 import com.dappervision.wearscript.managers.DataManager;
-import com.dappervision.wearscript.managers.EyeManager;
 import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.IBeaconManager;
 import com.dappervision.wearscript.managers.Manager;
 import com.dappervision.wearscript.managers.ManagerManager;
+import com.dappervision.wearscript.managers.NotificationManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.PicarusManager;
 import com.dappervision.wearscript.managers.WarpManager;
-import com.dappervision.wearscript.managers.WearManager;
 import com.dappervision.wearscript.managers.WifiManager;
 import com.dappervision.wearscript.ui.ScriptActivity;
 import com.getpebble.android.kit.PebbleKit;
@@ -288,7 +287,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
                 // Can still just post notificatons to phone
 
                 if(!HardwareDetector.isGlass) {
-                    ManagerManager.get().add(new WearManager(a, this));
+                    ManagerManager.get().add(new NotificationManager(a, this));
                 }
 
                 if (PebbleKit.isWatchConnected(getApplicationContext()) && ManagerManager.get().get(PebbleManager.class) == null) {

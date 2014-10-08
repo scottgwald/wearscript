@@ -20,6 +20,7 @@ import com.dappervision.wearscript.events.LiveCardEvent;
 import com.dappervision.wearscript.events.LiveCardSetMenuEvent;
 import com.dappervision.wearscript.events.MediaActionEvent;
 import com.dappervision.wearscript.events.MediaEvent;
+import com.dappervision.wearscript.events.NotificationEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
 import com.dappervision.wearscript.events.PicarusBenchmarkEvent;
 import com.dappervision.wearscript.events.PicarusEvent;
@@ -39,7 +40,6 @@ import com.dappervision.wearscript.events.SpeechRecognizeEvent;
 import com.dappervision.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
-import com.dappervision.wearscript.events.WearNotificationEvent;
 import com.dappervision.wearscript.events.WifiEvent;
 import com.dappervision.wearscript.events.WifiScanEvent;
 import com.dappervision.wearscript.managers.BarcodeManager;
@@ -635,7 +635,7 @@ public class WearScript {
     @JavascriptInterface
     public void notify(int id, String title, String text) {
         Log.i(TAG, "wearNotification " + title + " " + text);
-        Utils.eventBusPost(new WearNotificationEvent(id, title, text));
+        Utils.eventBusPost(new NotificationEvent(id, title, text));
     }
 
     public static enum SENSOR {
