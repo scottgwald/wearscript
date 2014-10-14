@@ -9,7 +9,7 @@ import subprocess
 import webbrowser
 import stat
 
-URL = 'https://github.com/kurtisnelson/wearscript-android/releases/download/v0.4.0/'
+URL = 'https://github.com/kurtisnelson/wearscript-android/releases/download/v0.4.1/'
 
 def browser(url):
     print('Open this url in a browser: ' + url)
