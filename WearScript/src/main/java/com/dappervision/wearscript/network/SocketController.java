@@ -42,7 +42,11 @@ public class SocketController {
         if(isConnected()) {
             mSocketClient.send(msg);
         }else {
-            mBuffer.add(msg);
+            try {
+                mBuffer.add(msg);
+            } catch (IllegalStateException e) {
+                Log.w(TAG, "Dropping messages, buffer is full");
+            }
         }
     }
 
