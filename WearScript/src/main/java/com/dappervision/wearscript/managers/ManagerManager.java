@@ -38,7 +38,8 @@ public class ManagerManager {
         add(new DataManager(bs));
         add(new AudioManager(bs));
 
-        if(bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+        //Really just FEATURE_CAMERA_ANY should work, but someone is a dumb head and broke Android.
+        if(bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY) || bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             add(new CameraManager(bs));
             add(new BarcodeManager(bs));
         }
