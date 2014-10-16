@@ -1,4 +1,4 @@
-package com.dappervision.wearscript.managers;
+package com.dappervision.glass.wearscript.controller.manager;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -6,31 +6,24 @@ import android.graphics.Rect;
 import android.util.Base64;
 import android.view.SurfaceView;
 
+import com.dappervision.glass.wearscript.events.CameraEvents;
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.events.ActivityEvent;
 import com.dappervision.wearscript.events.CallbackRegistration;
-import com.dappervision.wearscript.events.CameraEvents;
-import com.dappervision.wearscript.events.OpenCVLoadedEvent;
-import com.dappervision.wearscript.events.PicarusEvent;
 import com.dappervision.wearscript.events.PicarusRegistrationSampleEvent;
-import com.dappervision.wearscript.events.SendEvent;
-import com.dappervision.wearscript.events.WarpDrawEvent;
 import com.dappervision.wearscript.events.WarpHEvent;
-import com.dappervision.wearscript.events.WarpModeEvent;
+import com.dappervision.glass.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
+import com.dappervision.wearscript.managers.Manager;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.msgpack.type.ValueFactory;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;

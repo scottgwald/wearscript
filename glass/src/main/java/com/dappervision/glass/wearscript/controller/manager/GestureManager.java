@@ -1,9 +1,10 @@
-package com.dappervision.wearscript.managers;
+package com.dappervision.glass.wearscript.controller.manager;
 
 import android.content.Context;
 import android.view.MotionEvent;
 
 import com.dappervision.wearscript.BackgroundService;
+import com.dappervision.wearscript.managers.Manager;
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 

@@ -1,4 +1,4 @@
-package com.dappervision.wearscript.managers;
+package com.dappervision.glass.wearscript.controller.manager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,15 +10,20 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Base64;
 
+import com.dappervision.glass.wearscript.events.CameraEvents;
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.events.ActivityResultEvent;
 import com.dappervision.wearscript.events.CallbackRegistration;
-import com.dappervision.wearscript.events.CameraEvents;
+import com.dappervision.wearscript.events.CameraButtonPressedEvent;
 import com.dappervision.wearscript.events.OpenCVLoadEvent;
 import com.dappervision.wearscript.events.OpenCVLoadedEvent;
+import com.dappervision.wearscript.events.ScreenEvent;
+import com.dappervision.wearscript.events.ScriptActivityPauseEvent;
+import com.dappervision.wearscript.events.ScriptActivityResumeEvent;
 import com.dappervision.wearscript.events.StartActivityEvent;
+import com.dappervision.wearscript.managers.Manager;
 import com.google.android.glass.content.Intents;
 
 import org.opencv.core.CvType;
@@ -216,6 +221,26 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
         }
     }
 
+    public void onEvent(ScreenEvent e) {
+        if(e.isOn()) {
+            screenOn();
+        } else {
+            screenOff();
+        }
+    }
+
+    public void onEvent(CameraButtonPressedEvent e) {
+        onCameraButtonPressed();
+    }
+
+    public void onEvent(ScriptActivityPauseEvent e) {
+        activityOnPause();
+    }
+
+    public void onEvent(ScriptActivityResumeEvent e) {
+        activityOnResume();
+    }
+
     // Called when FileObserver sees that the picture has been written
     private void photoCallback(String pictureFilePath) {
         if (jsCallbacks.containsKey(PHOTO)) {
@@ -330,7 +355,7 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
                 for (int camIdx = 0; camIdx < Camera.getNumberOfCameras(); ++camIdx) {
                     Log.d(TAG, "Trying to open camera with new open(" + Integer.valueOf(camIdx) + "): camflow");
                     try {
-                        Log.d(TAG, "Lifecycle: Camera attempting open: " + camIdx + "Thread: " + Thread.currentThread().getName() + " Hashcode: " + this.hashCode() + ": camflow");
+                        Log.d(TAG, "Lifecycle: Camera attempting open: " + camIdx + "Thread: " + Thread.currentThread().getName() + ": camflow");
                         camera = Camera.open(camIdx);
                         Log.d(TAG, "Lifecycle: Camera opened: " + camIdx);
                     } catch (RuntimeException e) {

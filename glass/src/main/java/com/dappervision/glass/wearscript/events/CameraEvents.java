@@ -1,6 +1,6 @@
-package com.dappervision.wearscript.events;
+package com.dappervision.glass.wearscript.events;
 
-import com.dappervision.wearscript.managers.CameraManager;
+import com.dappervision.glass.wearscript.controller.manager.CameraManager;
 
 public class CameraEvents {
     public static class Start {

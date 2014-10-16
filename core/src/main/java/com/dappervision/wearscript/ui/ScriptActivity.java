@@ -18,17 +18,18 @@ import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.events.ActivityResultEvent;
-import com.dappervision.wearscript.events.MediaEvent;
+import com.dappervision.wearscript.events.CameraButtonPressedEvent;
+import com.dappervision.wearscript.events.ScriptActivityPauseEvent;
+import com.dappervision.wearscript.events.ScriptActivityResumeEvent;
 import com.dappervision.wearscript.events.ScriptEvent;
 import com.dappervision.wearscript.events.StartActivityEvent;
-import com.dappervision.wearscript.managers.CameraManager;
 
-public class ScriptActivity extends Activity {
+public abstract class ScriptActivity extends Activity {
     protected static final String TAG = "ScriptActivity";
     private static final String EXTRA_NAME = "extra";
     public BackgroundService bs;
     private boolean isGlass = true, isForeground = true;
-    private ServiceConnection mConnection;
+    protected ServiceConnection mConnection;
     private String extra;
     private boolean mHadUrlExtra = false;
 
@@ -54,6 +55,7 @@ public class ScriptActivity extends Activity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Log.register(this);
         Utils.getEventBus().register(this);
         Log.i(TAG, "Lifecycle: Activity onCreate");
@@ -67,7 +69,6 @@ public class ScriptActivity extends Activity {
             Log.d(TAG, "Did not find extra.");
         }
         // Bind Service
-        super.onCreate(savedInstanceState);
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 Log.i(TAG, "Service Connected");
@@ -80,9 +81,9 @@ public class ScriptActivity extends Activity {
                     Log.i(TAG, "Lifecycle: Recycling webview");
                     bs.refreshActivityView();
                     if (isForeground)
-                        ((CameraManager) bs.getManager(CameraManager.class)).activityOnResume();
+                        Utils.eventBusPost(new ScriptActivityResumeEvent());
                     else
-                        ((CameraManager) bs.getManager(CameraManager.class)).activityOnPause();
+                        Utils.eventBusPost(new ScriptActivityPauseEvent());
                     return;
                 }
                 Log.i(TAG, "Lifecycle: Creating new webview");
@@ -98,26 +99,20 @@ public class ScriptActivity extends Activity {
 
             public void onServiceDisconnected(ComponentName className) {
                 Log.i(TAG, "Service Disconnected");
-
             }
         };
         Log.i(TAG, "Calling bindService");
-        startService(new Intent(this, BackgroundService.class));
-        bindService(new Intent(this,
-                BackgroundService.class), mConnection, Context.BIND_AUTO_CREATE);
+        startAndBindService();
     }
+
+    protected abstract void startAndBindService();
 
     @Override
     public void onPause() {
         Log.i(TAG, "Lifecycle: ScriptActivity: onPause");
         isForeground = false;
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (bs != null) {
-            CameraManager cm = ((CameraManager) bs.getManager(CameraManager.class));
-            if (cm != null) {
-                cm.activityOnPause();
-            }
-        }
+        Utils.getEventBus().post(new ScriptActivityPauseEvent());
         super.onPause();
     }
 
@@ -126,11 +121,7 @@ public class ScriptActivity extends Activity {
         Log.i(TAG, "Lifecycle: ScriptActivity: onResume");
         isForeground = true;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (bs != null) {
-            CameraManager cm = (CameraManager) bs.getManager(CameraManager.class);
-            if (cm != null)
-                cm.activityOnResume();
-        }
+        Utils.getEventBus().post(new ScriptActivityResumeEvent());
         super.onResume();
     }
 
@@ -154,8 +145,7 @@ public class ScriptActivity extends Activity {
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_CAMERA) {
-            if (bs != null)
-                ((CameraManager) bs.getManager(CameraManager.class)).onCameraButtonPressed();
+            Utils.getEventBus().post(new CameraButtonPressedEvent());
             return false;
         } else {
             return super.onKeyDown(keyCode, event);
@@ -169,14 +159,6 @@ public class ScriptActivity extends Activity {
 
     public void onEventBackgroundThread(StartActivityEvent event) {
         startActivityForResult(event.getIntent(), event.getRequestCode());
-    }
-
-    public void onEventMainThread(MediaEvent e){
-        Intent intent = new Intent(this, MediaActivity.class);
-        intent.putExtra(MediaActivity.MODE_KEY, MediaActivity.MODE_MEDIA);
-        intent.putExtra(MediaPlayerFragment.ARG_URL, e.getUri());
-        intent.putExtra(MediaPlayerFragment.ARG_LOOP, e.isLooping());
-        startActivity(intent);
     }
 
     @Override

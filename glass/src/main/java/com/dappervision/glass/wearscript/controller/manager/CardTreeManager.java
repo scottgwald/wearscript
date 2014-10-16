@@ -1,4 +1,4 @@
-package com.dappervision.wearscript.managers;
+package com.dappervision.glass.wearscript.controller.manager;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +16,7 @@ import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.events.ActivityEvent;
 import com.dappervision.wearscript.events.CardTreeEvent;
+import com.dappervision.wearscript.managers.Manager;
 import com.google.android.glass.app.Card;
 import com.google.android.glass.media.Sounds;
 import com.kelsonprime.cardtree.DynamicMenu;

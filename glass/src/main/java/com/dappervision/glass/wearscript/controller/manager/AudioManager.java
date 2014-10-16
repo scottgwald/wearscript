@@ -1,10 +1,11 @@
-package com.dappervision.wearscript.managers;
+package com.dappervision.glass.wearscript.controller.manager;
 
 
 import android.content.Context;
 
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.events.SoundEvent;
+import com.dappervision.wearscript.managers.Manager;
 import com.google.android.glass.media.Sounds;
 
 public class AudioManager extends Manager {

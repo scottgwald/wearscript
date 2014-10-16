@@ -1,6 +1,6 @@
-package com.dappervision.wearscript.events;
+package com.dappervision.glass.wearscript.events;
 
-import com.dappervision.wearscript.managers.WarpManager;
+import com.dappervision.glass.wearscript.controller.manager.WarpManager;
 
 public class WarpModeEvent {
     WarpManager.Mode mode;

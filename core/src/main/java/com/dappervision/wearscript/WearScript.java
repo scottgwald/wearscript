@@ -8,7 +8,6 @@ import com.dappervision.wearscript.events.BluetoothBondEvent;
 import com.dappervision.wearscript.events.BluetoothModeEvent;
 import com.dappervision.wearscript.events.BluetoothWriteEvent;
 import com.dappervision.wearscript.events.CallbackRegistration;
-import com.dappervision.wearscript.events.CameraEvents;
 import com.dappervision.wearscript.events.CardTreeEvent;
 import com.dappervision.wearscript.events.ChannelSubscribeEvent;
 import com.dappervision.wearscript.events.ChannelUnsubscribeEvent;
@@ -23,11 +22,8 @@ import com.dappervision.wearscript.events.MediaEvent;
 import com.dappervision.wearscript.events.NotificationEvent;
 import com.dappervision.wearscript.events.PebbleMessageEvent;
 import com.dappervision.wearscript.events.PicarusBenchmarkEvent;
-import com.dappervision.wearscript.events.PicarusEvent;
 import com.dappervision.wearscript.events.PicarusModelCreateEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessEvent;
-import com.dappervision.wearscript.events.PicarusModelProcessStreamEvent;
-import com.dappervision.wearscript.events.PicarusModelProcessWarpEvent;
 import com.dappervision.wearscript.events.SayEvent;
 import com.dappervision.wearscript.events.ScreenEvent;
 import com.dappervision.wearscript.events.SendEvent;
@@ -37,7 +33,6 @@ import com.dappervision.wearscript.events.ServerConnectEvent;
 import com.dappervision.wearscript.events.ShutdownEvent;
 import com.dappervision.wearscript.events.SoundEvent;
 import com.dappervision.wearscript.events.SpeechRecognizeEvent;
-import com.dappervision.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
 import com.dappervision.wearscript.events.WifiEvent;
@@ -45,15 +40,11 @@ import com.dappervision.wearscript.events.WifiScanEvent;
 import com.dappervision.wearscript.managers.BarcodeManager;
 import com.dappervision.wearscript.managers.BluetoothLEManager;
 import com.dappervision.wearscript.managers.BluetoothManager;
-import com.dappervision.wearscript.managers.CameraManager;
 import com.dappervision.wearscript.managers.ConnectionManager;
 import com.dappervision.wearscript.managers.EyeManager;
-import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.MyoManager;
 import com.dappervision.wearscript.managers.IBeaconManager;
 import com.dappervision.wearscript.managers.OpenCVManager;
-import com.dappervision.wearscript.managers.PicarusManager;
-import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.PebbleManager;
 import com.dappervision.wearscript.managers.WifiManager;
 
@@ -66,16 +57,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-public class WearScript {
-    BackgroundService bs;
-    String TAG = "WearScript";
-    TreeMap<String, Integer> sensors;
-    String sensorsJS;
-    List<String> touchGesturesList;
-    List<String> pebbleGesturesList;
-    List<String> myoGesturesList;
+public abstract class WearScript {
+    protected BackgroundService bs;
+    protected String TAG = "WearScript";
+    protected TreeMap<String, Integer> sensors;
+    protected String sensorsJS;
+    protected List<String> touchGesturesList;
+    protected List<String> pebbleGesturesList;
+    protected List<String> myoGesturesList;
 
-    WearScript(BackgroundService bs) {
+    protected WearScript(BackgroundService bs) {
         this.bs = bs;
         this.sensors = new TreeMap<String, Integer>();
         // Sensor Types
@@ -224,31 +215,16 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void warpPreviewSamplePlane(String callback) {
-        Log.i(TAG, "warpPreviewsample");
-        Utils.eventBusPost(new CallbackRegistration(WarpManager.class, callback).setEvent(WarpManager.SAMPLE));
-
-        Utils.eventBusPost(new WarpModeEvent(WarpManager.Mode.SAMPLEWARPPLANE));
-    }
+    public abstract void warpPreviewSamplePlane(String callback);
 
     @JavascriptInterface
-    public void warpPreviewSampleGlass(String callback) {
-        Log.i(TAG, "warpPreviewsample");
-        Utils.eventBusPost(new CallbackRegistration(WarpManager.class, callback).setEvent(WarpManager.SAMPLE));
-        Utils.eventBusPost(new WarpModeEvent(WarpManager.Mode.SAMPLEWARPGLASS));
-    }
+    public abstract void warpPreviewSampleGlass(String callback);
 
     @JavascriptInterface
-    public void warpARTags(String callback) {
-        Log.i(TAG, "warpARTags");
-        Utils.eventBusPost(new CallbackRegistration(WarpManager.class, callback).setEvent(WarpManager.ARTAGS));
-    }
+    public abstract void warpARTags(String callback);
 
     @JavascriptInterface
-    public void warpGlassToPreviewH(String callback) {
-        Log.i(TAG, "warpPreviewsample");
-        Utils.eventBusPost(new CallbackRegistration(WarpManager.class, callback).setEvent(WarpManager.GLASS2PREVIEWH));
-    }
+    public abstract void warpGlassToPreviewH(String callback);
 
     @JavascriptInterface
     public void warpSetOverlay(String image) {
@@ -256,59 +232,28 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void cameraOff() {
-        Utils.eventBusPost(new CameraEvents.Start(0));
-    }
+    public abstract void cameraOff();
 
     @JavascriptInterface
-    public void cameraPhotoData(String callback) {
-        CallbackRegistration cr = new CallbackRegistration(CameraManager.class, callback);
-        cr.setEvent(CameraManager.PHOTO);
-        Utils.eventBusPost(cr);
-    }
+    public abstract void cameraPhotoData(String callback);
 
     @JavascriptInterface
-    public void cameraPhoto(String callback) {
-        CallbackRegistration cr = new CallbackRegistration(CameraManager.class, callback);
-        cr.setEvent(CameraManager.PHOTO_PATH);
-        Utils.eventBusPost(cr);
-    }
+    public abstract void cameraPhoto(String callback);
 
     @JavascriptInterface
-    public void cameraPhoto() {
-        // TODO(brandyn): This is a hack, we should have a separate event to take a photo and just register the callback prior to that
-        CallbackRegistration cr = new CallbackRegistration(CameraManager.class, null);
-        cr.setEvent(CameraManager.PHOTO_PATH);
-        Utils.eventBusPost(cr);
-    }
+    public abstract void cameraPhoto();
 
     @JavascriptInterface
-    public void cameraVideo() {
-        CallbackRegistration cr = new CallbackRegistration(CameraManager.class, null);
-        cr.setEvent(CameraManager.VIDEO_PATH);
-        Utils.eventBusPost(cr);
-    }
+    public abstract void cameraVideo();
 
     @JavascriptInterface
-    public void cameraVideo(String callback) {
-        CallbackRegistration cr = new CallbackRegistration(CameraManager.class, callback);
-        cr.setEvent(CameraManager.VIDEO_PATH);
-        Utils.eventBusPost(cr);
-    }
+    public abstract void cameraVideo(String callback);
 
     @JavascriptInterface
-    public void cameraOn(double imagePeriod, int maxHeight, int maxWidth, boolean background) {
-        Utils.eventBusPost(new CameraEvents.Start(imagePeriod, maxHeight, maxWidth, background));
-    }
+    public abstract void cameraOn(double imagePeriod, int maxHeight, int maxWidth, boolean background);
 
     @JavascriptInterface
-    public void cameraOn(double imagePeriod, int maxHeight, int maxWidth, boolean background, String callback) {
-        Log.d(TAG, "cameraOn: Callback: " + callback);
-        cameraOn(imagePeriod, maxHeight, maxWidth, background);
-        CallbackRegistration cr = new CallbackRegistration(CameraManager.class, callback);
-        cr.setEvent(0);
-        Utils.eventBusPost(cr);
-    }
+    public abstract void cameraOn(double imagePeriod, int maxHeight, int maxWidth, boolean background, String callback);
 
     @JavascriptInterface
     public void activityCreate() {
@@ -415,27 +360,23 @@ public class WearScript {
     @JavascriptInterface
     public void gestureCallback(String event, String callback) {
         Log.i(TAG, "gestureCallback: " + event + " " + callback);
-        Class route = EyeManager.class;
-        for (String gesture : touchGesturesList)
-            if (event.startsWith(gesture)) {
-                route = GestureManager.class;
-                break;
-            }
+        Class route = determineGestureRoute(event);
 
+        Utils.eventBusPost(new CallbackRegistration(route, callback).setEvent(event));
+    }
+
+    protected Class determineGestureRoute(String event) {
         for (String pebbleGesture : pebbleGesturesList) {
             if (event.startsWith(pebbleGesture)) {
-                route = PebbleManager.class;
-                break;
+                return PebbleManager.class;
             }
         }
 
         for (String gesture : myoGesturesList)
             if (event.startsWith(gesture)) {
-                route = MyoManager.class;
-                break;
+                return MyoManager.class;
             }
-
-        Utils.eventBusPost(new CallbackRegistration(route, callback).setEvent(event));
+        return EyeManager.class;
     }
 
     @JavascriptInterface
@@ -585,12 +526,7 @@ public class WearScript {
         Utils.eventBusPost(new ControlEvent(event, adb));
     }
 
-    public void picarus(String model, String input, String callback) {
-        Utils.eventBusPost((new CallbackRegistration(PicarusManager.class, callback)).setEvent(callback));
-        Utils.eventBusPost(new PicarusEvent(Base64.decode(model.getBytes(), Base64.NO_WRAP),
-            Base64.decode(input.getBytes(), Base64.NO_WRAP),
-            callback));
-    }
+    public abstract void picarus(String model, String input, String callback);
 
     @JavascriptInterface
     public void picarusBenchmark() {
@@ -608,23 +544,17 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void picarusModelProcessStream(int id, String callback) {
-        Utils.eventBusPost((new CallbackRegistration(PicarusManager.class, callback)).setEvent(PicarusManager.MODEL_STREAM + id));
-        Utils.eventBusPost(new PicarusModelProcessStreamEvent(id));
-    }
+    public abstract void picarusModelProcessStream(int id, String callback);
 
     @JavascriptInterface
-    public void picarusModelProcessWarp(int id, String callback) {
-        Utils.eventBusPost((new CallbackRegistration(PicarusManager.class, callback)).setEvent(PicarusManager.MODEL_WARP + id));
-        Utils.eventBusPost(new PicarusModelProcessWarpEvent(id));
-    }
+    public abstract void picarusModelProcessWarp(int id, String callback);
 
     @JavascriptInterface
     public void myoPair(String callback) {
         Utils.eventBusPost(new CallbackRegistration(MyoManager.class, callback).setEvent(MyoManager.PAIR));
     }
 
-    private void requiresGDK() {
+    protected void requiresGDK() {
         if (HardwareDetector.hasGDK)
             return;
         Utils.eventBusPost(new SendSubEvent("log", "Script requires glass"));

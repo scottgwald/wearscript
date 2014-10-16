@@ -56,7 +56,7 @@ public abstract class Manager {
         Utils.getEventBus().unregister(this);
     }
 
-    protected void makeCall(String key, String ... data) {
+    public void makeCall(String key, String... data) {
         Log.d(TAG, jsCallbacks.toString());
         if (!jsCallbacks.containsKey(key)) {
             Log.d(TAG, "Callback not found: " + key);

@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import com.crittercism.app.Crittercism;
 import com.crittercism.app.CrittercismConfig;
 import com.dappervision.android.wearscript.BuildConfig;
+import com.dappervision.android.wearscript.MobileWearScriptInfo;
 import com.dappervision.wearscript.launcher.MainActivity;
+import com.dappervision.wearscript.launcher.WearScriptInfo;
 
 public class MobileMainActivity extends MainActivity {
 
@@ -23,5 +25,14 @@ public class MobileMainActivity extends MainActivity {
             config.setLogcatReportingEnabled(true);
             Crittercism.initialize(getApplicationContext(), "53cd76d9bb94751895000002", config);
         }
+    }
+
+    protected WearScriptInfo buildInfoForPath(String name, String filePath) {
+        return new MobileWearScriptInfo(this, name, filePath);
+    }
+
+    @Override
+    public void onScriptSelected(WearScriptInfo scriptInfo) {
+        startActivity(scriptInfo.getIntent());
     }
 }

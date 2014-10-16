@@ -36,7 +36,7 @@ public abstract class MainActivity extends FragmentActivity implements ScriptLis
                 JSONObject manifest = (JSONObject) JSONValue.parse(new String(manifestData));
                 if (manifest != null && manifest.containsKey("name")) {
                     String filePath = WEARSCRIPT_PATH + gist + "/" + "glass.html";
-                    WearScriptInfo wsInfo = new WearScriptInfo(this, (String) manifest.get("name"), filePath);
+                    WearScriptInfo wsInfo = buildInfoForGist(manifest, filePath);
                     Intent intent = wsInfo.getIntent();
                     int flags = intent.getFlags() | Intent.FLAG_ACTIVITY_SINGLE_TOP;
                     intent.setFlags(flags);
@@ -49,7 +49,7 @@ public abstract class MainActivity extends FragmentActivity implements ScriptLis
                 // Load from apk assets
                 if (DBG) Log.d(TAG, "Loading script from apk assets");
                 String filePath = "/android_asset/" + gist + "/" + "glass.html";
-                WearScriptInfo wsInfo = new WearScriptInfo(this, "APK Script", filePath);
+                WearScriptInfo wsInfo = buildInfoForApkAsset(null);
                 Intent intent = wsInfo.getIntent();
                 int flags = intent.getFlags() | Intent.FLAG_ACTIVITY_SINGLE_TOP;
                 intent.setFlags(flags);
@@ -57,6 +57,16 @@ public abstract class MainActivity extends FragmentActivity implements ScriptLis
                 launchScriptList = false;
             }
         }
+    }
+
+    protected WearScriptInfo buildInfoForApkAsset(String filePath) {
+        return buildInfoForPath("APK Script", filePath);
+    }
+
+    protected abstract WearScriptInfo buildInfoForPath(String name, String filePath);
+
+    protected WearScriptInfo buildInfoForGist(JSONObject manifest, String filePath) {
+        return buildInfoForPath((String) manifest.get("name"), filePath);
     }
 
     protected int getLayoutResId() {

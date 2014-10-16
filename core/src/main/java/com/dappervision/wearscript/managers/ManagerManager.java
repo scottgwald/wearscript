@@ -3,29 +3,16 @@ package com.dappervision.wearscript.managers;
 import android.content.pm.PackageManager;
 
 import com.dappervision.wearscript.BackgroundService;
-import com.dappervision.wearscript.HardwareDetector;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ManagerManager {
-    private static ManagerManager singleton;
+public abstract class ManagerManager {
+
     Map<String, Manager> managers;
 
-    private ManagerManager() {
+    protected ManagerManager() {
         managers = new ConcurrentHashMap<String, Manager>();
-    }
-
-    public static ManagerManager get() {
-        if (singleton != null) {
-            return singleton;
-        }
-        singleton = new ManagerManager();
-        return singleton;
-    }
-
-    public static boolean hasManager(Class<? extends Manager> c) {
-        return get().get(c) != null;
     }
 
     public void newManagers(BackgroundService bs) {
@@ -33,14 +20,11 @@ public class ManagerManager {
         add(new SpeechManager(bs));
         add(new MyoManager(bs));
         add(new ConnectionManager(bs));
-        add(new PicarusManager(bs));
         add(new OpenCVManager(bs));
         add(new DataManager(bs));
-        add(new AudioManager(bs));
 
         //Really just FEATURE_CAMERA_ANY should work, but someone is a dumb head and broke Android.
         if(bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY) || bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            add(new CameraManager(bs));
             add(new BarcodeManager(bs));
         }
 
@@ -50,12 +34,6 @@ public class ManagerManager {
 
         if (bs.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)){
             add(new BluetoothLEManager(bs));
-        }
-        if (HardwareDetector.hasGDK) {
-            add(new WarpManager(bs));
-            add(new LiveCardManager(bs));
-            add(new CardTreeManager(bs));
-            add(new EyeManager(bs));
         }
     }
 

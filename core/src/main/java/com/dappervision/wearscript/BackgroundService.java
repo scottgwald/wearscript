@@ -1,6 +1,5 @@
 package com.dappervision.wearscript;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,12 +16,10 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.dappervision.wearscript.dataproviders.BatteryDataProvider;
 import com.dappervision.wearscript.dataproviders.DataPoint;
 import com.dappervision.wearscript.events.ActivityEvent;
-import com.dappervision.wearscript.events.CameraEvents;
 import com.dappervision.wearscript.events.DataLogEvent;
 import com.dappervision.wearscript.events.JsCall;
 import com.dappervision.wearscript.events.LambdaEvent;
@@ -33,18 +30,13 @@ import com.dappervision.wearscript.events.SendEvent;
 import com.dappervision.wearscript.events.ShutdownEvent;
 import com.dappervision.wearscript.events.WifiScanResultsEvent;
 import com.dappervision.wearscript.handlers.HandlerHandler;
-import com.dappervision.wearscript.managers.CameraManager;
-import com.dappervision.wearscript.managers.CardTreeManager;
 import com.dappervision.wearscript.managers.ConnectionManager;
 import com.dappervision.wearscript.managers.DataManager;
-import com.dappervision.wearscript.managers.GestureManager;
 import com.dappervision.wearscript.managers.IBeaconManager;
 import com.dappervision.wearscript.managers.Manager;
 import com.dappervision.wearscript.managers.ManagerManager;
 import com.dappervision.wearscript.managers.NotificationManager;
 import com.dappervision.wearscript.managers.PebbleManager;
-import com.dappervision.wearscript.managers.PicarusManager;
-import com.dappervision.wearscript.managers.WarpManager;
 import com.dappervision.wearscript.managers.WifiManager;
 import com.dappervision.wearscript.ui.ScriptActivity;
 import com.getpebble.android.kit.PebbleKit;
@@ -57,22 +49,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-public class BackgroundService extends Service implements AudioRecord.OnRecordPositionUpdateListener, OnInitListener {
+public abstract class BackgroundService extends Service implements AudioRecord.OnRecordPositionUpdateListener, OnInitListener {
     protected static String TAG = "BackgroundService";
     private final IBinder mBinder = new LocalBinder();
     private final Object lock = new Object(); // All calls to webview client must acquire lock
     protected TextToSpeech tts;
     protected ScreenBroadcastReceiver broadcastReceiver;
     protected String glassID;
-    private ScriptActivity activity;
-    private boolean dataRemote, dataLocal, dataWifi;
-    private double lastSensorSaveTime, sensorDelay;
-    private ScriptView webview;
-    private TreeMap<String, ArrayList<Value>> sensorBuffer;
-    private TreeMap<String, Integer> sensorTypes;
-    private MessagePack msgpack = new MessagePack();
-    private View activityView;
-    private ActivityEvent.Mode activityMode;
+    protected ScriptActivity activity;
+    protected boolean dataRemote, dataLocal, dataWifi;
+    protected double lastSensorSaveTime, sensorDelay;
+    protected ScriptView webview;
+    protected TreeMap<String, ArrayList<Value>> sensorBuffer;
+    protected TreeMap<String, Integer> sensorTypes;
+    protected MessagePack msgpack = new MessagePack();
+    protected View activityView;
+    protected ActivityEvent.Mode activityMode;
     private String initScript;
 
     static public String getDefaultUrl() {
@@ -89,34 +81,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         return s.hasNext() ? s.next() : "";
     }
 
-    public void updateActivityView(final ActivityEvent.Mode mode) {
-        Log.d(TAG, "updateActivityView: " + mode.toString());
-        if (activity == null) {
-            Log.d(TAG, "updateActivityView - activity is null, not setting");
-            return;
-        }
-        final ScriptActivity a = activity;
-        a.runOnUiThread(new Thread() {
-            public void run() {
-                activityMode = mode;
-                if (mode == ActivityEvent.Mode.WEBVIEW && webview != null) {
-                    activityView = webview;
-                } else if (mode == ActivityEvent.Mode.WARP) {
-                    activityView = ((WarpManager) getManager(WarpManager.class)).getView();
-                } else if (mode == ActivityEvent.Mode.CARD_TREE) {
-                    activityView = ((CardTreeManager) getManager(CardTreeManager.class)).getView();
-                }
-                if (activityView != null) {
-                    ViewGroup parentViewGroup = (ViewGroup) activityView.getParent();
-                    if (parentViewGroup != null)
-                        parentViewGroup.removeAllViews();
-                    a.setContentView(activityView);
-                } else {
-                    Log.i(TAG, "Not setting activity view because it is null: " + mode);
-                }
-            }
-        });
-    }
+    public abstract void updateActivityView(final ActivityEvent.Mode mode);
 
     public void refreshActivityView() {
         updateActivityView(activityMode);
@@ -200,33 +165,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             Utils.SaveData(dataStr, "data/", true, ".msgpack");
     }
 
-    public void onEventAsync(CameraEvents.Frame frameEvent) {
-        Log.d(TAG, "CameraFrame Got: " + System.nanoTime());
-        try {
-            final CameraManager.CameraFrame frame = frameEvent.getCameraFrame();
-            // TODO(brandyn): Move this timing logic into the camera manager
-            Log.d(TAG, "handeImage Thread: " + Thread.currentThread().getName());
-            byte[] frameJPEG = null;
-            if (dataLocal) {
-                frameJPEG = frame.getJPEG();
-                // TODO(brandyn): We can improve timestamp precision by capturing it pre-encoding
-                Utils.SaveData(frameJPEG, "data/", true, ".jpg");
-            }
-            ConnectionManager cm = (ConnectionManager) getManager(ConnectionManager.class);
-            String channel = cm.subchannel(ConnectionManager.IMAGE_SUBCHAN);
-            if (dataRemote && cm.exists(channel)) {
-                if (frameJPEG == null)
-                    frameJPEG = frame.getJPEG();
-                Utils.eventBusPost(new SendEvent(channel, System.currentTimeMillis() / 1000., ValueFactory.createRawValue(frameJPEG)));
-            }
-            // NOTE(brandyn): Done from here because the frame must have "done" called on it
-            ((WarpManager) getManager(WarpManager.class)).processFrame(frameEvent);
-            ((PicarusManager) getManager(PicarusManager.class)).processFrame(frameEvent);
-        } finally {
-            frameEvent.done();
-        }
-    }
-
     public void shutdown() {
         synchronized (lock) {
             reset();
@@ -239,7 +177,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
                 tts.shutdown();
             }
             Utils.getEventBus().unregister(this);
-            ManagerManager.get().shutdownAll();
+            getManagerManager().shutdownAll();
             HandlerHandler.get().shutdownAll();
 
             if (activity == null)
@@ -273,33 +211,30 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             dataWifi = dataRemote = dataLocal = false;
             lastSensorSaveTime = sensorDelay = 0.;
 
-            ManagerManager.get().resetAll();
+            getManagerManager().resetAll();
             HandlerHandler.get().resetAll();
             if(activity != null) {
                 ScriptActivity a = activity;
-                // TODO(brandyn): Verify that if we create a new activity that the gestures still work
-                if (HardwareDetector.isGlass && ManagerManager.get().get(GestureManager.class) == null) {
-                        ManagerManager.get().add(new GestureManager(a, this));
-                }
-
                 // TODO: check if connected to watch
                 // Can still just post notificatons to phone
 
                 if(!HardwareDetector.isGlass) {
-                    ManagerManager.get().add(new NotificationManager(a, this));
+                    getManagerManager().add(new NotificationManager(a, this));
                 }
 
-                if (PebbleKit.isWatchConnected(getApplicationContext()) && ManagerManager.get().get(PebbleManager.class) == null) {
-                        ManagerManager.get().add(new PebbleManager(a, this));
+                if (PebbleKit.isWatchConnected(getApplicationContext()) && getManagerManager().get(PebbleManager.class) == null) {
+                        getManagerManager().add(new PebbleManager(a, this));
                 }
 
-                if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) && ManagerManager.get().get(IBeaconManager.class) == null) {
-                        ManagerManager.get().add(new IBeaconManager(this));
+                if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) && getManagerManager().get(IBeaconManager.class) == null) {
+                        getManagerManager().add(new IBeaconManager(this));
                 }
             }
             updateActivityView(ActivityEvent.Mode.WEBVIEW);
         }
     }
+
+    protected abstract ManagerManager getManagerManager();
 
     public void startDefaultScript() {
         byte[] data = "<body style='width:640px; height:480px; overflow:hidden; margin:0' bgcolor='black'><center><h1 style='font-size:70px;color:#FAFAFA;font-family:monospace'>WearScript</h1><h1 style='font-size:40px;color:#FAFAFA;font-family:monospace'>When connected use playground to control<br><br>Docs @ wearscript.com</h1></center><script>function s() {WSRAW.say('Connected')};window.onload=function () {WSRAW.serverConnect('{{WSUrl}}', 's')}</script></body>".getBytes();
@@ -321,7 +256,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             Log.d(TAG, "webview.isHardwareAccelerated: " + webview.isHardwareAccelerated());
             updateActivityView(ActivityEvent.Mode.WEBVIEW);
             webview.getSettings().setJavaScriptEnabled(true);
-            webview.addJavascriptInterface(new WearScript(this), "WSRAW");
             webview.setInitialScale(100);
             Log.i(TAG, "WebView: " + e.getScriptPath());
             if (initScript != null && !initScript.isEmpty())
@@ -362,7 +296,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         registerReceiver(broadcastReceiver, intentFilter);
 
         //Plugin new Managers here
-        ManagerManager.get().newManagers(this);
+        getManagerManager().newManagers(this);
 
         tts = new TextToSpeech(this, this);
 
@@ -377,8 +311,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             activity.finish();
         }
         this.activity = a;
-        if (ManagerManager.hasManager(CardTreeManager.class))
-            ((CardTreeManager) getManager(CardTreeManager.class)).setMainActivity(a);
     }
 
     @Override
@@ -410,9 +342,6 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
 
     public void onEventMainThread(ActivityEvent e) {
         if (e.getMode() == ActivityEvent.Mode.CREATE) {
-            CameraManager cm = ((CameraManager) getManager(CameraManager.class));
-            if (cm != null && cm.getActivityVisible())
-                return;
             Intent i = new Intent(this, ScriptActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
@@ -467,40 +396,20 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
     }
 
     public Manager getManager(Class<? extends Manager> cls) {
-        return ManagerManager.get().get(cls);
+        return getManagerManager().get(cls);
     }
 
-    public ScriptView createScriptView() {
-        ScriptView mCallback = new ScriptView(this);
-        mCallback.setBackgroundColor(0);
-        return mCallback;
-    }
-
-    public boolean onPrepareOptionsMenu(Menu menu, Activity activity) {
-        CardTreeManager cm = ((CardTreeManager) getManager(CardTreeManager.class));
-        if (cm != null)
-            return cm.onPrepareOptionsMenu(menu, activity);
-        return false;
-    }
-
-    public boolean onBackPressed() {
-        CardTreeManager cm = ((CardTreeManager) getManager(CardTreeManager.class));
-        if (cm == null || activityMode != ActivityEvent.Mode.CARD_TREE)
-            return true;
-        return cm.onBackPressed();
-    }
+    public abstract ScriptView createScriptView();
 
     public boolean hasWebView() {
         return webview != null;
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        CardTreeManager cm = ((CardTreeManager) getManager(CardTreeManager.class));
-        if (cm != null) {
-            return cm.onOptionsItemSelected(item);
-        }
-        return false;
-    }
+    public abstract boolean onOptionsItemSelected(MenuItem item);
+
+    public abstract boolean onPrepareOptionsMenu(Menu menu, ScriptActivity scriptActivity);
+
+    public abstract boolean onBackPressed();
 
     class ScreenBroadcastReceiver extends BroadcastReceiver {
         BackgroundService bs;
@@ -513,17 +422,10 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 Log.d(TAG, "Screen off");
-                CameraManager cm = ((CameraManager) bs.getManager(CameraManager.class));
-                if (cm != null) {
-                    cm.screenOff();
-                }
+                Utils.getEventBus().post(new ScreenEvent(false));
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 Log.d(TAG, "Screen on");
-                CameraManager cm = ((CameraManager) bs.getManager(CameraManager.class));
-                if (cm != null) {
-                    cm.screenOn();
-                }
-
+                Utils.getEventBus().post(new ScreenEvent(true));
             } else if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
                 BatteryDataProvider dp = (BatteryDataProvider) ((DataManager) bs.getManager(DataManager.class)).getProvider(WearScript.SENSOR.BATTERY.id());
                 if (dp != null)

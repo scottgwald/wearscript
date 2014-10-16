@@ -1,40 +1,18 @@
 package com.dappervision.wearscript.managers;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.ImageFormat;
-import android.graphics.SurfaceTexture;
-import android.hardware.Camera;
-import android.os.FileObserver;
-import android.os.Handler;
-import android.provider.MediaStore;
-import android.util.Base64;
 import android.view.WindowManager;
 
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.Utils;
-import com.dappervision.wearscript.events.ActivityResultEvent;
 import com.dappervision.wearscript.events.CallbackRegistration;
-import com.dappervision.wearscript.events.CameraEvents;
 import com.dappervision.wearscript.events.OpenCVLoadEvent;
 import com.dappervision.wearscript.events.OpenCVLoadedEvent;
 import com.dappervision.wearscript.events.SayEvent;
-import com.dappervision.wearscript.events.StartActivityEvent;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 public class OpenCVManager extends Manager {
     private static final String TAG = "OpenCVManager";

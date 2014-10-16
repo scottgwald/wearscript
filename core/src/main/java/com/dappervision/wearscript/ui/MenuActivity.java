@@ -17,21 +17,15 @@
 package com.dappervision.wearscript.ui;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.events.LiveCardAddItemsEvent;
 import com.dappervision.wearscript.events.LiveCardMenuSelectedEvent;
-import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.launcher.WearScriptInfo;
 import com.kelsonprime.cardtree.DynamicMenu;
 

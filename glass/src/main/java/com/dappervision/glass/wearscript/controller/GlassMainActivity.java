@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import com.crittercism.app.Crittercism;
 import com.crittercism.app.CrittercismConfig;
 import com.dappervision.glass.wearscript.BuildConfig;
+import com.dappervision.glass.wearscript.GlassWearScriptInfo;
 import com.dappervision.wearscript.launcher.MainActivity;
+import com.dappervision.wearscript.launcher.WearScriptInfo;
 
 
 public class GlassMainActivity extends MainActivity {
@@ -24,5 +26,9 @@ public class GlassMainActivity extends MainActivity {
             config.setLogcatReportingEnabled(true);
             Crittercism.initialize(getApplicationContext(), "53cd76d9bb94751895000002", config);
         }
+    }
+
+    protected WearScriptInfo buildInfoForPath(String name, String filePath) {
+        return new GlassWearScriptInfo(this, name, filePath);
     }
 }

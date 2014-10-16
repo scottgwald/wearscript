@@ -1,4 +1,4 @@
-package com.dappervision.wearscript.managers;
+package com.dappervision.glass.wearscript.controller.manager;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,11 +8,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Base64;
 
+import com.dappervision.glass.wearscript.events.CameraEvents;
 import com.dappervision.picarus.IPicarusService;
 import com.dappervision.wearscript.BackgroundService;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.Utils;
-import com.dappervision.wearscript.events.CameraEvents;
 import com.dappervision.wearscript.events.PicarusBenchmarkEvent;
 import com.dappervision.wearscript.events.PicarusEvent;
 import com.dappervision.wearscript.events.PicarusModelCreateEvent;
@@ -21,6 +21,7 @@ import com.dappervision.wearscript.events.PicarusModelProcessStreamEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessWarpEvent;
 import com.dappervision.wearscript.events.PicarusRegistrationSampleEvent;
 import com.dappervision.wearscript.events.WarpHEvent;
+import com.dappervision.wearscript.managers.Manager;
 
 import org.msgpack.MessagePack;
 import org.msgpack.type.ArrayValue;
@@ -32,7 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 

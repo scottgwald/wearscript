@@ -7,27 +7,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
-import android.widget.ListView;
-
-import com.dappervision.wearscript.HardwareDetector;
-import com.google.android.glass.widget.CardScrollAdapter;
-import com.google.android.glass.widget.CardScrollView;
 
 
 public abstract class ScriptListFragment extends Fragment {
-    BroadcastReceiver mPackageBroadcastReciever = new BroadcastReceiver() {
+    protected BroadcastReceiver mPackageBroadcastReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateUI();
         }
     };
-    AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
+    protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             WearScriptInfo info = (WearScriptInfo) mListAdapter.getItem(i);
@@ -36,9 +28,9 @@ public abstract class ScriptListFragment extends Fragment {
     };
     //private static final String TAG = "ScriptListFragment";
     protected InstalledScripts mInstalledScripts;
-    private AdapterView adapterView;
-    private Callbacks mCallbacks;
-    private ListAdapter mListAdapter;
+    protected AdapterView mAdapterView;
+    protected Callbacks mCallbacks;
+    protected ListAdapter mListAdapter;
 
     @Override
     public void onAttach(Activity activity) {
@@ -61,7 +53,7 @@ public abstract class ScriptListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mInstalledScripts = new InstalledScripts(getActivity());
+        mInstalledScripts = getInstalledScripts();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addDataScheme("package");
@@ -69,28 +61,12 @@ public abstract class ScriptListFragment extends Fragment {
         mListAdapter = buildListAdapter();
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LinearLayout layout = new LinearLayout(getActivity());
-        if (HardwareDetector.isGlass) {
-            CardScrollView view = new CardScrollView(getActivity());
-            view.setHorizontalScrollBarEnabled(true);
-            view.setAdapter((CardScrollAdapter) mListAdapter);
-            view.activate();
-            adapterView = view;
-        } else {
-            adapterView = new ListView(getActivity());
-            adapterView.setAdapter(mListAdapter);
-        }
-        adapterView.setOnItemClickListener(mOnItemClickListener);
-        layout.addView(adapterView);
-        return layout;
-    }
+    protected abstract InstalledScripts getInstalledScripts();
 
     @Override
     public void onResume() {
         super.onResume();
-        adapterView.requestFocus();
+        mAdapterView.requestFocus();
     }
 
     @Override

@@ -35,7 +35,11 @@ public class MyoManager extends Manager {
     @Override
     public void shutdown() {
         super.shutdown();
-        Hub.getInstance().shutdown();
+        try {
+            Hub.getInstance().shutdown();
+        }catch(NullPointerException e){
+            //it was already shutdown
+        }
     }
 
     public void pair() {
