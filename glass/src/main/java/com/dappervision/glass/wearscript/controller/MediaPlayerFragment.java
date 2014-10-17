@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import com.dappervision.glass.wearscript.R;
 import com.dappervision.wearscript.Log;
-import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.events.MediaActionEvent;
 import com.google.android.glass.touchpad.Gesture;
@@ -25,7 +25,6 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     private static final String TAG = "MediaPlayerFragment";
     private MediaPlayer mp;
     private Uri mediaUri;
-    private SurfaceHolder holder;
     private ProgressBar progressBar;
     private SurfaceView surfaceView;
 
@@ -80,9 +79,9 @@ public class MediaPlayerFragment extends GestureFragment implements MediaPlayer.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_media_player, container, false);
-        surfaceView = (SurfaceView) v.findViewById(R.id.media_surface);
-        progressBar = (ProgressBar) v.findViewById(R.id.video_progressBar);
-        holder = surfaceView.getHolder();
+        surfaceView = (SurfaceView) v.findViewById(R.id.fragment_media_player_media_surface);
+        progressBar = (ProgressBar) v.findViewById(R.id.fragment_media_player_video_progressBar);
+        SurfaceHolder holder = surfaceView.getHolder();
         holder.addCallback(new SurfaceHolder.Callback() {
 
             public void surfaceCreated(SurfaceHolder holder) {

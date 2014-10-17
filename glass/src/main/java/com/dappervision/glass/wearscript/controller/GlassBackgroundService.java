@@ -1,6 +1,5 @@
 package com.dappervision.glass.wearscript.controller;
 
-import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import com.dappervision.glass.wearscript.controller.manager.GlassManagerManager;
 import com.dappervision.glass.wearscript.events.CameraEvents;
 import com.dappervision.glass.wearscript.view.GlassScriptView;
 import com.dappervision.wearscript.BackgroundService;
-import com.dappervision.wearscript.HardwareDetector;
 import com.dappervision.wearscript.Log;
 import com.dappervision.wearscript.ScriptView;
 import com.dappervision.wearscript.Utils;
@@ -121,26 +119,19 @@ public class GlassBackgroundService extends BackgroundService {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu, ScriptActivity activity) {
         CardTreeManager cm = ((CardTreeManager) getManager(CardTreeManager.class));
-        if (cm != null)
-            return cm.onPrepareOptionsMenu(menu, activity);
-        return false;
+        return cm != null && cm.onPrepareOptionsMenu(menu, activity);
     }
 
     @Override
     public boolean onBackPressed() {
         CardTreeManager cm = ((CardTreeManager) getManager(CardTreeManager.class));
-        if (cm == null || activityMode != ActivityEvent.Mode.CARD_TREE)
-            return true;
-        return cm.onBackPressed();
+        return cm == null || activityMode != ActivityEvent.Mode.CARD_TREE || cm.onBackPressed();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         CardTreeManager cm = ((CardTreeManager) getManager(CardTreeManager.class));
-        if (cm != null) {
-            return cm.onOptionsItemSelected(item);
-        }
-        return false;
+        return cm != null && cm.onOptionsItemSelected(item);
     }
 
     @Override

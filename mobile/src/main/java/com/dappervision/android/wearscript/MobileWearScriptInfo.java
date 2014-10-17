@@ -33,10 +33,7 @@ import com.dappervision.wearscript.ui.StopActivity;
  */
 public class MobileWearScriptInfo extends WearScriptInfo{
     private static final String EXTRA_NAME = "extra";
-    /**
-     * When set to true, indicates that the icon has been resized.
-     */
-    boolean filtered;
+
     /**
      * The application name.
      */
@@ -45,10 +42,7 @@ public class MobileWearScriptInfo extends WearScriptInfo{
      * The intent used to start the application.
      */
     private Intent intent;
-    /**
-     * The application icon.
-     */
-    private Drawable icon;
+
 
     public MobileWearScriptInfo() {
 
@@ -69,19 +63,19 @@ public class MobileWearScriptInfo extends WearScriptInfo{
 
     public MobileWearScriptInfo playground(Context context) {
         MobileWearScriptInfo wsi = new MobileWearScriptInfo("Playground");
-        wsi.setActivity(new ComponentName(context, MobileScriptActivity.class), Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        wsi.setActivity(new ComponentName(context, MobileScriptActivity.class));
         return wsi;
     }
 
     public MobileWearScriptInfo stop(Context context) {
         MobileWearScriptInfo wsi = new MobileWearScriptInfo("Stop");
-        wsi.setActivity(new ComponentName(context, StopActivity.class), Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        wsi.setActivity(new ComponentName(context, StopActivity.class));
         return wsi;
     }
 
     public MobileWearScriptInfo setup(Context context) {
         MobileWearScriptInfo wsi = new MobileWearScriptInfo("Setup");
-        wsi.setActivity(new ComponentName(context, SetupActivity.class), Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        wsi.setActivity(new ComponentName(context, SetupActivity.class));
         return wsi;
     }
 
@@ -90,17 +84,11 @@ public class MobileWearScriptInfo extends WearScriptInfo{
         return new MobileWearScriptInfo(context, name, filePath);
     }
 
-    /**
-     * Creates the application intent based on a component name and various launch flags.
-     *
-     * @param className   the class name of the component representing the intent
-     * @param launchFlags the launch flags
-     */
-    final void setActivity(ComponentName className, int launchFlags) {
+    final void setActivity(ComponentName className) {
         intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setComponent(className);
-        intent.setFlags(launchFlags);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     @Override

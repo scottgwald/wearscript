@@ -46,5 +46,10 @@
         android:resizeable="true"
         android:smallScreens="true" />
 
-    <application />
+    <application>
+        <activity android:name=".ui.MenuActivity"/>
+        <activity android:name=".ui.QRActivity"/>
+        <activity android:name=".ui.SetupActivity"/>
+        <activity android:name=".ui.StopActivity"/>
+    </application>
 </manifest>

@@ -16,7 +16,7 @@ public class MediaActivity extends FragmentActivity {
 
     protected GestureFragment createFragment() {
         if (getIntent().getStringExtra(MODE_KEY).equals(MODE_MEDIA)){
-            return new MediaPlayerFragment().newInstance((Uri) getIntent().getParcelableExtra(MediaPlayerFragment.ARG_URL), getIntent().getBooleanExtra(MediaPlayerFragment.ARG_LOOP, false));
+            return MediaPlayerFragment.newInstance((Uri) getIntent().getParcelableExtra(MediaPlayerFragment.ARG_URL), getIntent().getBooleanExtra(MediaPlayerFragment.ARG_LOOP, false));
         }else{
             return null;
         }
@@ -47,9 +47,6 @@ public class MediaActivity extends FragmentActivity {
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        if (gestureDetector != null) {
-            return gestureDetector.onMotionEvent(event);
-        }
-        return false;
+        return gestureDetector != null && gestureDetector.onMotionEvent(event);
     }
 }

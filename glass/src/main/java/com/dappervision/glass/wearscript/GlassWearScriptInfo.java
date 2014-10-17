@@ -51,7 +51,7 @@ public class GlassWearScriptInfo extends WearScriptInfo {
      */
     private Drawable icon;
 
-    public GlassWearScriptInfo(String title) {
+    private GlassWearScriptInfo(String title) {
         this.title = title;
     }
 

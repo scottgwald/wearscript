@@ -127,7 +127,6 @@ public class PicarusManager extends Manager {
             arModelCached = picarus.createModel(arModel);
         } catch (RemoteException e1) {
             Log.e(TAG, "Execution error");
-            return;
         }
     }
 

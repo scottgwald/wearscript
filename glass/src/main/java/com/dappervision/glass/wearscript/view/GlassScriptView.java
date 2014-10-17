@@ -1,6 +1,7 @@
 package com.dappervision.glass.wearscript.view;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -23,7 +24,7 @@ public class GlassScriptView extends ScriptView implements DirectRenderingCallba
     protected long mDrawFrequency;
     protected final Handler mHandler;
 
-    public GlassScriptView(GlassBackgroundService context) {
+    public GlassScriptView(Context context) {
         super(context);
         Utils.getEventBus().register(this);
         mHandler = new Handler();
@@ -43,12 +44,12 @@ public class GlassScriptView extends ScriptView implements DirectRenderingCallba
         if (mLiveCard != null)
             return;
         this.mDrawFrequency = drawFrequency;
-        mLiveCard = new LiveCard(context, "myid");
+        mLiveCard = new LiveCard(mContext, "myid");
         Log.d(TAG, "Publishing LiveCard");
         mLiveCard.setDirectRenderingEnabled(true).getSurfaceHolder().addCallback(this);
-        Intent intent = new Intent(context, MenuActivity.class);
+        Intent intent = new Intent(mContext, MenuActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        mLiveCard.setAction(PendingIntent.getActivity(context, 0, intent, 0));
+        mLiveCard.setAction(PendingIntent.getActivity(mContext, 0, intent, 0));
         if (nonSilent)
             mLiveCard.publish(LiveCard.PublishMode.REVEAL);
         else
@@ -121,7 +122,7 @@ public class GlassScriptView extends ScriptView implements DirectRenderingCallba
         }
         if (canvas != null) {
             // Tell the view where to draw.
-            View v = context.getActivityView();
+            View v = ((GlassBackgroundService)mContext).getActivityView();
             int measuredWidth = View.MeasureSpec.makeMeasureSpec(
                     canvas.getWidth(), View.MeasureSpec.EXACTLY);
             int measuredHeight = View.MeasureSpec.makeMeasureSpec(

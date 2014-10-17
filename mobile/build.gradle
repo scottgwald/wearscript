@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.dappervision.android.wearscript"
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 19
         versionCode 2
         versionName "0.4.1"

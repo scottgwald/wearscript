@@ -8,7 +8,7 @@ import com.dappervision.wearscript.events.SoundEvent;
 import com.dappervision.wearscript.managers.Manager;
 import com.google.android.glass.media.Sounds;
 
-public class AudioManager extends Manager {
+class AudioManager extends Manager {
     private android.media.AudioManager systemAudio;
 
     public AudioManager(BackgroundService service) {
@@ -19,21 +19,25 @@ public class AudioManager extends Manager {
 
     public void onEvent(SoundEvent event) {
         String type = event.getType();
-        if (type.equals("TAP"))
-            systemAudio.playSoundEffect(Sounds.TAP);
-        else if (type.equals("DISALLOWED"))
-            systemAudio.playSoundEffect(Sounds.DISALLOWED);
-        else if (type.equals("DISMISSED"))
-            systemAudio.playSoundEffect(Sounds.DISMISSED);
-        else if (type.equals("ERROR"))
-            systemAudio.playSoundEffect(Sounds.ERROR);
-        else if (type.equals("SELECTED"))
-            systemAudio.playSoundEffect(Sounds.SELECTED);
-        else if (type.equals("SUCCESS"))
-            systemAudio.playSoundEffect(Sounds.SUCCESS);
-    }
-
-    public void reset() {
-        super.reset();
+        switch (type) {
+            case "TAP":
+                systemAudio.playSoundEffect(Sounds.TAP);
+                break;
+            case "DISALLOWED":
+                systemAudio.playSoundEffect(Sounds.DISALLOWED);
+                break;
+            case "DISMISSED":
+                systemAudio.playSoundEffect(Sounds.DISMISSED);
+                break;
+            case "ERROR":
+                systemAudio.playSoundEffect(Sounds.ERROR);
+                break;
+            case "SELECTED":
+                systemAudio.playSoundEffect(Sounds.SELECTED);
+                break;
+            case "SUCCESS":
+                systemAudio.playSoundEffect(Sounds.SUCCESS);
+                break;
+        }
     }
 }

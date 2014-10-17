@@ -14,8 +14,7 @@ import com.dappervision.wearscript.launcher.InstalledScripts;
 
 public class ScriptListFragment extends com.dappervision.wearscript.launcher.ScriptListFragment {
     public static ScriptListFragment newInstance() {
-        ScriptListFragment fragment = new ScriptListFragment();
-        return fragment;
+        return new ScriptListFragment();
     }
 
     @Override
