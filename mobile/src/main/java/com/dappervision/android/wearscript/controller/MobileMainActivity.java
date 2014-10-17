@@ -23,7 +23,7 @@ public class MobileMainActivity extends MainActivity {
         if(!BuildConfig.DEBUG) {
             CrittercismConfig config = new CrittercismConfig();
             config.setLogcatReportingEnabled(true);
-            Crittercism.initialize(getApplicationContext(), "53cd76d9bb94751895000002", config);
+            Crittercism.initialize(getApplicationContext(), "544090b4466eda745b000005", config);
         }
     }
 
