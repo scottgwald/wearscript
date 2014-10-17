@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 'Google Inc.:Glass Development Kit Preview:19'
-    buildToolsVersion "20.0.0"
+    buildToolsVersion "21"
 
     defaultConfig {
         applicationId "com.dappervision.glass.wearscript"
         minSdkVersion 19
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 2
         versionName "0.4.1"
     }
