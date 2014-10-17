@@ -1,5 +1,5 @@
 language: android
-script: ./gradlew build check
+script: ./gradlew :mobile:build :mobile:check
 android:
     components:
       - build-tools-20.0.0
