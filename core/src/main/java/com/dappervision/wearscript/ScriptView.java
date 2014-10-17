@@ -1,5 +1,6 @@
 package com.dappervision.wearscript;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -17,6 +18,7 @@ public abstract class ScriptView extends WebView {
 
     protected boolean mPaused;
 
+    @TargetApi(19)
     public ScriptView(final Context context) {
         super(context);
         mContext = context;

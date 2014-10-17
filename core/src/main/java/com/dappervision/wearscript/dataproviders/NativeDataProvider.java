@@ -8,18 +8,15 @@ import android.hardware.SensorManager;
 import com.dappervision.wearscript.managers.DataManager;
 
 public class NativeDataProvider extends DataProvider implements SensorEventListener {
-    private Sensor sensor;
 
     public NativeDataProvider(DataManager parent, long samplePeriod, Sensor sensor) {
         super(parent, samplePeriod, sensor.getType(), sensor.getName());
-        this.sensor = sensor;
         // TODO(brandyn): We should base the sensor sample on the Type and selected sampling rate (requires calibration)
         parent.sensorManager().registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
     public void unregister() {
         parent.sensorManager().unregisterListener(this);
-        this.sensor = null;
         super.unregister();
     }
 
