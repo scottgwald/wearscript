@@ -35,13 +35,11 @@
         <activity
             android:name="com.dappervision.wearscript.ui.SetupActivity"
             android:clearTaskOnLaunch="true"
-            android:configChanges="keyboardHidden"
             android:exported="true"
             android:label="@string/setup"/>
         <activity
             android:name="com.dappervision.wearscript.ui.StopActivity"
             android:clearTaskOnLaunch="true"
-            android:configChanges="keyboardHidden"
             android:icon="@drawable/ic_stop"
             android:label="@string/stop"
             android:launchMode="singleInstance"/>
