@@ -8,8 +8,8 @@ android {
         applicationId "com.dappervision.android.wearscript"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 2
-        versionName "0.4.1"
+        versionCode 3
+        versionName "0.4.2"
     }
 
     compileOptions {
