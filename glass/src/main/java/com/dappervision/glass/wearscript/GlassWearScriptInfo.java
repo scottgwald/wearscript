@@ -21,10 +21,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
+import com.dappervision.glass.wearscript.controller.GlassScriptActivity;
 import com.dappervision.wearscript.Utils;
 import com.dappervision.wearscript.launcher.ApplicationInfo;
 import com.dappervision.wearscript.launcher.WearScriptInfo;
-import com.dappervision.wearscript.ui.ScriptActivity;
 import com.dappervision.wearscript.ui.SetupActivity;
 import com.dappervision.wearscript.ui.StopActivity;
 
@@ -58,7 +58,7 @@ public class GlassWearScriptInfo extends WearScriptInfo {
     public GlassWearScriptInfo(Context context, String title, String filePath) {
         this.title = title;
         intent = new Intent(Intent.ACTION_MAIN);
-        intent.setComponent(new ComponentName(context, ScriptActivity.class));
+        intent.setComponent(new ComponentName(context, GlassScriptActivity.class));
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(EXTRA_NAME, filePath);
@@ -70,7 +70,7 @@ public class GlassWearScriptInfo extends WearScriptInfo {
 
     public GlassWearScriptInfo playground(Context context) {
         GlassWearScriptInfo wsi = new GlassWearScriptInfo("Playground");
-        wsi.setActivity(new ComponentName(context, ScriptActivity.class), Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        wsi.setActivity(new ComponentName(context, GlassScriptActivity.class), Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return wsi;
     }
 

@@ -138,7 +138,7 @@ public class GlassBackgroundService extends BackgroundService {
     public void reset() {
         super.reset();
         if(getManagerManager().get(GestureManager.class) == null) {
-            getManagerManager().add(new GestureManager(activity, this));
+//            getManagerManager().add(new GestureManager(activity, this));
         }
     }
 }
