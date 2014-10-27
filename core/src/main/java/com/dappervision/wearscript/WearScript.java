@@ -40,7 +40,6 @@ import com.dappervision.wearscript.events.WarpSetAnnotationEvent;
 import com.dappervision.wearscript.events.WarpSetupHomographyEvent;
 import com.dappervision.wearscript.events.WifiEvent;
 import com.dappervision.wearscript.events.WifiScanEvent;
-import com.dappervision.wearscript.managers.AudioManager;
 import com.dappervision.wearscript.managers.BarcodeManager;
 import com.dappervision.wearscript.managers.BluetoothLEManager;
 import com.dappervision.wearscript.managers.BluetoothManager;
@@ -107,24 +106,7 @@ public abstract class WearScript {
         return this.sensors.get(name);
     }
 
-    @JavascriptInterface
-    public void saveAudioFile(String path,String fileName, String callback) {
-        Utils.eventBusPost(new CallbackRegistration(AudioManager.class, callback).setEvent(AudioManager.SAVE_AUDIO+fileName));
-        Utils.eventBusPost(new SaveAudioEvent(path,fileName));
-    }
 
-    @JavascriptInterface
-    public void playSound(int id) {
-        Utils.eventBusPost(new SoundEvent(AudioManager.SOUND,id));
-    }
-    @JavascriptInterface
-    public void pauseSound(int id) {
-        Utils.eventBusPost(new SoundEvent(AudioManager.PAUSE,id));
-    }
-    @JavascriptInterface
-    public void stopSound(int id) {
-        Utils.eventBusPost(new SoundEvent(AudioManager.STOP,id));
-    }
 
     @JavascriptInterface
     public void shutdown() {

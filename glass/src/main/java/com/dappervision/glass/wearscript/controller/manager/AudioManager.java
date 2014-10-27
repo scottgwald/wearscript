@@ -22,7 +22,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 
-class AudioManager extends Manager {
+public class AudioManager extends Manager {
     private android.media.AudioManager systemAudio;
     private SoundPool mSoundPool;
     private static int MAX_SAMPLES = 100;

@@ -1,5 +1,6 @@
 package com.dappervision.glass.wearscript;
 
+
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 
@@ -7,6 +8,7 @@ import com.dappervision.glass.wearscript.controller.manager.CameraManager;
 import com.dappervision.glass.wearscript.controller.manager.GestureManager;
 import com.dappervision.glass.wearscript.controller.manager.PicarusManager;
 import com.dappervision.glass.wearscript.controller.manager.WarpManager;
+import com.dappervision.glass.wearscript.controller.manager.AudioManager;
 import com.dappervision.glass.wearscript.events.CameraEvents;
 import com.dappervision.glass.wearscript.events.WarpModeEvent;
 import com.dappervision.wearscript.BackgroundService;
@@ -17,12 +19,33 @@ import com.dappervision.wearscript.events.CallbackRegistration;
 import com.dappervision.wearscript.events.PicarusEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessStreamEvent;
 import com.dappervision.wearscript.events.PicarusModelProcessWarpEvent;
+import com.dappervision.wearscript.events.SaveAudioEvent;
+import com.dappervision.wearscript.events.SoundEvent;
 
 public class GlassWearScript extends WearScript {
     private static final String TAG = "GlassWearScript";
 
     public GlassWearScript(BackgroundService bs) {
         super(bs);
+    }
+
+    @JavascriptInterface
+    public void saveAudioFile(String path,String fileName, String callback) {
+        Utils.eventBusPost(new CallbackRegistration(AudioManager.class, callback).setEvent(AudioManager.SAVE_AUDIO+fileName));
+        Utils.eventBusPost(new SaveAudioEvent(path,fileName));
+    }
+
+    @JavascriptInterface
+    public void playSound(int id) {
+        Utils.eventBusPost(new SoundEvent("SOUND",id));
+    }
+    @JavascriptInterface
+    public void pauseSound(int id) {
+        Utils.eventBusPost(new SoundEvent("PAUSE",id));
+    }
+    @JavascriptInterface
+    public void stopSound(int id) {
+        Utils.eventBusPost(new SoundEvent("STOP",id));
     }
 
     @JavascriptInterface
