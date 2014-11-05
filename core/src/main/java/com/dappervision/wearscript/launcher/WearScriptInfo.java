@@ -25,5 +25,9 @@ public abstract class WearScriptInfo {
 
     public abstract CharSequence getTitle();
 
+    public String toString() {
+        return getTitle().toString();
+    }
+
     public abstract int getId();
 }

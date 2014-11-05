@@ -229,6 +229,8 @@ public abstract class BackgroundService extends Service implements AudioRecord.O
                 if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) && getManagerManager().get(IBeaconManager.class) == null) {
                         getManagerManager().add(new IBeaconManager(this));
                 }
+            } else {
+                Log.w(TAG, "Resetting BackgroundService without a hosting activity");
             }
             updateActivityView(ActivityEvent.Mode.WEBVIEW);
         }

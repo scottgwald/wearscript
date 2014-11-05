@@ -1,7 +1,5 @@
 package com.dappervision.android.wearscript;
 
-import android.content.Context;
-import android.graphics.Typeface;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,31 +7,27 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.dappervision.wearscript.R;
 import com.dappervision.wearscript.launcher.InstalledScripts;
 import com.dappervision.wearscript.launcher.WearScriptInfo;
 
 public class WearScriptsAdapter extends ArrayAdapter<WearScriptInfo> {
-    private final Typeface mRobotoLight;
+
+    private final LayoutInflater mInflator;
 
     public WearScriptsAdapter(Fragment fragment, InstalledScripts scripts) {
         super(fragment.getActivity(), 0, scripts.getWearScripts());
-        mRobotoLight = Typeface.createFromAsset(fragment.getActivity().getAssets(), "fonts/Roboto-Light.ttf");
+        mInflator = fragment.getActivity().getLayoutInflater();
     }
 
     @Override
     public View getView(int position, View view, ViewGroup parent) {
-        final WearScriptInfo info = getItem(position);
 
         if (view == null) {
-            final LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.item_script, parent, false);
-            ((TextView) view.findViewById(R.id.script_name))
-                    .setTypeface(mRobotoLight);
+            view = mInflator.inflate(android.R.layout.simple_list_item_1, parent, false);
         }
 
-        final TextView textView = (TextView) view.findViewById(R.id.script_name);
-        textView.setText(info.getTitle());
+        TextView text = (TextView) view.findViewById(android.R.id.text1);
+        text.setText(getItem(position).toString());
         return view;
     }
 }

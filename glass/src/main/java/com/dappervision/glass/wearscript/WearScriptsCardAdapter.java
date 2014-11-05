@@ -1,7 +1,6 @@
 package com.dappervision.glass.wearscript;
 
 import android.app.Activity;
-import android.graphics.Typeface;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +8,13 @@ import android.widget.AdapterView;
 
 import com.dappervision.wearscript.launcher.InstalledScripts;
 import com.dappervision.wearscript.launcher.WearScriptInfo;
-import com.google.android.glass.app.Card;
+import com.google.android.glass.widget.CardBuilder;
 import com.google.android.glass.widget.CardScrollAdapter;
 
 import java.util.ArrayList;
 
 public class WearScriptsCardAdapter extends CardScrollAdapter {
     private final ArrayList<WearScriptInfo> scripts;
-    private final Typeface mRobotoLight;
     private final Activity activity;
     private ArrayList<View> array;
 
@@ -27,8 +25,6 @@ public class WearScriptsCardAdapter extends CardScrollAdapter {
         for (int i = 0; i < this.scripts.size(); i++) {
             array.add(cardFactory(this.scripts.get(i)));
         }
-
-        mRobotoLight = Typeface.createFromAsset(activity.getAssets(), "fonts/Roboto-Light.ttf");
     }
 
     @Override
@@ -61,9 +57,7 @@ public class WearScriptsCardAdapter extends CardScrollAdapter {
     }
 
     public View cardFactory(WearScriptInfo info) {
-        Card card = new Card(this.activity);
-        card.setText(info.getTitle().toString());
-        View v = card.getView();
+        View v = new CardBuilder(this.activity, CardBuilder.Layout.TEXT).setText(info.getTitle()).getView();
         v.setId(info.getId());
         return v;
     }

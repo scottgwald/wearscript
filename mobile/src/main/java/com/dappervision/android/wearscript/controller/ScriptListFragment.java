@@ -9,27 +9,26 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.dappervision.android.wearscript.MobileInstalledScripts;
+import com.dappervision.android.wearscript.R;
 import com.dappervision.android.wearscript.WearScriptsAdapter;
 import com.dappervision.wearscript.launcher.InstalledScripts;
 
 public class ScriptListFragment extends com.dappervision.wearscript.launcher.ScriptListFragment {
     public static ScriptListFragment newInstance() {
-        ScriptListFragment fragment = new ScriptListFragment();
-        return fragment;
+        return new ScriptListFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LinearLayout layout = new LinearLayout(getActivity());
-        mAdapterView = new ListView(getActivity());
+        View view = inflater.inflate(R.layout.fragment_script_list, container, false);
+        mAdapterView = (ListView) view.findViewById(R.id.fragment_script_list_list);
         mAdapterView.setAdapter(mListAdapter);
         mAdapterView.setOnItemClickListener(mOnItemClickListener);
-        layout.addView(mAdapterView);
-        return layout;
+        return view;
     }
 
     @Override
-    public ListAdapter buildListAdapter() {
+    public WearScriptsAdapter buildListAdapter() {
         return new WearScriptsAdapter(this, mInstalledScripts);
     }
 

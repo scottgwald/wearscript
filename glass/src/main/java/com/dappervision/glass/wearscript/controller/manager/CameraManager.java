@@ -56,11 +56,9 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
     private static final int MAGIC_TEXTURE_ID = 10;
     private Camera camera;
     private byte[] buffer;
-    private SurfaceTexture surfaceTexture;
     private CameraFrame cameraFrame;
     private long imagePeriod;
     private double lastImageSaveTime;
-    private FileObserver mFileObserver;
     private Handler mHandler;
     private boolean background;
     private int maxWidth, maxHeight;
@@ -172,7 +170,7 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
                     // use a Handler to keep WebView method from being called
                     // on FileObserver thread (bad form, elicits warning)
                     mHandler = new Handler();
-                    mFileObserver = new FileObserver(pictureFilePath) {
+                    FileObserver mFileObserver = new FileObserver(pictureFilePath) {
                         @Override
                         protected void finalize() {
                             super.finalize();
@@ -222,7 +220,7 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
     }
 
     public void onEvent(ScreenEvent e) {
-        if(e.isOn()) {
+        if (e.isOn()) {
             screenOn();
         } else {
             screenOff();
@@ -314,7 +312,7 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
 
     public void stateChange() {
         synchronized (this) {
-            Log.d(TAG, String.format("stateChange: mediaPauseCount: %d screenIsOn: %s activityVisible: %s streamOn: %s background: %s", mediaPauseCount , screenIsOn, activityVisible, streamOn, background));
+            Log.d(TAG, String.format("stateChange: mediaPauseCount: %d screenIsOn: %s activityVisible: %s streamOn: %s background: %s", mediaPauseCount, screenIsOn, activityVisible, streamOn, background));
             boolean cameraStream = streamOn && mediaPauseCount == 0;
             if (screenIsOn) {
                 if (activityVisible) {
@@ -352,16 +350,16 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
     private void setupCamera() {
         synchronized (this) {
             while (camera == null) {
-                for (int camIdx = 0; camIdx < Camera.getNumberOfCameras(); ++camIdx) {
-                    Log.d(TAG, "Trying to open camera with new open(" + Integer.valueOf(camIdx) + "): camflow");
+                for (int camIdx = 0; camIdx < Camera.getNumberOfCameras(); camIdx++) {
+                    Log.d(TAG, "Trying to open camera with new open(" + camIdx + "): camflow");
                     try {
                         Log.d(TAG, "Lifecycle: Camera attempting open: " + camIdx + "Thread: " + Thread.currentThread().getName() + ": camflow");
                         camera = Camera.open(camIdx);
                         Log.d(TAG, "Lifecycle: Camera opened: " + camIdx);
+                        break;
                     } catch (RuntimeException e) {
                         Log.e(TAG, "Lifecycle: Camera #" + camIdx + "failed to open: " + e.getLocalizedMessage());
                     }
-                    break;
                 }
                 if (camera != null) {
                     break;
@@ -380,48 +378,44 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
                 for (Camera.Size size : sizes) {
                     Log.d(TAG, "Supported Preview Size: " + size.height + " " + size.width);
                 }
-                if (sizes != null) {
-                    Size frameSize = null;
-                    Camera.Size sizeNearest = null;
-                    for (Camera.Size size : sizes) {
-                        sizeNearest = size;
-                        if (size.width <= this.maxWidth && size.height <= this.maxHeight) {
-                            break;
-                        }
-                    }
-                    if (sizeNearest == null)
-                        return;
-                    Log.d(TAG, "Selected: " + sizeNearest.width + " " + sizeNearest.height + " Max: " + this.maxWidth + " " + this.maxHeight);
-                    frameSize = new Size(sizeNearest.width, sizeNearest.height);
-                    params.setPreviewFormat(ImageFormat.NV21);
-                    Log.d(TAG, "Set preview size to " + Integer.valueOf((int) frameSize.width) + "x" + Integer.valueOf((int) frameSize.height) + ": camflow");
-                    params.setPreviewSize((int) frameSize.width, (int) frameSize.height);
-                    List<String> FocusModes = params.getSupportedFocusModes();
-                    if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
-                        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-                    }
-                    params.setPreviewFpsRange(30000, 30000);
-                    camera.setParameters(params);
-                    int frameWidth = params.getPreviewSize().width;
-                    int frameHeight = params.getPreviewSize().height;
-                    Log.d(TAG, "Frame Width" + frameWidth + " Frame Height: " + frameHeight + " camflow");
-                    cameraFrame = new CameraFrame(frameWidth, frameHeight);
-                    int size = frameWidth * frameHeight;
-                    size = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
-                    buffer = new byte[size];
 
-                    camera.addCallbackBuffer(buffer);
-                    camera.setPreviewCallbackWithBuffer(this);
-                    surfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
-                    camera.setPreviewTexture(surfaceTexture);
-                    // NOTE(brandyn): Hack to not output the broken first couple of images
-                    numSkip = 2;
-                    Log.d(TAG, "startPreview: camflow");
-                    camera.startPreview();
-                } else {
-                    Log.e(TAG, "getSupportedPreviewSizes is null!: camflow");
-                    camera = null;
+                Size frameSize = null;
+                Camera.Size sizeNearest = null;
+                for (Camera.Size size : sizes) {
+                    sizeNearest = size;
+                    if (size.width <= this.maxWidth && size.height <= this.maxHeight) {
+                        break;
+                    }
                 }
+                if (sizeNearest == null)
+                    return;
+                Log.d(TAG, "Selected: " + sizeNearest.width + " " + sizeNearest.height + " Max: " + this.maxWidth + " " + this.maxHeight);
+                frameSize = new Size(sizeNearest.width, sizeNearest.height);
+                params.setPreviewFormat(ImageFormat.NV21);
+                Log.d(TAG, "Set preview size to " + Integer.valueOf((int) frameSize.width) + "x" + Integer.valueOf((int) frameSize.height) + ": camflow");
+                params.setPreviewSize((int) frameSize.width, (int) frameSize.height);
+                List<String> FocusModes = params.getSupportedFocusModes();
+                if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                }
+                params.setPreviewFpsRange(30000, 30000);
+                camera.setParameters(params);
+                int frameWidth = params.getPreviewSize().width;
+                int frameHeight = params.getPreviewSize().height;
+                Log.d(TAG, "Frame Width" + frameWidth + " Frame Height: " + frameHeight + " camflow");
+                cameraFrame = new CameraFrame(frameWidth, frameHeight);
+                int size = frameWidth * frameHeight;
+                size = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
+                buffer = new byte[size];
+
+                camera.addCallbackBuffer(buffer);
+                camera.setPreviewCallbackWithBuffer(this);
+                SurfaceTexture surfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
+                camera.setPreviewTexture(surfaceTexture);
+                // NOTE(brandyn): Hack to not output the broken first couple of images
+                numSkip = 2;
+                Log.d(TAG, "startPreview: camflow");
+                camera.startPreview();
             } catch (Exception e) {
                 e.printStackTrace();
             }
