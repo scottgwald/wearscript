@@ -21,7 +21,6 @@ import com.dappervision.wearscript.events.WarpHEvent;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
 
 import java.util.List;
@@ -34,7 +33,6 @@ public class ConnectionManager extends Manager {
     private static final String TAG = "ConnectionManager";
     private static final String ONCONNECT = "ONCONNECT";
     private static final String LISTEN_CHAN = "subscriptions";
-    MessagePack msgpack = new MessagePack();
     private String GIST_LIST_SYNC_CHAN, GIST_GET_SYNC_CHAN;
     private WearScriptConnectionImpl connection;
     private TreeSet<String> testChannels;  // NOTE(brandyn): Hack until we normalize the Java lib

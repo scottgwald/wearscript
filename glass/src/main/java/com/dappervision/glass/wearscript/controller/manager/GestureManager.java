@@ -23,17 +23,18 @@ public class GestureManager extends Manager {
     }
 }
 
-class MyGestureDetector extends GestureDetector implements GestureDetector.BaseListener, GestureDetector.FingerListener, GestureDetector.ScrollListener, GestureDetector.TwoFingerScrollListener {
+class MyGestureDetector implements GestureDetector.BaseListener, GestureDetector.FingerListener, GestureDetector.ScrollListener, GestureDetector.TwoFingerScrollListener {
     private static final String TAG = "MyGestureDetector";
+    private final GestureDetector mGestureDetector;
     private GestureManager parent;
 
     MyGestureDetector(GestureManager parent, Context context) {
-        super(context);
         this.parent = parent;
-        setBaseListener(this);
-        setFingerListener(this);
-        setScrollListener(this);
-        setTwoFingerScrollListener(this);
+        mGestureDetector = new GestureDetector(context);
+        mGestureDetector.setBaseListener(this);
+        mGestureDetector.setFingerListener(this);
+        mGestureDetector.setScrollListener(this);
+        mGestureDetector.setTwoFingerScrollListener(this);
     }
 
     @Override
@@ -58,6 +59,10 @@ class MyGestureDetector extends GestureDetector implements GestureDetector.BaseL
     public boolean onTwoFingerScroll(float v, float v2, float v3) {
         parent.makeCall("onTwoFingerScroll", String.format("%f, %f, %f", v, v2, v3));
         return false;
+    }
+
+    public void onMotionEvent(MotionEvent e) {
+        mGestureDetector.onMotionEvent(e);
     }
 }
 

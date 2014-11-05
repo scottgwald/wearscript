@@ -19,6 +19,7 @@ public abstract class ScriptListFragment extends Fragment {
             updateUI();
         }
     };
+
     protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -26,6 +27,7 @@ public abstract class ScriptListFragment extends Fragment {
             mCallbacks.onScriptSelected(info);
         }
     };
+
     //private static final String TAG = "ScriptListFragment";
     protected InstalledScripts mInstalledScripts;
     protected AdapterView mAdapterView;

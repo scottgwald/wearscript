@@ -27,11 +27,6 @@ public class AudioManager extends Manager {
     private SoundPool mSoundPool;
     private static int MAX_SAMPLES = 100;
     public static final String SAVE_AUDIO= "SAVE_AUDIO";
-    public static final String SOUND= "SOUND";
-    public static final String STOP= "STOP";
-    public static final String PAUSE= "PAUSE";
-
-
 
 
     public AudioManager(BackgroundService service) {
@@ -112,25 +107,35 @@ public class AudioManager extends Manager {
 
     public void onEvent(SoundEvent event) {
         String type = event.getType();
-        if (type.equals("TAP"))
-            systemAudio.playSoundEffect(Sounds.TAP);
-        else if (type.equals("DISALLOWED"))
-            systemAudio.playSoundEffect(Sounds.DISALLOWED);
-        else if (type.equals("DISMISSED"))
-            systemAudio.playSoundEffect(Sounds.DISMISSED);
-        else if (type.equals("ERROR"))
-            systemAudio.playSoundEffect(Sounds.ERROR);
-        else if (type.equals("SELECTED"))
-            systemAudio.playSoundEffect(Sounds.SELECTED);
-        else if (type.equals("SUCCESS"))
-            systemAudio.playSoundEffect(Sounds.SUCCESS);
-        else if (type.equals(SOUND))
-            this.playSound(event.getId());
-        else if (type.equals(STOP))
-            this.stopSound(event.getId());
-        else if (type.equals(PAUSE))
-            this.pauseSound(event.getId());
-
+        switch (type) {
+            case "TAP":
+                systemAudio.playSoundEffect(Sounds.TAP);
+                break;
+            case "DISALLOWED":
+                systemAudio.playSoundEffect(Sounds.DISALLOWED);
+                break;
+            case "DISMISSED":
+                systemAudio.playSoundEffect(Sounds.DISMISSED);
+                break;
+            case "ERROR":
+                systemAudio.playSoundEffect(Sounds.ERROR);
+                break;
+            case "SELECTED":
+                systemAudio.playSoundEffect(Sounds.SELECTED);
+                break;
+            case "SUCCESS":
+                systemAudio.playSoundEffect(Sounds.SUCCESS);
+                break;
+            case "SOUND":
+                this.playSound(event.getId());
+                break;
+            case "STOP":
+                this.stopSound(event.getId());
+                break;
+            case "PAUSE":
+                this.pauseSound(event.getId());
+                break;
+        }
     }
 
     private void stopSound(int id) {
@@ -143,13 +148,13 @@ public class AudioManager extends Manager {
 
     private void playSound(int id) {
 
-              mSoundPool.stop(id);
-              mSoundPool.play(id,
-                                 1 /* leftVolume */,
-                                 1 /* rightVolume */,
-                                 1,
-                                 0 /* loop */,
-                                 1f /* rate */);
+         mSoundPool.stop(id);
+         mSoundPool.play(id,
+                            1 /* leftVolume */,
+                            1 /* rightVolume */,
+                            1,
+                            0 /* loop */,
+                            1f /* rate */);
     }
 
     public void reset() {

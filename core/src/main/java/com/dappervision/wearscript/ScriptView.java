@@ -1,5 +1,7 @@
 package com.dappervision.wearscript;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.view.View;
@@ -11,20 +13,21 @@ import com.dappervision.wearscript.events.SendEvent;
 
 public abstract class ScriptView extends WebView {
     private static final String TAG = "ScriptView";
-    protected final BackgroundService context;
+    protected final Context mContext;
 
 
     protected boolean mPaused;
 
-    public ScriptView(final BackgroundService context) {
+    @TargetApi(19)
+    public ScriptView(final Context context) {
         super(context);
+        mContext = context;
         mPaused = false;
         // NOTE(brandyn): Fix for KK error: http://stackoverflow.com/questions/20675554/webview-rendering-issue-in-android-kitkat
         //setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         // Enable localStorage in webview
         getSettings().setAllowUniversalAccessFromFileURLs(true);
         getSettings().setDomStorageEnabled(true);
-        this.context = context;
         clearCache(true);
         setWebChromeClient(new WebChromeClient() {
             public boolean onConsoleMessage(ConsoleMessage cm) {

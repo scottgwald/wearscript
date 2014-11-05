@@ -1,5 +1,6 @@
 package com.dappervision.wearscript.managers;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Base64;
 
@@ -273,9 +275,10 @@ public class BluetoothManager extends Manager {
         Log.d(TAG, "Connected");
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void onEventAsync(BluetoothBondEvent e) {
         setup();
-        BluetoothDevice device = (BluetoothDevice)mDevices.get(e.getAddress());
+        BluetoothDevice device = mDevices.get(e.getAddress());
 
         if (device == null) {
             Log.w(TAG, "Bond device not found: " + e.getAddress());
