@@ -16,10 +16,18 @@ public class SendEvent {
     private Object[] data;
     private byte[] dataMsgpack;
     private MessagePack msgpack;
+    private String timestampValue = "";
 
     public SendEvent(String channel, byte[] data) {
         this.channel = channel;
         this.dataMsgpack = data;
+    }
+
+    public SendEvent(String channel, String timestampValue, Object... data) {
+        this.channel = channel;
+        this.data = data;
+        this.timestampValue = timestampValue;
+        this.msgpack = new MessagePack();
     }
 
     public SendEvent(String channel, Object... data) {
@@ -28,10 +36,20 @@ public class SendEvent {
         this.msgpack = new MessagePack();
     }
 
+    public boolean hasTimestampValue(){
+        return !this.timestampValue.contentEquals("");
+    }
+
+    public String getTimestampValue(){
+        return this.timestampValue;
+    }
+
     public byte[] getData() {
         if (dataMsgpack == null) {
             List<Value> data = new ArrayList<Value>();
             data.add(ValueFactory.createRawValue(channel));
+            if(hasTimestampValue())
+                data.add(ValueFactory.createRawValue(getTimestampValue()));
             for (Object i : this.data) {
                 Class c = i.getClass();
                 if (c.equals(String.class))

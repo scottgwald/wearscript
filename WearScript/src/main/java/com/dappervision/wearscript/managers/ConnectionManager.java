@@ -145,7 +145,10 @@ public class ConnectionManager extends Manager {
             Log.d(TAG, "Channel doesn't exist: " + channel);
             return;
         }
-        connection.publish(channel, e.getData());
+        if(e.hasTimestampValue())
+            connection.publish(channel, e.getData());
+        else
+            connection.publish(channel, e.getData());
     }
 
     public void onEventBackgroundThread(ServerConnectEvent e) {

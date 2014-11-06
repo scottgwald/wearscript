@@ -205,17 +205,18 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             // TODO(brandyn): Move this timing logic into the camera manager
             Log.d(TAG, "handeImage Thread: " + Thread.currentThread().getName());
             byte[] frameJPEG = null;
+            long timestampValue = System.currentTimeMillis();
             if (dataLocal) {
                 frameJPEG = frame.getJPEG();
                 // TODO(brandyn): We can improve timestamp precision by capturing it pre-encoding
-                Utils.SaveData(frameJPEG, "data/", true, ".jpg");
+                Utils.SaveData(frameJPEG, "data/", true, ".jpg", timestampValue);
             }
             ConnectionManager cm = (ConnectionManager) getManager(ConnectionManager.class);
             String channel = cm.subchannel(ConnectionManager.IMAGE_SUBCHAN);
             if (dataRemote && cm.exists(channel)) {
                 if (frameJPEG == null)
-                    frameJPEG = frame.getJPEG();
-                Utils.eventBusPost(new SendEvent(channel, System.currentTimeMillis() / 1000., ValueFactory.createRawValue(frameJPEG)));
+                    frameJPEG = frame.getJPEG();//System.currentTimeMillis() / 1000.
+                Utils.eventBusPost(new SendEvent(channel, Long.toString(timestampValue), ValueFactory.createRawValue(frameJPEG)));
             }
             // NOTE(brandyn): Done from here because the frame must have "done" called on it
             ((WarpManager) getManager(WarpManager.class)).processFrame(frameEvent);

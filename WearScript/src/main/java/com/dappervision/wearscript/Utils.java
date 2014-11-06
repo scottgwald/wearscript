@@ -43,6 +43,34 @@ public class Utils {
             return null;
         }
     }
+    public static String SaveData(byte[] data, String path, boolean timestamp, String suffix, long timestampValue) {
+        try {
+            try {
+                // TODO(brandyn): Ensure that suffix can't be modified to get out of the directory
+                if (suffix.contains("/") || suffix.contains("\\")) {
+                    Log.e(TAG, "Suffix contains invalid character: " + suffix);
+                    return null;
+                }
+                File dir = new File(dataPath() + path);
+                dir.mkdirs();
+                File file;
+                if (timestamp) //System.currentTimeMillis()
+                    file = new File(dir, Long.toString(timestampValue) + suffix);
+                else
+                    file = new File(dir, suffix);
+                Log.d(TAG, "Lifecycle: SaveData: " + file.getAbsolutePath());
+                FileOutputStream outputStream = new FileOutputStream(file);
+                outputStream.write(data);
+                outputStream.close();
+                return file.getAbsolutePath();
+            } catch (Exception e) {
+                return null;
+            }
+        } catch (Exception e) {
+            Log.e("SaveData", "Bad disc");
+            return null;
+        }
+    }
 
     static public String dataPath() {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/wearscript/";
