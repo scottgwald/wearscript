@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dappervision.wearscript"
+    package="com.dappervision.wearscript_tagalong"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -51,32 +51,32 @@
         android:allowBackup="true"
         android:icon="@drawable/launcher"
         android:label="@string/app_name">
-        <activity android:name=".ui.MediaActivity"
+        <activity android:name="com.dappervision.wearscript_tagalong.ui.MediaActivity"
             ></activity>
         <activity
-            android:name=".ui.ScriptActivity"
+            android:name="com.dappervision.wearscript_tagalong.ui.ScriptActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"></activity>
         <activity
-            android:name=".ui.QRActivity"
+            android:name="com.dappervision.wearscript_tagalong.ui.QRActivity"
             android:configChanges="keyboardHidden"
             android:label="WearScript QR"></activity>
         <activity
-            android:name=".ui.SetupActivity"
+            android:name="com.dappervision.wearscript_tagalong.ui.SetupActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="keyboardHidden"
             android:exported="true"
             android:label="@string/setup"></activity>
         <activity
-            android:name=".ui.StopActivity"
+            android:name="com.dappervision.wearscript_tagalong.ui.StopActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="keyboardHidden"
             android:icon="@drawable/ic_stop"
             android:label="@string/stop"
             android:launchMode="singleInstance"></activity>
         <activity
-            android:name=".launcher.MainActivity"
+            android:name="com.dappervision.wearscript_tagalong.launcher.MainActivity"
             android:configChanges="keyboardHidden"
             android:label="@string/app_name"
             android:launchMode="singleInstance">
@@ -90,12 +90,12 @@
                 android:resource="@xml/voice_trigger" />
         </activity>
         <activity
-            android:name=".ui.MenuActivity"
+            android:name="com.dappervision.wearscript_tagalong.ui.MenuActivity"
             android:enabled="true"
             android:label="@string/app_name"
             android:theme="@style/MenuTheme"></activity>
         <receiver
-            android:name=".launcher.StartAtBootReceiver"
+            android:name="com.dappervision.wearscript_tagalong.launcher.StartAtBootReceiver"
             android:enabled="true"
             android:exported="true"
             android:label="StartMyServiceAtBootReceiver">
@@ -104,6 +104,6 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="com.dappervision.wearscript.BackgroundService" />
+        <service android:name="com.dappervision.wearscript_tagalong.BackgroundService" />
     </application>
 </manifest>

@@ -63,6 +63,6 @@ Now we build/install the client
 4: Starting the Client
 -----------------------
 While you have the webapp open, start the client using one of the following methods
-* To start with adb use "adb shell am start -n com.dappervision.wearscript/.MainActivity"
+* To start with adb use "adb shell am start -n com.dappervision.wearscript_tagalong/.MainActivity"
 * To start with Android Studio after the project has been imported (see Install Client (Source)) select Run->Run 'WearScript'. 
 * To start with "Ok Glass" say "wear a script"
