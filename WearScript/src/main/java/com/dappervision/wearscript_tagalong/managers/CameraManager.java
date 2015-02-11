@@ -19,6 +19,7 @@ import com.dappervision.wearscript_tagalong.events.CameraEvents;
 import com.dappervision.wearscript_tagalong.events.OpenCVLoadEvent;
 import com.dappervision.wearscript_tagalong.events.OpenCVLoadedEvent;
 import com.dappervision.wearscript_tagalong.events.StartActivityEvent;
+import com.dappervision.wearscript_tagalong.events.TimeStampEvent;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -223,7 +224,7 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
                 Log.w(TAG, "No image after FileObserver saw write?");
                 return;
             }
-            makeCall(PHOTO, imageData);
+            makeCall(PHOTO, imageData,Long.toString(System.currentTimeMillis()));
             jsCallbacks.remove(PHOTO);
         }
 
@@ -389,7 +390,7 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
                     surfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
                     camera.setPreviewTexture(surfaceTexture);
                     // NOTE(brandyn): Hack to not output the broken first couple of images
-                    numSkip = 2;
+                    numSkip = 10; //changing number to skip from 2 -> 10
                     Log.d(TAG, "startPreview: camflow");
                     camera.startPreview();
                 } else {
@@ -402,8 +403,8 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
         }
     }
 
-    protected void makeCall(String key, byte[] frameJPEG) {
-        makeCall(key, "'" + Base64.encodeToString(frameJPEG, Base64.NO_WRAP) + "'");
+    protected void makeCall(String key, byte[] frameJPEG, String timestamp) {
+        makeCall(key, String.format("'%s','%s'", Base64.encodeToString(frameJPEG, Base64.NO_WRAP), timestamp));
     }
 
     public void onPreviewFrame(byte[] data, Camera camera) {
@@ -425,12 +426,17 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
             Log.d(TAG, "CamPath: Got frame");
             lastImageSaveTime = System.nanoTime();
             cameraFrame.setFrame(data);
+
+            Log.d(TAG, "CameraFrame Sent: " + System.nanoTime());
+            long timestamp =System.currentTimeMillis();
+            Utils.eventBusPost(new TimeStampEvent(Long.toString(timestamp)));
+            Utils.eventBusPost(new CameraEvents.Frame(cameraFrame, this,timestamp));
+
             if (jsCallbacks.containsKey(CameraManager.LOCAL)) {
                 Log.d(TAG, "Image JS Callback");
-                makeCall(CameraManager.LOCAL, cameraFrame.getJPEG());
+                makeCall(CameraManager.LOCAL, cameraFrame.getJPEG(),Long.toString(timestamp));
             }
-            Log.d(TAG, "CameraFrame Sent: " + System.nanoTime());
-            Utils.eventBusPost(new CameraEvents.Frame(cameraFrame, this));
+
         }
     }
 

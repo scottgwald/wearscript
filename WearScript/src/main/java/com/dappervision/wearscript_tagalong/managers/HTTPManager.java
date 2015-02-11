@@ -9,6 +9,7 @@ import android.util.Base64;
 import com.dappervision.wearscript_tagalong.BackgroundService;
 import com.dappervision.wearscript_tagalong.events.POSTEvent;
 import com.dappervision.wearscript_tagalong.events.SoundEvent;
+import com.dappervision.wearscript_tagalong.events.TimeStampEvent;
 import com.google.android.glass.media.Sounds;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -25,6 +26,7 @@ public class HTTPManager extends Manager {
 
     Context context;
     public static final String POST = "POST";
+    private String latestPictureTimestamp ="";
 
     public HTTPManager(BackgroundService service) {
         super(service);
@@ -32,12 +34,15 @@ public class HTTPManager extends Manager {
         reset();
     }
 
+    public void onEvent(TimeStampEvent e){
+        latestPictureTimestamp = e.getTimestamp();
+    }
     public void onEvent(POSTEvent event) {
         String filePath = event.getPath();
         String address = event.getAddress();
-
         Ion.with(context).load(address)
                 .setBodyParameter("image", filePath)
+                .setBodyParameter("timestamp",latestPictureTimestamp)
                 .asString().setCallback(new FutureCallback<String>() {
             @Override
             public void onCompleted(Exception e, String result) {

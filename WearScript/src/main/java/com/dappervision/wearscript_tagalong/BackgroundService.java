@@ -30,6 +30,7 @@ import com.dappervision.wearscript_tagalong.events.ScreenEvent;
 import com.dappervision.wearscript_tagalong.events.ScriptEvent;
 import com.dappervision.wearscript_tagalong.events.SendEvent;
 import com.dappervision.wearscript_tagalong.events.ShutdownEvent;
+import com.dappervision.wearscript_tagalong.events.TimeStampEvent;
 import com.dappervision.wearscript_tagalong.events.WifiScanResultsEvent;
 import com.dappervision.wearscript_tagalong.handlers.HandlerHandler;
 import com.dappervision.wearscript_tagalong.managers.CameraManager;
@@ -205,7 +206,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             // TODO(brandyn): Move this timing logic into the camera manager
             Log.d(TAG, "handeImage Thread: " + Thread.currentThread().getName());
             byte[] frameJPEG = null;
-            long timestampValue = System.currentTimeMillis();
+            long timestampValue = frameEvent.getTimestamp();
             if (dataLocal) {
                 frameJPEG = frame.getJPEG();
                 // TODO(brandyn): We can improve timestamp precision by capturing it pre-encoding
@@ -216,7 +217,7 @@ public class BackgroundService extends Service implements AudioRecord.OnRecordPo
             if (dataRemote && cm.exists(channel)) {
                 if (frameJPEG == null)
                     frameJPEG = frame.getJPEG();//System.currentTimeMillis() / 1000.
-                Utils.eventBusPost(new SendEvent(channel, Long.toString(timestampValue), ValueFactory.createRawValue(frameJPEG)));
+                //Utils.eventBusPost(new SendEvent(channel, Long.toString(timestampValue), ValueFactory.createRawValue(frameJPEG))); //shutting down channel to improve performance
             }
             // NOTE(brandyn): Done from here because the frame must have "done" called on it
             ((WarpManager) getManager(WarpManager.class)).processFrame(frameEvent);

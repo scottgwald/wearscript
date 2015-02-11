@@ -40,10 +40,12 @@ public class CameraEvents {
     public static class Frame {
         private CameraManager.CameraFrame cameraFrame;
         private CameraManager cm;
+        private long timestamp;
 
-        public Frame(CameraManager.CameraFrame cameraFrame, CameraManager cm) {
+        public Frame(CameraManager.CameraFrame cameraFrame, CameraManager cm,long timestamp) {
             this.cameraFrame = cameraFrame;
             this.cm = cm;
+            this.timestamp = timestamp;
         }
 
         public CameraManager.CameraFrame getCameraFrame() {
@@ -52,6 +54,10 @@ public class CameraEvents {
 
         public void done() {
             cm.addCallbackBuffer();
+        }
+
+        public long getTimestamp(){
+            return timestamp;
         }
 
     }
