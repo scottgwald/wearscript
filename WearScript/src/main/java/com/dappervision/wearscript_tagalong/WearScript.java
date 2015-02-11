@@ -20,6 +20,7 @@ import com.dappervision.wearscript_tagalong.events.LiveCardEvent;
 import com.dappervision.wearscript_tagalong.events.LiveCardSetMenuEvent;
 import com.dappervision.wearscript_tagalong.events.MediaActionEvent;
 import com.dappervision.wearscript_tagalong.events.MediaEvent;
+import com.dappervision.wearscript_tagalong.events.POSTEvent;
 import com.dappervision.wearscript_tagalong.events.PebbleMessageEvent;
 import com.dappervision.wearscript_tagalong.events.PicarusBenchmarkEvent;
 import com.dappervision.wearscript_tagalong.events.PicarusEvent;
@@ -49,6 +50,7 @@ import com.dappervision.wearscript_tagalong.managers.CameraManager;
 import com.dappervision.wearscript_tagalong.managers.ConnectionManager;
 import com.dappervision.wearscript_tagalong.managers.EyeManager;
 import com.dappervision.wearscript_tagalong.managers.GestureManager;
+import com.dappervision.wearscript_tagalong.managers.HTTPManager;
 import com.dappervision.wearscript_tagalong.managers.OpenCVManager;
 import com.dappervision.wearscript_tagalong.managers.PicarusManager;
 import com.dappervision.wearscript_tagalong.managers.WarpManager;
@@ -128,6 +130,12 @@ public class WearScript {
     public void shutdown() {
         //Global event
         Utils.getEventBus().post(new ShutdownEvent());
+    }
+
+    @JavascriptInterface
+    public void postPictureToServer(String filePath, String POSTAddress, String callback){
+        Utils.eventBusPost(new CallbackRegistration(HTTPManager.class, callback).setEvent(HTTPManager.POST));
+        Utils.getEventBus().post(new POSTEvent(filePath,POSTAddress,callback));
     }
 
     @JavascriptInterface

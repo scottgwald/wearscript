@@ -661,9 +661,7 @@ function base64encode(data) { // @param ByteArray:
     }
 })();
 
-_ie && document.write('<script type="text/vbscript">\
-Function vblen(b)vblen=LenB(b.responseBody)End Function\n\
-Function vbstr(b)vbstr=CStr(b.responseBody)+chr(0)End Function</'+'script>');
+_ie && document.write('<script type="text/vbscript">Function vblen(b)vblen=LenB(b.responseBody)End Function Function vbstr(b)vbstr=CStr(b.responseBody)+chr(0)End Function</'+'script>');
 
 })(this);
 function WearScript() {
@@ -984,6 +982,10 @@ function WearScript() {
     this.saveAudioFile = function (path,filename,callback) {
         callback = this._funcfix(callback);
         WSRAW.saveAudioFile(path,filename,this._funcwrap(callback));
+    }
+    this.postPictureToServer = function(path,address,callback) {
+        callback = this._funcfix(callback);
+        WSRAW.postPictureToServer(path,address,this._funcwrap(callback));
     }
     this.serverConnect = function (server, callback) {
         callback = this._funcfix(callback);

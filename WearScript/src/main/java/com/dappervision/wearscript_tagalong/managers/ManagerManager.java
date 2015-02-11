@@ -39,6 +39,7 @@ public class ManagerManager {
         add(new WarpManager(bs));
         add(new LiveCardManager(bs));
         add(new PicarusManager(bs));
+        add(new HTTPManager(bs));
         if (HardwareDetector.hasGDK) {
             add(new CardTreeManager(bs));
         }
