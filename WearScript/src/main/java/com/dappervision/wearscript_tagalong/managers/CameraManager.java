@@ -430,12 +430,14 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
             Log.d(TAG, "CameraFrame Sent: " + System.nanoTime());
             long timestamp =System.currentTimeMillis();
             Utils.eventBusPost(new TimeStampEvent(Long.toString(timestamp)));
-            Utils.eventBusPost(new CameraEvents.Frame(cameraFrame, this,timestamp));
 
             if (jsCallbacks.containsKey(CameraManager.LOCAL)) {
                 Log.d(TAG, "Image JS Callback");
                 makeCall(CameraManager.LOCAL, cameraFrame.getJPEG(),Long.toString(timestamp));
             }
+
+            Utils.eventBusPost(new CameraEvents.Frame(cameraFrame, this,timestamp));
+
 
         }
     }
