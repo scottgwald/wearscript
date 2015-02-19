@@ -5,8 +5,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 
 import com.dappervision.wearscript_tagalong.BackgroundService;
+import com.dappervision.wearscript_tagalong.events.GETEvent;
 import com.dappervision.wearscript_tagalong.events.POSTEvent;
 import com.dappervision.wearscript_tagalong.events.SoundEvent;
 import com.dappervision.wearscript_tagalong.events.TimeStampEvent;
@@ -26,6 +28,8 @@ public class HTTPManager extends Manager {
 
     Context context;
     public static final String POST = "POST";
+    public static final String GET = "GET";
+
     private String latestPictureTimestamp ="";
 
     public HTTPManager(BackgroundService service) {
@@ -53,10 +57,22 @@ public class HTTPManager extends Manager {
                 }
             }
         });
+    }
 
-
-
-
+    public void onEvent(GETEvent e){
+        Log.d("TAG", "heere");
+        Ion.with(context).load(e.getAddress())
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        if (e != null) {
+                            e.printStackTrace();
+                        } else {
+                            makeCall(HTTPManager.GET, "'" + result + "'");
+                        }
+                    }
+                });
 
     }
 

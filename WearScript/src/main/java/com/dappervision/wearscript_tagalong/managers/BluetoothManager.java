@@ -2,12 +2,15 @@ package com.dappervision.wearscript_tagalong.managers;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Base64;
 
@@ -17,16 +20,22 @@ import com.dappervision.wearscript_tagalong.events.BluetoothBondEvent;
 import com.dappervision.wearscript_tagalong.events.BluetoothModeEvent;
 import com.dappervision.wearscript_tagalong.events.BluetoothWriteEvent;
 import com.dappervision.wearscript_tagalong.events.CallbackRegistration;
+import com.dappervision.wearscript_tagalong.events.PhoneConnectEvent;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.String;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 
 public class BluetoothManager extends Manager {
+    public static final String DATA = "DATA";
     public static final String LIST = "LIST";
     public static final String READ = "READ:";
     public static final String DISCOVERY_START = "DISCOVERY_START";
@@ -37,6 +46,12 @@ public class BluetoothManager extends Manager {
     static String TAG = "BluetoothManager";
     private BluetoothAdapter mBluetoothAdapter;
     private boolean isSetup;
+    private ConnectedThread mConnectedThread;
+    private AcceptThread mAcceptThread;
+    public static final int STATE_CONNECTION_STARTED = 0;
+    public static final int STATE_CONNECTION_LOST = 1;
+    public static final int READY_TO_CONN = 2;
+
 
     // Create a BroadcastReceiver for ACTION_FOUND
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -97,6 +112,13 @@ public class BluetoothManager extends Manager {
         final String actionPinRequested = "android.bluetooth.device.action.PAIRING_REQUEST";
         IntentFilter intentFilterPinRequested = new IntentFilter(actionPinRequested);
         bs.registerReceiver(mReceiverRequiresPin, intentFilterPinRequested);
+    }
+
+    public void onEvent(PhoneConnectEvent e){
+        setup();
+        if(mAcceptThread == null)
+            mAcceptThread = new AcceptThread();
+        mAcceptThread.start();
     }
 
     public void shutdown() {
@@ -305,6 +327,141 @@ public class BluetoothManager extends Manager {
         } catch (IOException e1) {
             closeDevice(e.getAddress());
             Log.e(TAG, "Cannot write");
+        }
+    }
+
+    private class AcceptThread extends Thread {
+        private BluetoothServerSocket mmServerSocket;
+
+        public AcceptThread() {
+            BluetoothServerSocket tmp = null;
+            try {
+                tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("phone_connection",UUID.fromString("05f2934c-1e81-4554-bb08-44aa761afbfb") );
+            } catch (IOException e) { }
+            mmServerSocket = tmp;
+        }
+
+        public void run() {
+            Log.e(TAG,"Running");
+            BluetoothSocket socket = null;
+            // Keep listening until exception occurs or a socket is returned
+            while (true) {
+
+                try {
+                    socket = mmServerSocket.accept();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    break;
+                }
+                // If a connection was accepted
+                if (socket != null) {
+                    try {
+                        mmServerSocket.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    // Do work to manage the connection (in a separate thread)
+                    manageConnectedSocket(socket);
+                    break;
+                }
+            }
+        }
+
+        /** Will cancel the listening socket, and cause the thread to finish */
+        public void cancel() {
+            try {
+                mmServerSocket.close();
+            } catch (IOException e) { }
+        }
+    }
+
+    private void manageConnectedSocket(BluetoothSocket socket) {
+        // start our connection thread
+        mConnectedThread = new ConnectedThread(socket);
+        mConnectedThread.start();
+        boolean reading = true;
+
+    }
+
+    private class ConnectedThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final InputStream mmInStream;
+        private final OutputStream mmOutStream;
+        private boolean reading = true;
+
+        public ConnectedThread(BluetoothSocket socket) {
+            Log.d(TAG, "create ConnectedThread");
+            mmSocket = socket;
+            InputStream tmpIn = null;
+            OutputStream tmpOut = null;
+
+            // Get the BluetoothSocket input and output streams
+            try {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            } catch (IOException e) {
+                Log.e(TAG, "temp sockets not created", e);
+            }
+            mmInStream = tmpIn;
+            mmOutStream = tmpOut;
+        }
+
+        public void run() {
+            Log.i(TAG, "BEGIN mConnectedThread");
+            int bytes;
+
+            // Keep listening to the InputStream while connected
+            while (reading) {
+                try {
+
+                    int availableBytes = mmInStream.available();
+                    if(availableBytes > 0) {
+                        byte[] buffer = new byte[availableBytes];  // buffer store for the stream
+                        bytes = mmInStream.read(buffer);
+
+                        if (bytes > 0) {
+                            makeCall(BluetoothManager.DATA, "'" + new String(buffer) + "'");
+                            Log.d("MESSAGE", new String(buffer));
+                        }
+
+                    }
+
+                    //byte[] blah = ("System Time:" +System.currentTimeMillis()).getBytes();
+                } catch (Exception e) {
+                    Log.e(TAG, "disconnected", e);
+                    connectionLost();
+                }
+            }
+        }
+        public void connectionLost() {
+
+            reading = false;
+            cancel();
+
+
+        }
+        /**
+         * Write to the connected OutStream.
+         * @param buffer  The bytes to write
+         */
+        public void write(byte[] buffer) {
+            try {
+                mmOutStream.write(buffer);
+            } catch (IOException e) {
+                Log.e(TAG, "Exception during write", e);
+                connectionLost();
+            }
+        }
+
+        public void cancel() {
+            try {
+                Log.d("HERE","Closing thread");
+                mmSocket.close();
+
+            } catch (IOException e) {
+                Log.e(TAG, "close() of connect socket failed", e);
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ import com.dappervision.wearscript_tagalong.events.ChannelSubscribeEvent;
 import com.dappervision.wearscript_tagalong.events.ChannelUnsubscribeEvent;
 import com.dappervision.wearscript_tagalong.events.ControlEvent;
 import com.dappervision.wearscript_tagalong.events.DataLogEvent;
+import com.dappervision.wearscript_tagalong.events.GETEvent;
 import com.dappervision.wearscript_tagalong.events.GistSyncEvent;
 import com.dappervision.wearscript_tagalong.events.JsCall;
 import com.dappervision.wearscript_tagalong.events.LiveCardEvent;
@@ -22,6 +23,7 @@ import com.dappervision.wearscript_tagalong.events.MediaActionEvent;
 import com.dappervision.wearscript_tagalong.events.MediaEvent;
 import com.dappervision.wearscript_tagalong.events.POSTEvent;
 import com.dappervision.wearscript_tagalong.events.PebbleMessageEvent;
+import com.dappervision.wearscript_tagalong.events.PhoneConnectEvent;
 import com.dappervision.wearscript_tagalong.events.PicarusBenchmarkEvent;
 import com.dappervision.wearscript_tagalong.events.PicarusEvent;
 import com.dappervision.wearscript_tagalong.events.PicarusModelCreateEvent;
@@ -136,6 +138,13 @@ public class WearScript {
     public void postPictureToServer(String filePath, String POSTAddress, String callback){
         Utils.eventBusPost(new CallbackRegistration(HTTPManager.class, callback).setEvent(HTTPManager.POST));
         Utils.getEventBus().post(new POSTEvent(filePath,POSTAddress,callback));
+    }
+
+    @JavascriptInterface
+    public void getCardFromServer(String cardId,String POSTAddress, String callback){
+        Log.d("HERE","GOT CALL");
+        Utils.eventBusPost(new CallbackRegistration(HTTPManager.class, callback).setEvent(HTTPManager.GET));
+        Utils.getEventBus().post(new GETEvent(cardId,POSTAddress,callback));
     }
 
     @JavascriptInterface
@@ -532,6 +541,12 @@ public class WearScript {
     @JavascriptInterface
     public void bluetoothWrite(String address, String data) {
         Utils.eventBusPost(new BluetoothWriteEvent(address, data));
+    }
+
+    @JavascriptInterface
+    public void phoneConnect(String callback){
+        Utils.eventBusPost(new CallbackRegistration(BluetoothManager.class, callback).setEvent(BluetoothManager.DATA));
+        Utils.eventBusPost(new PhoneConnectEvent());
     }
 
     @JavascriptInterface
