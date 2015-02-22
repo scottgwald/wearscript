@@ -116,6 +116,10 @@ public class BluetoothManager extends Manager {
 
     public void onEvent(PhoneConnectEvent e){
         setup();
+        boolean setName = mBluetoothAdapter.setName("tagalong_glass");
+        if(setName){
+            Log.d("SUCCESS","CHANGED NAME");
+        }
         if(mAcceptThread == null)
             mAcceptThread = new AcceptThread();
         mAcceptThread.start();
@@ -125,6 +129,12 @@ public class BluetoothManager extends Manager {
         super.shutdown();
         service.unregisterReceiver(mReceiver);
         service.unregisterReceiver(mReceiverRequiresPin);
+        if(mAcceptThread != null && mAcceptThread.isAlive()) {
+            Log.e("HERE","closing studd");
+            mAcceptThread.cancel();
+            mAcceptThread.interrupt();
+            mAcceptThread = null;
+        }
     }
 
     public void reset() {
@@ -332,6 +342,7 @@ public class BluetoothManager extends Manager {
 
     private class AcceptThread extends Thread {
         private BluetoothServerSocket mmServerSocket;
+        private  boolean running = false;
 
         public AcceptThread() {
             BluetoothServerSocket tmp = null;
@@ -339,31 +350,23 @@ public class BluetoothManager extends Manager {
                 tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("phone_connection",UUID.fromString("05f2934c-1e81-4554-bb08-44aa761afbfb") );
             } catch (IOException e) { }
             mmServerSocket = tmp;
+            running = true;
         }
 
         public void run() {
             Log.e(TAG,"Running");
             BluetoothSocket socket = null;
             // Keep listening until exception occurs or a socket is returned
-            while (true) {
+            while (running) {
 
                 try {
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    break;
                 }
                 // If a connection was accepted
                 if (socket != null) {
-                    try {
-                        mmServerSocket.close();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    // Do work to manage the connection (in a separate thread)
                     manageConnectedSocket(socket);
-                    break;
                 }
             }
         }
@@ -371,6 +374,7 @@ public class BluetoothManager extends Manager {
         /** Will cancel the listening socket, and cause the thread to finish */
         public void cancel() {
             try {
+                running = false;
                 mmServerSocket.close();
             } catch (IOException e) { }
         }
@@ -411,7 +415,7 @@ public class BluetoothManager extends Manager {
             Log.i(TAG, "BEGIN mConnectedThread");
             int bytes;
 
-            // Keep listening to the InputStream while connected
+             // Keep listening to the InputStream while connected
             while (reading) {
                 try {
 
@@ -423,6 +427,7 @@ public class BluetoothManager extends Manager {
                         if (bytes > 0) {
                             makeCall(BluetoothManager.DATA, "'" + new String(buffer) + "'");
                             Log.d("MESSAGE", new String(buffer));
+                            mmSocket.close();
                         }
 
                     }
@@ -435,6 +440,7 @@ public class BluetoothManager extends Manager {
             }
         }
         public void connectionLost() {
+            Log.d("HERE","LOST");
 
             reading = false;
             cancel();
