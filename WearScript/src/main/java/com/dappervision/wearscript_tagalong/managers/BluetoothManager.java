@@ -116,10 +116,6 @@ public class BluetoothManager extends Manager {
 
     public void onEvent(PhoneConnectEvent e){
         setup();
-        boolean setName = mBluetoothAdapter.setName("tagalong_glass");
-        if(setName){
-            Log.d("SUCCESS","CHANGED NAME");
-        }
         if(mAcceptThread == null)
             mAcceptThread = new AcceptThread();
         mAcceptThread.start();
@@ -347,8 +343,12 @@ public class BluetoothManager extends Manager {
         public AcceptThread() {
             BluetoothServerSocket tmp = null;
             try {
-                tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("phone_connection",UUID.fromString("05f2934c-1e81-4554-bb08-44aa761afbfb") );
-            } catch (IOException e) { }
+                tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("phone_connection",UUID.fromString("07f2934c-1e81-4554-bb08-44aa761afbfb") );
+                Log.d("BTDEBUG","REGISTERED SERVICE");
+            } catch (IOException e) {
+                 e.printStackTrace();
+
+            }
             mmServerSocket = tmp;
             running = true;
         }

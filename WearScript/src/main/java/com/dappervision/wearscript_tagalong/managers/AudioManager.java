@@ -43,6 +43,7 @@ public class AudioManager extends Manager {
     public void onEvent(SaveAudioEvent event) {
 
         String DownloadUrl = event.getPath();
+        Log.d("FETCH",DownloadUrl);
         final String fileName = event.getFileName();
         File file = null;
 
@@ -92,6 +93,7 @@ public class AudioManager extends Manager {
         int id = -1;
 
         if (file != null){
+            Log.d("FETCH","loading: "+file.getAbsolutePath());
             id = mSoundPool.load(file.getAbsolutePath(),1);
         }
 
