@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelUuid;
+import android.telephony.TelephonyManager;
 import android.util.Base64;
 
 import com.dappervision.wearscript_tagalong.BackgroundService;
@@ -51,6 +52,7 @@ public class BluetoothManager extends Manager {
     public static final int STATE_CONNECTION_STARTED = 0;
     public static final int STATE_CONNECTION_LOST = 1;
     public static final int READY_TO_CONN = 2;
+    private Context context;
 
 
     // Create a BroadcastReceiver for ACTION_FOUND
@@ -112,6 +114,7 @@ public class BluetoothManager extends Manager {
         final String actionPinRequested = "android.bluetooth.device.action.PAIRING_REQUEST";
         IntentFilter intentFilterPinRequested = new IntentFilter(actionPinRequested);
         bs.registerReceiver(mReceiverRequiresPin, intentFilterPinRequested);
+        context = bs.getApplicationContext();
     }
 
     public void onEvent(PhoneConnectEvent e){
@@ -119,6 +122,10 @@ public class BluetoothManager extends Manager {
         if(mAcceptThread == null)
             mAcceptThread = new AcceptThread();
         mAcceptThread.start();
+
+
+
+
     }
 
     public void shutdown() {

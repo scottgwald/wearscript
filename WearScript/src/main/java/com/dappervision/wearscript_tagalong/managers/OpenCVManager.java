@@ -81,7 +81,7 @@ public class OpenCVManager extends Manager {
                 }
             };
             try {
-                OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, service, mLoaderCallback);
+                OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, service, mLoaderCallback); //TODO:get camera
             } catch (WindowManager.BadTokenException e) {
                 Log.w(TAG, "OpenCV apk not installed");
                 Utils.eventBusPost(new SayEvent("Please install open CV.  See wearscript.com for details"));

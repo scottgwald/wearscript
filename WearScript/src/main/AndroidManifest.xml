@@ -30,6 +30,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="com.google.android.glass.permission.DEVELOPMENT" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!--<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
 
     <uses-feature
@@ -88,6 +89,11 @@
             <meta-data
                 android:name="com.google.android.glass.VoiceTrigger"
                 android:resource="@xml/voice_trigger" />
+        </activity>
+
+        <activity
+            android:name="com.glass.cuxtomcam.CuxtomCamActivity"
+            android:immersive="true" >
         </activity>
         <activity
             android:name="com.dappervision.wearscript_tagalong.ui.MenuActivity"

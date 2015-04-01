@@ -9,10 +9,17 @@ public class POSTEvent {
     private final String address;
     private final String callback;
 
-    public POSTEvent(String filePath, String address, String callback){
+    public String getUuid() {
+        return uuid;
+    }
+
+    private final String uuid;
+
+    public POSTEvent(String filePath, String address, String callback, String uuid){
         this.path =filePath;
         this.address = address;
         this.callback = callback;
+        this.uuid = uuid;
     }
 
     public String getPath(){

@@ -1,10 +1,12 @@
 package com.dappervision.wearscript_tagalong.managers;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.os.Environment;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -16,10 +18,13 @@ import com.dappervision.wearscript_tagalong.Utils;
 import com.dappervision.wearscript_tagalong.events.ActivityResultEvent;
 import com.dappervision.wearscript_tagalong.events.CallbackRegistration;
 import com.dappervision.wearscript_tagalong.events.CameraEvents;
+import com.dappervision.wearscript_tagalong.events.CustomCameraEvent;
 import com.dappervision.wearscript_tagalong.events.OpenCVLoadEvent;
 import com.dappervision.wearscript_tagalong.events.OpenCVLoadedEvent;
 import com.dappervision.wearscript_tagalong.events.StartActivityEvent;
 import com.dappervision.wearscript_tagalong.events.TimeStampEvent;
+import com.glass.cuxtomcam.CuxtomCamActivity;
+import com.glass.cuxtomcam.constants.CuxtomIntent;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -46,9 +51,11 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
     public static final String PHOTO_PATH = "PHOTO_PATH";
     public static final String VIDEO = "VIDEO";
     public static final String VIDEO_PATH = "VIDEO_PATH";
+    public static final String CUSTOM = "CUSTOM";
     private static final boolean DBG = true;
     private static final String TAG = "CameraManager";
     private static final int MAGIC_TEXTURE_ID = 10;
+    private static final int CUXTOM_CAM_REQUEST = 2200;
     private Camera camera;
     private byte[] buffer;
     private SurfaceTexture surfaceTexture;
@@ -64,12 +71,16 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
     private boolean screenIsOn = true;
     private boolean activityVisible = true;
     private int mediaPauseCount = 0;
-
+    private Context context;
+    private long customTimestamp;
     public CameraManager(BackgroundService bs) {
         super(bs);
+        context = bs.getApplicationContext();
         reset();
     }
-
+    public void onEvent(TimeStampEvent ev){
+        customTimestamp = Long.parseLong(ev.getTimestamp());
+    }
     public boolean getScreenIsOn() {
         return screenIsOn;
     }
@@ -86,15 +97,21 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
             cameraPhoto();
         } else if (r.getEvent().equals(VIDEO) || r.getEvent().equals(VIDEO_PATH)) {
             cameraVideo();
+        } else if (r.getEvent().equals(CUSTOM)){
+            customPhoto();
         }
+    }
+
+    private void customPhoto(){
+        Utils.eventBusPost(new CustomCameraEvent());
     }
 
     public void onEventAsync(OpenCVLoadedEvent event) {
         // State: Called after OpenCV is loaded, note this may happen when another module requests it
         synchronized (this) {
             // BUG(brandyn): We should check the conditions again here
-            if (streamOn && camera == null)
-                setupCamera();
+//            if (streamOn && camera == null)
+//                setupCamera();
         }
     }
 
@@ -130,6 +147,12 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
         int requestCode = event.getRequestCode(), resultCode = event.getResultCode();
         Intent intent = event.getIntent();
         Log.d(TAG, "Got request code: " + requestCode);
+        if(requestCode == CUXTOM_CAM_REQUEST){
+            if (resultCode == Activity.RESULT_OK) {
+                final String pictureFilePath = intent.getStringExtra(CuxtomIntent.FILE_PATH);
+                photoCallback(pictureFilePath);
+            }
+        }
         if (requestCode == 1000) {
             if (resultCode == Activity.RESULT_OK) {
                 final String pictureFilePath = intent.getStringExtra(com.google.android.glass.media.CameraManager.EXTRA_PICTURE_FILE_PATH);
@@ -231,6 +254,16 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
         if (jsCallbacks.containsKey(PHOTO_PATH)) {
             makeCall(PHOTO_PATH, "'" + pictureFilePath + "'");
             jsCallbacks.remove(PHOTO_PATH);
+        }
+
+        if(jsCallbacks.containsKey(CUSTOM)){
+            byte imageData[] = Utils.LoadFile(new File(pictureFilePath));
+            if (imageData == null) {
+                Log.w(TAG, "No image after FileObserver saw write?");
+                return;
+            }
+            makeCall(CUSTOM, imageData,Long.toString(customTimestamp));
+            jsCallbacks.remove(CUSTOM);
         }
     }
 
@@ -466,6 +499,8 @@ public class CameraManager extends Manager implements Camera.PreviewCallback {
         }
         Utils.eventBusPost(new StartActivityEvent(new Intent(MediaStore.ACTION_VIDEO_CAPTURE), 1001));
     }
+
+
 
     public class CameraFrame {
         private MatOfByte jpgFrame;

@@ -135,9 +135,9 @@ public class WearScript {
     }
 
     @JavascriptInterface
-    public void postPictureToServer(String filePath, String POSTAddress, String callback){
+    public void postPictureToServer(String filePath, String POSTAddress, String callback, String uuid){
         Utils.eventBusPost(new CallbackRegistration(HTTPManager.class, callback).setEvent(HTTPManager.POST));
-        Utils.getEventBus().post(new POSTEvent(filePath,POSTAddress,callback));
+        Utils.getEventBus().post(new POSTEvent(filePath,POSTAddress,callback,uuid));
     }
 
     @JavascriptInterface
@@ -427,6 +427,13 @@ public class WearScript {
     public int echolen(String data) {
         Log.i(TAG, "echolen");
         return data.length();
+    }
+
+    @JavascriptInterface
+    public void customPhoto(String callback) {
+        CallbackRegistration cr = new CallbackRegistration(CameraManager.class, callback);
+        cr.setEvent(CameraManager.CUSTOM);
+        Utils.eventBusPost(cr);
     }
 
     @JavascriptInterface

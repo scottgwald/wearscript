@@ -44,9 +44,12 @@ public class HTTPManager extends Manager {
     public void onEvent(POSTEvent event) {
         String filePath = event.getPath();
         String address = event.getAddress();
+        String uuid = event.getUuid();
+        Log.d("AD",address);
         Ion.with(context).load(address)
                 .setBodyParameter("image", filePath)
                 .setBodyParameter("timestamp",latestPictureTimestamp)
+                .setBodyParameter("cardId",uuid)
                 .asString().setCallback(new FutureCallback<String>() {
             @Override
             public void onCompleted(Exception e, String result) {

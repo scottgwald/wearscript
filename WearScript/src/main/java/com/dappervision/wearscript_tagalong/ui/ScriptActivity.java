@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,10 +20,16 @@ import com.dappervision.wearscript_tagalong.BackgroundService;
 import com.dappervision.wearscript_tagalong.Log;
 import com.dappervision.wearscript_tagalong.Utils;
 import com.dappervision.wearscript_tagalong.events.ActivityResultEvent;
+import com.dappervision.wearscript_tagalong.events.CustomCameraEvent;
 import com.dappervision.wearscript_tagalong.events.MediaEvent;
 import com.dappervision.wearscript_tagalong.events.ScriptEvent;
 import com.dappervision.wearscript_tagalong.events.StartActivityEvent;
+import com.dappervision.wearscript_tagalong.events.TimeStampEvent;
 import com.dappervision.wearscript_tagalong.managers.CameraManager;
+import com.glass.cuxtomcam.CuxtomCamActivity;
+import com.glass.cuxtomcam.constants.CuxtomIntent;
+
+import java.io.File;
 
 public class ScriptActivity extends Activity {
     protected static final String TAG = "ScriptActivity";
@@ -169,6 +177,22 @@ public class ScriptActivity extends Activity {
 
     public void onEventBackgroundThread(StartActivityEvent event) {
         startActivityForResult(event.getIntent(), event.getRequestCode());
+    }
+
+    public void onEventMainThread(CustomCameraEvent e) {
+
+        Log.d(TAG, "Taking photo with cuxtom");
+        Long customTimestamp =System.currentTimeMillis();
+        Utils.eventBusPost(new TimeStampEvent(Long.toString(customTimestamp)));
+
+        String folder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/wearscript/data/";
+        Intent intent = new Intent(getApplicationContext(),CuxtomCamActivity.class);
+        intent.putExtra(CuxtomIntent.CAMERA_MODE, 1);
+        intent.putExtra(CuxtomIntent.ENABLE_ZOOM, true);   // Enable zoom Gesture
+        intent.putExtra(CuxtomIntent.FILE_NAME, Long.toString(customTimestamp)); // No need for extensions
+        intent.putExtra(CuxtomIntent.FOLDER_PATH, folder); // Set folder to save image and video
+        Utils.eventBusPost(new StartActivityEvent(intent,2200));
+
     }
 
     public void onEventMainThread(MediaEvent e){

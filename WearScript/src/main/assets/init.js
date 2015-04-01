@@ -987,13 +987,17 @@ function WearScript() {
         callback = this._funcfix(callback);
         WSRAW.phoneConnect(this._funcwrap(callback));
     }
-    this.postPictureToServer = function(path,address,callback) {
+    this.postPictureToServer = function(path,address,callback,uuid) {
         callback = this._funcfix(callback);
-        WSRAW.postPictureToServer(path,address,this._funcwrap(callback));
+        WSRAW.postPictureToServer(path,address,this._funcwrap(callback),uuid);
     }
     this.getCardFromServer = function(cardId,address,callback){
         callback = this._funcfix(callback);
         WSRAW.getCardFromServer(cardId,address,this._funcwrap(callback));
+    }
+    this.customPhoto = function(callback){
+       callback = this._funcfix(callback);
+       WSRAW.customPhoto(this._funcwrap(callback));
     }
     this.serverConnect = function (server, callback) {
         callback = this._funcfix(callback);
